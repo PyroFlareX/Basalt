@@ -128,6 +128,17 @@
       <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>C:\VulkanSDK\1.1.97.0\Include;B:\ProgrammingProj\Library\glfw-3.3.2.bin.WIN64\include;B:\ProgrammingProj\Library\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp17</LanguageStandard>
+      <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>C:\VulkanSDK\1.1.97.0\Lib;B:\ProgrammingProj\Library\glfw-3.3.2.bin.WIN64\lib-vc2017;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>vulkan-1.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="Engine\JobSystem\JobSystem.cpp" />
     <ClCompile Include="engine\registries\ResourceManager.cpp" />

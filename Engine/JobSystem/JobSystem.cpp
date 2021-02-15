@@ -35,8 +35,8 @@ void JobSystem::wait(unsigned int counterTarget, bool stayOnThread)
 		return;
 	}
 	*/
-	unsigned int c = m_counter.load();
-	while (counterTarget > c)
+
+	while (counterTarget > m_counter.load())
 	{
 
 	}
@@ -60,6 +60,7 @@ int JobSystem::getThreadIndex()
 
 JobSystem::~JobSystem()
 {
+	running.store(false);
 	for (auto& t : threads)
 	{
 		t.join();

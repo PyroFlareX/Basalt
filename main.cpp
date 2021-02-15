@@ -8,13 +8,13 @@
 #include "Engine/Engine.h"
 
 
-JobSystem jobSystem;
+//JobSystem jobSystem;
 
 void print(Job job)
 {
 	for (int i = 0; i < 100; ++i)
 	{
-		std::cout << i << std::endl;
+		//std::cout << i << std::endl;
 	}
 	std::cout << "Job done\n";
 	return;
@@ -23,13 +23,13 @@ void print(Job job)
 
 int main() {
 
-	Job j = jobSystem.createJob(&print);
+	/*Job j = jobSystem.createJob(&print);
 
 	for(int i = 0; i < 10; ++i)
 	{
 		jobSystem.schedule(j);
 	}
-	jobSystem.wait();
+	jobSystem.wait();*/
 
 	Application app;
 
