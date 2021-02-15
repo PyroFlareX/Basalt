@@ -10,9 +10,9 @@
 
 JobSystem jobSystem;
 
-void print()
+void print(Job job)
 {
-	for (int i = 0; i < 10000; ++i)
+	for (int i = 0; i < 100; ++i)
 	{
 		std::cout << i << std::endl;
 	}
@@ -23,7 +23,7 @@ void print()
 
 int main() {
 
-	Job<> j = jobSystem.createJob(&print);
+	Job j = jobSystem.createJob(&print);
 
 	for(int i = 0; i < 10; ++i)
 	{

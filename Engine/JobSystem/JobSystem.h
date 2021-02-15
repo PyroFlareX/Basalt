@@ -16,14 +16,14 @@ constexpr unsigned int HIGH_PRIORITY_SIZE = 256;
 constexpr unsigned int NORMAL_PRIORITY_SIZE = 256;
 constexpr unsigned int LOW_PRIORITY_SIZE = 256;
 
-template<typename... Ts>
-using JobFn = void(*)(Ts &&...);
+struct Job;
 
-template<typename... Ts>
+using JobFn = void(*)(Job);
+
 struct Job
 {
-	JobFn<Ts...> job_Function;
-	Ts data[MAX_ARGS];
+	JobFn job_Function;
+	void* data;
 	Counter* counter;
 };
 
@@ -34,12 +34,10 @@ public:
 	JobSystem();
 
 	//Returns a Job from a function pointer and parameters, does not add the job to the list
-	template<typename... Ts>
-	static Job<Ts...> createJob(JobFn<Ts...> job, void* data = nullptr);
+	static Job createJob(JobFn job, void* data = nullptr);
 
 	//Schedules a job
-	template<typename... Ts>
-	void schedule(Job<Ts...> job);
+	void schedule(Job job);
 
 	//Blocks execution until the job counter reaches the target
 	void wait(unsigned int counterTarget = 0, bool stayOnThread = false);
@@ -47,13 +45,13 @@ public:
 	// Returns Index of thread the function is running in, where the index is from the threads vector
 	int getThreadIndex();
 
-	//~JobSystem();
+	~JobSystem();
 private:
 	std::vector<std::thread> threads;
 	//std::vector<Fiber> fibers;
 
 
-	rigtorp::MPMCQueue<Job<>> normalPriority;
+	rigtorp::MPMCQueue<Job> normalPriority;
 
 
 	void threadLoop();

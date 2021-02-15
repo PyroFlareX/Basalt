@@ -16,14 +16,12 @@ JobSystem::JobSystem()	:	normalPriority(NORMAL_PRIORITY_SIZE)
 	threads.shrink_to_fit();
 }
 
-template<typename ...Ts>
-Job<Ts...> JobSystem::createJob(JobFn<Ts...> job, void* data)
+Job JobSystem::createJob(JobFn job, void* data)
 {
 	return Job{ job, data, nullptr };
 }
 
-template<typename... Ts>
-void JobSystem::schedule(Job<Ts...> job)
+void JobSystem::schedule(Job job)
 {
 	m_counter++;
 	normalPriority.emplace(job);
@@ -60,6 +58,14 @@ int JobSystem::getThreadIndex()
 	return -1;
 }
 
+JobSystem::~JobSystem()
+{
+	for (auto& t : threads)
+	{
+		t.join();
+	}
+}
+
 void JobSystem::threadLoop()
 {
 	Job job;
@@ -68,7 +74,7 @@ void JobSystem::threadLoop()
 		if (normalPriority.try_pop(job))
 		{
 			m_counter--;
-			job.job_Function();
+			job.job_Function(job);
 		}
 	}
 }
