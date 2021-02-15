@@ -10,11 +10,26 @@
 
 JobSystem jobSystem;
 
+void print()
+{
+	for (int i = 0; i < 10000; ++i)
+	{
+		std::cout << i << std::endl;
+	}
+	std::cout << "Job done\n";
+	return;
+}
+
+
 int main() {
 
+	Job<> j = jobSystem.createJob(&print);
 
-	
-
+	for(int i = 0; i < 10; ++i)
+	{
+		jobSystem.schedule(j);
+	}
+	jobSystem.wait();
 
 	Application app;
 

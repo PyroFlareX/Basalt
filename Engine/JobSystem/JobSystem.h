@@ -23,7 +23,7 @@ template<typename... Ts>
 struct Job
 {
 	JobFn<Ts...> job_Function;
-	void* data;
+	Ts data[MAX_ARGS];
 	Counter* counter;
 };
 
@@ -50,7 +50,7 @@ public:
 	//~JobSystem();
 private:
 	std::vector<std::thread> threads;
-	std::vector<Fiber> fibers;
+	//std::vector<Fiber> fibers;
 
 
 	rigtorp::MPMCQueue<Job<>> normalPriority;
