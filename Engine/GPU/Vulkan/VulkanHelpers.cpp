@@ -392,12 +392,13 @@ namespace vn::vk
 
 
 
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface) {
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface)
+	{
 		QueueFamilyIndices indices;
-
+		//Get Count
 		uint32_t queueFamilyCount = 0;
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
-
+		//Get the data
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
@@ -418,6 +419,28 @@ namespace vn::vk
 				break;
 			}
 
+			i++;
+		}
+
+		return indices;
+	}
+	QueueFamilyIndices findQueueFamiliesNoSurface(VkPhysicalDevice device)
+	{
+		QueueFamilyIndices indices;
+		//Get Count
+		uint32_t queueFamilyCount = 0;
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
+		//Get the data
+		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
+
+		int i = 0;
+		for (const auto& queueFamily : queueFamilies) {
+			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+				indices.graphicsFamily = i;
+				return indices;
+			}
+			
 			i++;
 		}
 

@@ -16,10 +16,12 @@ Context::Context()
 
 void Context::clear()
 {
+
 }
 
 void Context::update()
 {
+	
 }
 
 void Context::close()
@@ -28,6 +30,7 @@ void Context::close()
 
 void Context::initAPI()
 {
+	vn::vk::createInstance(m_instance, "Basalt");
 	
 }
 
@@ -39,4 +42,9 @@ bool Context::isOpen()
 GLFWwindow* Context::getContext()
 {
 	return m_window;
+}
+
+Context::~Context()
+{
+	vkDestroyInstance(m_instance, nullptr);
 }

@@ -40,8 +40,9 @@ struct SwapChainDetails
 
 namespace vn::vk
 {
+	//Creates an instance of Vulkan
 	void createInstance(VkInstance& instance, std::string name);
-
+	//Creates a renderable surface for Vulkan
 	void createSurface(VkInstance& instance, GLFWwindow* window, VkSurfaceKHR& surface);
 
 	void pickPhysicalDevice(VkInstance& instance, VkPhysicalDevice& physicalDevice, VkSurfaceKHR surface);
@@ -103,11 +104,20 @@ namespace vn::vk
 		}
 	}
 
+
+	//Dont use
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+	//Dont use
+	QueueFamilyIndices findQueueFamiliesNoSurface(VkPhysicalDevice device);
+	//Dont use
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
+	//Dont use
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+	//Dont use
 	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+	//Dont use
 	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
+	//Dont use
 	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice device);
 	
 	// Screw it just gonna pass in the surface although it should technically not be necessary, but whatever
@@ -115,8 +125,12 @@ namespace vn::vk
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 	std::vector<const char*> getRequiredExtensions();
 
+
+	// TODO IDK HOW TO WITHOUT GLOBALS
 	void cleanup();
 
+
+	// ALSO THIS TODO
 	void cleanupSwapChain();
 
 	

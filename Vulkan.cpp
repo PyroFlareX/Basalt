@@ -529,7 +529,7 @@ void Application::createCommandBuffers() {
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		renderPassInfo.renderArea.extent = swapChainExtent;
 
-		VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
+		VkClearValue clearColor = { 0.06f, 0.4f, 0.7f, 1.0f };
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 
@@ -541,9 +541,7 @@ void Application::createCommandBuffers() {
 
 		vkCmdEndRenderPass(commandBuffers[i]);
 
-		if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
-			throw std::runtime_error("failed to record command buffer!");
-		}
+		vkEndCommandBuffer(commandBuffers[i]);
 	}
 }
 
