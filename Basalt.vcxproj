@@ -140,6 +140,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Engine\GPU\Context.cpp" />
+    <ClCompile Include="Engine\GPU\Vulkan\VulkanHelpers.cpp" />
     <ClCompile Include="Engine\JobSystem\JobSystem.cpp" />
     <ClCompile Include="engine\registries\ResourceManager.cpp" />
     <ClCompile Include="engine\registries\TextureManager.cpp" />
@@ -153,6 +155,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Engine.h" />
+    <ClInclude Include="Engine\GPU\Context.h" />
+    <ClInclude Include="Engine\GPU\Vulkan\VulkanHelpers.h" />
     <ClInclude Include="Engine\JobSystem\Fiber.h" />
     <ClInclude Include="Engine\JobSystem\JobSystem.h" />
     <ClInclude Include="engine\registries\ResourceManager.h" />

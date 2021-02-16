@@ -98,7 +98,6 @@ public:
 	std::vector<const char*> getRequiredExtensions();
 	bool checkValidationLayerSupport();
 
-	
 
 	bool framebufferResized = false;
 private:
