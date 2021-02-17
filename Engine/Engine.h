@@ -6,6 +6,7 @@
 #include "Util/Loaders.h"
 
 #include "JobSystem/JobSystem.h"
+#include "GPU/Context.h"
 
 namespace vn
 {

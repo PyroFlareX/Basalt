@@ -13,7 +13,10 @@
 #include <set>
 #include <optional>
 
-
+namespace vn
+{
+	class Device;
+}
 struct QueueFamilyIndices {
 	std::optional<uint32_t> graphicsFamily;
 	std::optional<uint32_t> presentFamily;
@@ -40,15 +43,20 @@ struct SwapChainDetails
 
 namespace vn::vk
 {
+	//GLOBALS
+	extern VkInstance m_instance;
+	extern VkSurfaceKHR m_surface;
+
+
 	//Creates an instance of Vulkan
-	void createInstance(VkInstance& instance, std::string name);
+	void createInstance(std::string name);
 	//Creates a renderable surface for Vulkan
-	void createSurface(VkInstance& instance, GLFWwindow* window, VkSurfaceKHR& surface);
+	void createSurface(GLFWwindow* window);
 
-	void pickPhysicalDevice(VkInstance& instance, VkPhysicalDevice& physicalDevice, VkSurfaceKHR surface);
-	void createLogicalDevice(VkDevice& device, VkPhysicalDevice& physicalDevice, VkSurfaceKHR& surface, VkQueue& graphicsQueue, VkQueue& presentQueue);
+	void pickPhysicalDevice(VkPhysicalDevice& physicalDevice);
+	void createLogicalDevice(VkDevice& device, VkPhysicalDevice& physicalDevice, VkQueue& graphicsQueue, VkQueue& presentQueue);
 
-	void createSwapChain(VkSwapchainKHR& swapchain, VkSurfaceKHR surface, VkPhysicalDevice& physicalDevice, VkDevice& device, SwapChainDetails& swapdetails, GLFWwindow* window);
+	void createSwapChain(VkSwapchainKHR& swapchain, vn::Device& device, SwapChainDetails& swapdetails, GLFWwindow* window);
 	void createImageViews(SwapChainDetails& swapdetails, VkDevice device);
 	void recreateSwapChain(GLFWwindow* window, VkDevice device);
 
@@ -56,61 +64,14 @@ namespace vn::vk
 	void createGraphicsPipeline(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device);
 
 	void createFramebuffers(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkDevice device);
-	void createCommandPool(VkDevice device, VkPhysicalDevice physicalDevice, VkSurfaceKHR surface, VkCommandPool& commandPool);
-	void createCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers)
-	{
-		commandBuffers.resize(swapdetails.swapChainFramebuffers.size());
-
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.commandPool = commandPool;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
-
-		if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
-			throw std::runtime_error("failed to allocate command buffers!");
-		}
-
-		for (size_t i = 0; i < commandBuffers.size(); i++) {
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
-				throw std::runtime_error("failed to begin recording command buffer!");
-			}
-
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = renderPass;
-			renderPassInfo.framebuffer = swapdetails.swapChainFramebuffers[i];
-			renderPassInfo.renderArea.offset = { 0, 0 };
-			renderPassInfo.renderArea.extent = swapdetails.swapChainExtent;
-
-			VkClearValue clearColor = { 0.0f, 0.0f, 0.0f, 1.0f };
-			renderPassInfo.clearValueCount = 1;
-			renderPassInfo.pClearValues = &clearColor;
-
-			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
-
-			vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
-
-			vkCmdEndRenderPass(commandBuffers[i]);
-
-			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to record command buffer!");
-			}
-		}
-	}
+	void createCommandPool(vn::Device& device, VkCommandPool& commandPool);
+	void createCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers);
 
 
 	//Dont use
-	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device, VkSurfaceKHR surface);
+	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 	//Dont use
-	QueueFamilyIndices findQueueFamiliesNoSurface(VkPhysicalDevice device);
-	//Dont use
-	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device, VkSurfaceKHR surface);
+	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 	//Dont use
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 	//Dont use
@@ -120,8 +81,7 @@ namespace vn::vk
 	//Dont use
 	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice device);
 	
-	// Screw it just gonna pass in the surface although it should technically not be necessary, but whatever
-	bool isDeviceSuitable(VkPhysicalDevice device, VkSurfaceKHR surface);
+	bool isDeviceSuitable(VkPhysicalDevice device);
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 	std::vector<const char*> getRequiredExtensions();
 

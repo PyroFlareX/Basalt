@@ -1,4 +1,4 @@
-#include "Vulkan.h"
+//#include "Vulkan.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -31,7 +31,24 @@ int main() {
 	}
 	jobSystem.wait();*/
 
-	Application app;
+	vn::Context context;
+	vn::Device device;
+
+	context.setDeviceptr(&device);
+	context.initAPI();
+	
+	while (context.isOpen())
+	{
+		context.clear();
+
+
+
+
+		context.update();
+
+	}
+
+	/*Application app;
 
 	try {
 		app.run();
@@ -40,7 +57,7 @@ int main() {
 		std::cerr << e.what() << std::endl;
 		system("pause");
 		return EXIT_FAILURE;
-	}
+	}*/
 
 	return EXIT_SUCCESS;
 }
