@@ -10,6 +10,8 @@ namespace vn
 	public:
 		Device();
 
+		void init();
+
 		QueueFamilyIndices getQueueFamilies();
 		SwapChainSupportDetails getSwapchainDetails();
 		VkDevice& getDevice();

@@ -9,7 +9,7 @@ namespace vn
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-		m_window = glfwCreateWindow(WIDTH, HEIGHT, "Basalt", nullptr, nullptr);
+		m_window = glfwCreateWindow(WIDTHA, HEIGHTA, "Basalt", nullptr, nullptr);
 		glfwSetWindowUserPointer(m_window, this);
 	}
 
@@ -37,7 +37,7 @@ namespace vn
 
 		presentInfo.pImageIndices = &imageIndex;
 
-		VkResult result = vkQueuePresentKHR(m_Device.getPresentQueue(), &presentInfo);
+		result = vkQueuePresentKHR(m_Device.getPresentQueue(), &presentInfo);
 
 		/*if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || framebufferResized) {
 			framebufferResized = false;
@@ -56,14 +56,19 @@ namespace vn
 	{
 		vn::vk::createInstance("Basalt");
 		vn::vk::createSurface(m_window);
+		m_Device.init();
 		vn::vk::createSwapChain(m_swapchain, m_Device, m_scdetails, m_window);
-
+		vn::vk::createImageViews(m_scdetails, m_Device.getDevice());
 
 	}
 
 	bool Context::isOpen()
 	{
-		return false;
+		if (glfwWindowShouldClose(m_window))
+		{
+			return false;
+		}
+		return true;
 	}
 
 	GLFWwindow* Context::getContext()
@@ -79,5 +84,6 @@ namespace vn
 	Context::~Context()
 	{
 		vkDestroyInstance(vn::vk::m_instance, nullptr);
+		glfwDestroyWindow(m_window);
 	}
 }

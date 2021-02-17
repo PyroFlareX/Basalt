@@ -51,6 +51,9 @@
     <ClCompile Include="Engine\GPU\Vulkan\VulkanHelpers.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Engine\GPU\Vulkan\Device.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Vulkan.h">
@@ -95,5 +98,11 @@
     <ClInclude Include="Engine\GPU\Vulkan\VulkanHelpers.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Engine\GPU\Vulkan\Device.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ClassDiagram.cd" />
   </ItemGroup>
 </Project>
