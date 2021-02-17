@@ -204,10 +204,10 @@ namespace vn::vk
 		createCommandBuffers();*/
 	}
 
-	void createRenderPass(VkDevice device, SwapChainDetails& swapdetails, VkRenderPass& renderPass)
+	void createRenderPass(VkDevice device, SwapChainDetails& Swapdetails, VkRenderPass& renderPass)
 	{
 		VkAttachmentDescription colorAttachment{};
-		colorAttachment.format = swapdetails.swapChainImageFormat;
+		colorAttachment.format = Swapdetails.swapChainImageFormat;
 		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
