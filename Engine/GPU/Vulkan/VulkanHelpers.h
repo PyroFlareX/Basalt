@@ -46,7 +46,8 @@ namespace vn::vk
 	//GLOBALS
 	extern VkInstance m_instance;
 	extern VkSurfaceKHR m_surface;
-
+	extern bool validationlayers;
+	extern VkDebugUtilsMessengerEXT debugMessenger;
 
 	//Creates an instance of Vulkan
 	void createInstance(std::string name);
@@ -60,7 +61,7 @@ namespace vn::vk
 	void createImageViews(SwapChainDetails& swapdetails, VkDevice device);
 	void recreateSwapChain(GLFWwindow* window, VkDevice device);
 
-	void createRenderPass(VkDevice device, SwapChainDetails& Swapdetails, VkRenderPass& renderPass);
+	void createRenderPass(VkDevice& device, SwapChainDetails& Swapdetails, VkRenderPass& renderPass);
 	void createGraphicsPipeline(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device);
 
 	void createFramebuffers(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkDevice device);
@@ -84,6 +85,15 @@ namespace vn::vk
 	bool isDeviceSuitable(VkPhysicalDevice device);
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 	std::vector<const char*> getRequiredExtensions();
+
+	//VALIDATION LAYER STUFF
+	VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+
+	void setupDebugMessenger();
+	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+	bool checkValidationLayerSupport();
+	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT * pDebugMessenger);
+	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
 
 
 	// TODO IDK HOW TO WITHOUT GLOBALS

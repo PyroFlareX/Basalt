@@ -5,10 +5,10 @@
 #include <functional>
 #include <cstdlib>
 
-#include "Engine/Engine.h"
+#include "../Engine/Engine.h"
 
 
-JobSystem jobSystem;
+//JobSystem jobSystem;
 
 void print(Job job)
 {
@@ -43,7 +43,15 @@ int main() {
 	/// TODO: Create 2nd half of the Vulkan wrapper, like Renderpasses, Pipelines,
 	
 	VkRenderPass rpass;
-	vn::vk::createRenderPass(device.getDevice(), context.m_scdetails, rpass);
+	try {
+		vn::vk::createRenderPass(device.getDevice(), context.m_scdetails, rpass);
+	}
+	catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		//system("pause");
+		return EXIT_FAILURE;
+	}
+	
 
 	VkPipelineLayout playout;
 	VkPipeline gfx;
