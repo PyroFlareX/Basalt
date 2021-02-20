@@ -142,6 +142,7 @@
   <ItemGroup>
     <ClCompile Include="Engine\GPU\Context.cpp" />
     <ClCompile Include="Engine\GPU\Vulkan\Device.cpp" />
+    <ClCompile Include="Engine\GPU\Vulkan\Framebuffer.cpp" />
     <ClCompile Include="Engine\GPU\Vulkan\VulkanHelpers.cpp" />
     <ClCompile Include="Engine\JobSystem\JobSystem.cpp" />
     <ClCompile Include="engine\registries\ResourceManager.cpp" />
@@ -151,13 +152,14 @@
     <ClCompile Include="engine\types\Types.cpp" />
     <ClCompile Include="Engine\Util\Loaders.cpp" />
     <ClCompile Include="engine\util\UtilFunctions.cpp" />
-    <ClCompile Include="main.cpp" />
-    <ClCompile Include="Vulkan.cpp" />
+    <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\Vulkan.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="engine\Engine.h" />
     <ClInclude Include="Engine\GPU\Context.h" />
     <ClInclude Include="Engine\GPU\Vulkan\Device.h" />
+    <ClInclude Include="Engine\GPU\Vulkan\Framebuffer.h" />
     <ClInclude Include="Engine\GPU\Vulkan\VulkanHelpers.h" />
     <ClInclude Include="Engine\JobSystem\Fiber.h" />
     <ClInclude Include="Engine\JobSystem\JobSystem.h" />
@@ -169,10 +171,7 @@
     <ClInclude Include="engine\types\Types.h" />
     <ClInclude Include="engine\util\Loaders.h" />
     <ClInclude Include="engine\util\UtilFunctions.h" />
-    <ClInclude Include="Vulkan.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
+    <ClInclude Include="src\Vulkan.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

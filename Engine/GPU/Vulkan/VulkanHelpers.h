@@ -49,6 +49,13 @@ namespace vn::vk
 	extern bool validationlayers;
 	extern VkDebugUtilsMessengerEXT debugMessenger;
 
+	//GLOBALS FOR SYNCRONIZATION
+	extern std::vector<VkSemaphore> imageAvailableSemaphores;
+	extern std::vector<VkSemaphore> renderFinishedSemaphores;
+	extern std::vector<VkFence> inFlightFences;
+	extern std::vector<VkFence> imagesInFlight;
+	
+
 	//Creates an instance of Vulkan
 	void createInstance(std::string name);
 	//Creates a renderable surface for Vulkan
@@ -68,6 +75,7 @@ namespace vn::vk
 	void createCommandPool(vn::Device& device, VkCommandPool& commandPool);
 	void createCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers);
 
+	void createSecondaryCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers);
 
 	//Dont use
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);

@@ -43,15 +43,7 @@ int main() {
 	/// TODO: Create 2nd half of the Vulkan wrapper, like Renderpasses, Pipelines,
 	
 	VkRenderPass rpass;
-	try {
-		vn::vk::createRenderPass(device.getDevice(), context.m_scdetails, rpass);
-	}
-	catch (const std::exception& e) {
-		std::cerr << e.what() << std::endl;
-		//system("pause");
-		return EXIT_FAILURE;
-	}
-	
+	vn::vk::createRenderPass(device.getDevice(), context.m_scdetails, rpass);
 
 	VkPipelineLayout playout;
 	VkPipeline gfx;
@@ -63,18 +55,27 @@ int main() {
 	vn::vk::createCommandPool(device, cpool);
 
 	std::vector<VkCommandBuffer> cbuf;
+	vn::vk::createSecondaryCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, cbuf);
+
+	VkCommandBuffer primary;
+	cbuf.emplace_back(primary);
+
 	vn::vk::createCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, cbuf);
+
+	std::cout << "Starting\n";
+	std::cout << cbuf.size() << std::endl;
 
 	while (context.isOpen())
 	{
 		context.clear();
 
-		//device.submitWork(cbuf[0]);
+		device.submitWork(cbuf[cbuf.size() - 1]);
 
 
 		context.update();
 
 	}
+	system("pause");
 	/*
 	Application app;
 
@@ -85,7 +86,7 @@ int main() {
 		std::cerr << e.what() << std::endl;
 		system("pause");
 		return EXIT_FAILURE;
-	}*/
+	}
 
-	return EXIT_SUCCESS;
+	return EXIT_SUCCESS;*/
 }
