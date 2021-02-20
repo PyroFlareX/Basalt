@@ -2,6 +2,7 @@
 
 #include "../../Util/Loaders.h"
 #include "Device.h"
+#include "Framebuffer.h"
 
 namespace vn::vk
 {
@@ -513,6 +514,11 @@ namespace vn::vk
 				throw std::runtime_error("failed to record command buffer!");
 			}
 		}
+	}
+
+	void createCommandLists(VkDevice device, VkCommandPool& commandPool, RenderTargetFramebuffer& framebuffer, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers)
+	{
+
 	}
 
 

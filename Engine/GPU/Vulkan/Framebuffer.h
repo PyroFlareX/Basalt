@@ -4,11 +4,13 @@
 
 namespace vn::vk
 {
-	class RenderTargerFramebuffer
+	class RenderTargetFramebuffer
 	{
 	public:
-		RenderTargerFramebuffer(vn::Device device, vn::vec2 extent);
+		RenderTargetFramebuffer(vn::Device device, VkRenderPass& renderPass, vn::vec2 extent);
 
+
+		~RenderTargetFramebuffer();
 	private:
 		VkFramebuffer handle;
 		VkImage img;

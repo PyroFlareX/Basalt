@@ -32,8 +32,6 @@ void start(Job job)
 	std::cout << "Job MAIN STARTING OWO XDDDDD\n";
 	Application app;
 
-	app.setModeVR(false);
-
 	try {
 		app.RunLoop();
 	}

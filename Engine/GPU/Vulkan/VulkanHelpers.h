@@ -55,6 +55,7 @@ namespace vn::vk
 	extern std::vector<VkFence> inFlightFences;
 	extern std::vector<VkFence> imagesInFlight;
 	
+	class RenderTargetFramebuffer;
 
 	//Creates an instance of Vulkan
 	void createInstance(std::string name);
@@ -76,6 +77,9 @@ namespace vn::vk
 	void createCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers);
 
 	void createSecondaryCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers);
+
+	void createCommandLists(VkDevice device, VkCommandPool& commandPool, RenderTargetFramebuffer& framebuffer, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers);
+	
 
 	//Dont use
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);

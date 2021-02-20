@@ -31,7 +31,7 @@ void Application::RunLoop()
 	m_context.clear();
 	m_context.update();
 
-	vn::vec2 winSize = vn::vec2(1280.0f, 720.0f);
+	vn::vec2 winSize = vn::vec2(800.0f, 600.0f);
 	
 	
 //===================================================================================
@@ -56,7 +56,12 @@ void Application::RunLoop()
 	std::vector<VkCommandBuffer> primary;
 	vn::vk::createCommandBuffers(m_device.getDevice(), cpool, m_context.m_scdetails, gfx, rpass, primary, secondary);
 
+	//vn::vk::RenderTargetFramebuffer framebuffer(m_device, rpass, winSize);
 
+	Job j = jobSystem.createJob([](Job job)
+		{
+			
+		});
 
 //===================================================================================
 

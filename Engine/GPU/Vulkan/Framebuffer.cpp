@@ -4,7 +4,7 @@
 
 namespace vn::vk
 {
-	RenderTargerFramebuffer::RenderTargerFramebuffer(vn::Device device, vn::vec2 extent)
+	RenderTargetFramebuffer::RenderTargetFramebuffer(vn::Device device, VkRenderPass& renderPass, vn::vec2 extent)
 	{
 		m_size = extent;
 
@@ -54,7 +54,7 @@ namespace vn::vk
 
 		VkFramebufferCreateInfo framebufferInfo{};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-		//framebufferInfo.renderPass = renderPass;
+		framebufferInfo.renderPass = renderPass;
 		framebufferInfo.attachmentCount = 1;
 		framebufferInfo.pAttachments = attachments;
 		framebufferInfo.width = extent.x;
@@ -64,5 +64,10 @@ namespace vn::vk
 		if (vkCreateFramebuffer(device.getDevice(), &framebufferInfo, nullptr, &handle) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create framebuffer!");
 		}
+	}
+
+	RenderTargetFramebuffer::~RenderTargetFramebuffer()
+	{
+		
 	}
 }
