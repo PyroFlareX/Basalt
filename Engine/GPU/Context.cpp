@@ -16,25 +16,20 @@ namespace vn
 
 	void Context::clear()
 	{
-//		if(!started)
-//		{
-			VkResult result = vkAcquireNextImageKHR(m_Device->getDevice(), m_swapchain, UINT64_MAX, vn::vk::imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
-//			started = !started;
-//		}
+		// Acquire the INDEX into the swapchain for the next image
+		VkResult result = vkAcquireNextImageKHR(m_Device->getDevice(), m_swapchain, UINT64_MAX, vn::vk::imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 	}
 
 	void Context::update()
 	{
 		glfwPollEvents();
 
-		//static uint32_t imageIndex;
 		VkResult result;
-
-		
 
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
+		// Waits to present until the "render finished" semaphore (signal) is "signaled" (when the render is done, the semaphore is triggered by)
 		VkSemaphore signalSemaphores[] = { vn::vk::renderFinishedSemaphores[currentFrame] };
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = signalSemaphores;
@@ -45,10 +40,10 @@ namespace vn
 
 		presentInfo.pImageIndices = &imageIndex;
 
-		std::cout << "IMAGE INDEX: " << imageIndex << "\n";
-
+		// Submit Image that just finished rendering to the presentation surface
 		result = vkQueuePresentKHR(m_Device->getPresentQueue(), &presentInfo);
 
+		// Increase Frame Index
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHTA;
 	}
 

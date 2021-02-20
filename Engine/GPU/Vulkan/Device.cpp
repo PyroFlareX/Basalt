@@ -63,7 +63,7 @@ namespace vn
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 
-		
+		// goes from 0 to the buffer count for the swapchain buffers
 		i = (i + 1) % MAX_FRAMES_IN_FLIGHTA;
 	}
 	VkQueue Device::getPresentQueue()

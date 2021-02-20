@@ -29,13 +29,6 @@ void JobSystem::schedule(Job job)
 
 void JobSystem::wait(unsigned int counterTarget, bool stayOnThread)
 {
-	/*
-	if (counterTarget <= m_counter.load)
-	{
-		return;
-	}
-	*/
-
 	while (counterTarget > m_counter.load())
 	{
 
@@ -70,12 +63,18 @@ JobSystem::~JobSystem()
 void JobSystem::threadLoop()
 {
 	Job job;
+	using namespace std::chrono_literals;
+	auto d = 25ms;
 	while (running)
 	{
 		if (normalPriority.try_pop(job))
 		{
 			m_counter--;
 			job.job_Function(job);
+		}
+		else
+		{
+			std::this_thread::sleep_for(d);
 		}
 	}
 }

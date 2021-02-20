@@ -70,6 +70,10 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <CodeAnalysisRuleSet>NativeRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
@@ -133,6 +137,7 @@
       <AdditionalIncludeDirectories>C:\VulkanSDK\1.1.97.0\Include;B:\ProgrammingProj\Library\glfw-3.3.2.bin.WIN64\include;B:\ProgrammingProj\Library\glm;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>C:\VulkanSDK\1.1.97.0\Lib;B:\ProgrammingProj\Library\glfw-3.3.2.bin.WIN64\lib-vc2017;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>

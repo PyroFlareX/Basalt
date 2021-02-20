@@ -8,7 +8,13 @@
 #include "../Engine/Engine.h"
 
 
-//JobSystem jobSystem;
+JobSystem jobSystem;
+
+struct Frame
+{
+	float dt = 0;
+
+};
 
 void print(Job job)
 {
@@ -20,16 +26,17 @@ void print(Job job)
 	return;
 }
 
+void doFrame(Job job);
 
 int main() {
 
-	/*Job j = jobSystem.createJob(&print);
+	Job j = jobSystem.createJob(&print);
 
 	for(int i = 0; i < 20; ++i)
 	{
 		jobSystem.schedule(j);
 	}
-	jobSystem.wait();*/
+	jobSystem.wait();
 	
 	// Windowing Context
 	vn::Context context;
@@ -73,7 +80,7 @@ int main() {
 		// Create Command Buffers (and then combine them into Primary Cmd Buffers)
 		vn::vk::createSecondaryCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, secondary);
 
-		vn::vk::createCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, primary, secondary);
+		vn::vk::createCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, primary, secondary); // Combine all the 2nd cmd buffers
 
 		// Submit Work to GPU
 		device.submitWork(primary);
@@ -81,18 +88,10 @@ int main() {
 		// Present Image
 		context.update();
 	}
-	system("pause");
-	/*
-	Application app;
+	
+}
 
-	try {
-		app.run();
-	}
-	catch (const std::exception& e) {
-		std::cerr << e.what() << std::endl;
-		system("pause");
-		return EXIT_FAILURE;
-	}
+void doFrame(Job job)
+{
 
-	return EXIT_SUCCESS;*/
 }
