@@ -73,13 +73,13 @@ void Application::RunLoop()
 		
 		///Clear
 		m_context.clear();
-		vkResetCommandPool(m_device.getDevice(), cpool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+		//vkResetCommandPool(m_device.getDevice(), cpool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
         
 		///Input
 		//currentState().input();
 		
         /// Update
-       // currentState().update(dt);
+		// currentState().update(dt);
 		//currentState().lateUpdate(&m_camera);
 		//m_camera.update();
 
@@ -89,9 +89,9 @@ void Application::RunLoop()
         /// Render
 
 			// Create Command Buffers (and then combine them into Primary Cmd Buffers)
-			vn::vk::createSecondaryCommandBuffers(m_device.getDevice(), cpool, m_context.m_scdetails, gfx, rpass, secondary);
+			//vn::vk::createSecondaryCommandBuffers(m_device.getDevice(), cpool, m_context.m_scdetails, gfx, rpass, secondary);
 
-			vn::vk::createCommandBuffers(m_device.getDevice(), cpool, m_context.m_scdetails, gfx, rpass, primary, secondary); // Combine all the 2nd cmd buffers
+			//vn::vk::createCommandBuffers(m_device.getDevice(), cpool, m_context.m_scdetails, gfx, rpass, primary, secondary); // Combine all the 2nd cmd buffers
 
 			// Submit Work to GPU
 			m_device.submitWork(primary);
