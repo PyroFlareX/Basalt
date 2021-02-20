@@ -1,6 +1,7 @@
 #include "Context.h"
 
 
+
 namespace vn
 {
 	Context::Context()
@@ -17,7 +18,7 @@ namespace vn
 	{
 //		if(!started)
 //		{
-			VkResult result = vkAcquireNextImageKHR(m_Device->getDevice(), m_swapchain, UINT64_MAX, vn::vk::imageAvailableSemaphores[0], VK_NULL_HANDLE, &imageIndex);
+			VkResult result = vkAcquireNextImageKHR(m_Device->getDevice(), m_swapchain, UINT64_MAX, vn::vk::imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 //			started = !started;
 //		}
 	}
@@ -34,7 +35,7 @@ namespace vn
 		VkPresentInfoKHR presentInfo{};
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
-		VkSemaphore signalSemaphores[] = { vn::vk::renderFinishedSemaphores[0] };
+		VkSemaphore signalSemaphores[] = { vn::vk::renderFinishedSemaphores[currentFrame] };
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = signalSemaphores;
 
@@ -48,7 +49,7 @@ namespace vn
 
 		result = vkQueuePresentKHR(m_Device->getPresentQueue(), &presentInfo);
 
-		//framebuffer = !framebuffer;
+		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHTA;
 	}
 
 	void Context::close()

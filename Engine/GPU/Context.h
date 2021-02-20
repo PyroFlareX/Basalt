@@ -31,10 +31,12 @@ namespace vn
 
 		// //true if rendering on image 2, false if on 1
 		bool started = false;
+		int currentFrame = 0;
+
 		uint32_t imageIndex;
 	};
 }
 constexpr int WIDTHA = 800;
 constexpr int HEIGHTA = 600;
-constexpr int MAX_FRAMES_IN_FLIGHTA = 1;
+constexpr int MAX_FRAMES_IN_FLIGHTA = 3;
 

@@ -425,21 +425,21 @@ namespace vn::vk
 			throw std::runtime_error("failed to create command pool!");
 		}
 	}
-	void createCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers)
+	void createCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers)
 	{
-		//commandBuffers.resize(swapdetails.swapChainFramebuffers.size());
+		commandBuffers.resize(swapdetails.swapChainFramebuffers.size());
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = commandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandBufferCount = 1;
+		allocInfo.commandBufferCount = commandBuffers.size();
 
-		if (vkAllocateCommandBuffers(device, &allocInfo, &commandBuffers[commandBuffers.size() - 1]) != VK_SUCCESS) {
+		if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
 
-		for (size_t i = commandBuffers.size() - 1; i > commandBuffers.size() - 2; i--) {
+		for (size_t i = 0; i < commandBuffers.size(); i++) {
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -450,7 +450,7 @@ namespace vn::vk
 			VkRenderPassBeginInfo renderPassInfo{};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			renderPassInfo.renderPass = renderPass;
-			renderPassInfo.framebuffer = swapdetails.swapChainFramebuffers[0];
+			renderPassInfo.framebuffer = swapdetails.swapChainFramebuffers[i];
 			renderPassInfo.renderArea.offset = { 0, 0 };
 			renderPassInfo.renderArea.extent = swapdetails.swapChainExtent;
 
@@ -463,7 +463,7 @@ namespace vn::vk
 			vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
 			//vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
-			vkCmdExecuteCommands(commandBuffers[i], commandBuffers.size() - 1, commandBuffers.data());
+			vkCmdExecuteCommands(commandBuffers[i], secBuffers.size(), secBuffers.data());
 
 			vkCmdEndRenderPass(commandBuffers[i]);
 

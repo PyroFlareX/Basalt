@@ -1,5 +1,8 @@
 #include "Device.h"
 
+
+constexpr int MAX_FRAMES_IN_FLIGHTA = 3;
+
 namespace vn
 {
 	Device::Device()
@@ -28,40 +31,40 @@ namespace vn
 		return device;
 	}
 
-	void Device::submitWork(VkCommandBuffer& cmdbuffer)
+	void Device::submitWork(std::vector<VkCommandBuffer>& cmdbuffer)
 	{
-		static int i = 1;
+		static int i = 0;
 
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
-		VkSemaphore waitSemaphores[] = { vn::vk::imageAvailableSemaphores[0] };
+		VkSemaphore waitSemaphores[] = { vn::vk::imageAvailableSemaphores[i] };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		submitInfo.waitSemaphoreCount = 1;
 		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
 
 		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &cmdbuffer;
+		submitInfo.pCommandBuffers = &cmdbuffer[i];
 
-		VkSemaphore signalSemaphores[] = { vn::vk::renderFinishedSemaphores[0] };
+		VkSemaphore signalSemaphores[] = { vn::vk::renderFinishedSemaphores[i] };
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		if (vn::vk::inFlightFences[i - 1] != VK_NULL_HANDLE) 
+		if (vn::vk::inFlightFences[i] != VK_NULL_HANDLE) 
 		{
-			vkWaitForFences(device, 1, &vn::vk::inFlightFences[i - 1], VK_TRUE, 500000000);
+			vkWaitForFences(device, 1, &vn::vk::inFlightFences[i], VK_TRUE, 500000000);
 		}
 		
-		vkResetFences(device, 1, &vn::vk::inFlightFences[i - 1]);
+		vkResetFences(device, 1, &vn::vk::inFlightFences[i]);
 
 
-		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, vn::vk::inFlightFences[i - 1]) != VK_SUCCESS) {
+		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, vn::vk::inFlightFences[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 
 		
-
+		i = (i + 1) % MAX_FRAMES_IN_FLIGHTA;
 	}
 	VkQueue Device::getPresentQueue()
 	{

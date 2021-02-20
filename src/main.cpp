@@ -54,22 +54,21 @@ int main() {
 	VkCommandPool cpool;
 	vn::vk::createCommandPool(device, cpool);
 
-	std::vector<VkCommandBuffer> cbuf;
-	vn::vk::createSecondaryCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, cbuf);
+	std::vector<VkCommandBuffer> secondary;
+	vn::vk::createSecondaryCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, secondary);
 
-	VkCommandBuffer primary;
-	cbuf.emplace_back(primary);
+	std::vector<VkCommandBuffer> primary;
 
-	vn::vk::createCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, cbuf);
+	vn::vk::createCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, primary, secondary);
 
 	std::cout << "Starting\n";
-	std::cout << cbuf.size() << std::endl;
+	std::cout << primary.size() << std::endl;
 
 	while (context.isOpen())
 	{
 		context.clear();
 
-		device.submitWork(cbuf[cbuf.size() - 1]);
+		device.submitWork(primary);
 
 
 		context.update();

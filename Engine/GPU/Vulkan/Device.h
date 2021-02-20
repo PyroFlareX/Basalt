@@ -16,7 +16,7 @@ namespace vn
 		SwapChainSupportDetails getSwapchainDetails();
 		VkDevice& getDevice();
 
-		void submitWork(VkCommandBuffer& cmdbuffer);
+		void submitWork(std::vector<VkCommandBuffer>& cmdbuffer);
 
 		VkQueue getPresentQueue();
 	private:
