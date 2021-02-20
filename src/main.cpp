@@ -58,21 +58,28 @@ int main() {
 	vn::vk::createSecondaryCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, secondary);
 
 	std::vector<VkCommandBuffer> primary;
-
 	vn::vk::createCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, primary, secondary);
 
-	std::cout << "Starting\n";
-	std::cout << primary.size() << std::endl;
 
 	while (context.isOpen())
 	{
+		// Get Image From Swapchain and clear
 		context.clear();
+		vkResetCommandPool(device.getDevice(), cpool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 
+		// Update State
+
+
+		// Create Command Buffers (and then combine them into Primary Cmd Buffers)
+		vn::vk::createSecondaryCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, secondary);
+
+		vn::vk::createCommandBuffers(device.getDevice(), cpool, context.m_scdetails, gfx, rpass, primary, secondary);
+
+		// Submit Work to GPU
 		device.submitWork(primary);
 
-
+		// Present Image
 		context.update();
-
 	}
 	system("pause");
 	/*
