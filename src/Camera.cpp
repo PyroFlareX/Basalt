@@ -5,9 +5,9 @@ Camera::Camera(int Mode)	:	mode(Mode)
 	lerp = 2.5f;
 	if (mode == 0)
 	{
-		proj = vn::makeProjectionMatrix(80.0f, vn::vec2(1280, 720));
+	//	proj = vn::makeProjectionMatrix(80.0f, vn::vec2(1280, 720));
 	}
-
+	//proj = vn::makeProjectionMatrix(80.0f, vn::vec2(1280, 720));
 	pos = vn::vec3(0.0f, 0.0f, 1.0f);
 	rot = vn::vec3(0.0f);
 }
@@ -28,7 +28,7 @@ vn::mat4 Camera::getViewMatrix() const
 	return vn::mat4();*/
 }
 
-glm::mat4 Camera::getProjMatrix() const
+vn::mat4 Camera::getProjMatrix() const
 {
 /*	switch (mode)
 	{

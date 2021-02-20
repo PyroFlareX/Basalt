@@ -5,7 +5,7 @@
 #include <memory>
 #include <iostream>
 
-#include "Backends/Context.h"
+#include "../Engine/Engine.h"
 #include "Renderers/Renderer.h"
 #include "Camera.h"
 #include "States/Basestate.h"
@@ -20,7 +20,6 @@ public:
 	void setModeVR(bool haveVR) noexcept;
 
     void RunLoop();
-	void AsyncRenderThread(vn::Framebuffer& fbo);
 
     //State Stuff
 
@@ -39,7 +38,12 @@ protected:
 
 private:
     Basestate& currentState();
-    Context m_context;
+
+	// Windowing Context
+	vn::Context m_context;
+	// Device Context
+	vn::Device m_device;
+
 	Camera m_camera;
     std::vector<std::unique_ptr<Basestate>> m_states;
 	Renderer m_renderer;

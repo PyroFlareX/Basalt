@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../Engine/Engine.h"
-#include "Backends/Input.h"
 
 class Player : public vn::Transform
 {
@@ -18,5 +17,6 @@ public:
 private:
 
 	bool isFlying;
+	vn::vec3 velocity;
 };
 

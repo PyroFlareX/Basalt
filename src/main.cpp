@@ -1,4 +1,4 @@
-//#include "Vulkan.h"
+
 
 #include <iostream>
 #include <stdexcept>
@@ -7,6 +7,7 @@
 
 #include "../Engine/Engine.h"
 
+#include "Application.h"
 
 JobSystem jobSystem;
 
@@ -26,7 +27,24 @@ void print(Job job)
 	return;
 }
 
-void doFrame(Job job);
+void start(Job job)
+{
+	std::cout << "Job MAIN STARTING OWO XDDDDD\n";
+	Application app;
+
+	app.setModeVR(false);
+
+	try {
+		app.RunLoop();
+	}
+	catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		system("pause");
+		return;
+	}
+
+	return;
+}
 
 int main() {
 
@@ -36,8 +54,16 @@ int main() {
 	{
 		jobSystem.schedule(j);
 	}
+
+	j = jobSystem.createJob(&start);
+
+	jobSystem.schedule(j);
+
 	jobSystem.wait();
-	
+
+
+
+	/*
 	// Windowing Context
 	vn::Context context;
 	// Device Context
@@ -88,10 +114,8 @@ int main() {
 		// Present Image
 		context.update();
 	}
-	
-}
+	*/
 
-void doFrame(Job job)
-{
+	system("pause");
 
 }
