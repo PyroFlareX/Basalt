@@ -23,7 +23,7 @@ using JobFn = void(*)(Job);
 struct Job
 {
 	JobFn job_Function;
-	void* data;
+	void** data;
 	Counter* counter;
 };
 
@@ -34,7 +34,7 @@ public:
 	JobSystem();
 
 	//Returns a Job from a function pointer and parameters, does not add the job to the list
-	static Job createJob(JobFn job, void* data = nullptr);
+	static Job createJob(JobFn job, void** data = nullptr);
 
 	//Schedules a job
 	void schedule(Job job);

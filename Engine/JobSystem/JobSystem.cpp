@@ -16,7 +16,7 @@ JobSystem::JobSystem()	:	normalPriority(NORMAL_PRIORITY_SIZE)
 	threads.shrink_to_fit();
 }
 
-Job JobSystem::createJob(JobFn job, void* data)
+Job JobSystem::createJob(JobFn job, void** data)
 {
 	return Job{ job, data, nullptr };
 }
