@@ -475,17 +475,17 @@ namespace vn::vk
 	}
 
 	//Call Before Primary
-	void createSecondaryCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers)
+	void createSecondaryCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, VkCommandBuffer& commandBuffers)
 	{
-		commandBuffers.resize(1);
+		//commandBuffers.resize(1);
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 		allocInfo.commandPool = commandPool;
 		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_SECONDARY;
-		allocInfo.commandBufferCount = (uint32_t)commandBuffers.size();
+		allocInfo.commandBufferCount = 1;
 
-		if (vkAllocateCommandBuffers(device, &allocInfo, commandBuffers.data()) != VK_SUCCESS) {
+		if (vkAllocateCommandBuffers(device, &allocInfo, &commandBuffers) != VK_SUCCESS) {
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
 

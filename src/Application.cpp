@@ -2,7 +2,7 @@
 
 #include "States/Gamestate.h"
 
-#include <thread>
+#include <unordered_map>
 
 Application::Application() : m_camera(0)
 {
@@ -47,25 +47,39 @@ void Application::RunLoop()
 
 	vn::vk::createFramebuffers(rpass, m_context.m_scdetails, m_device.getDevice());
 
-	VkCommandPool cpool;
-	//VkCommandPool cpools;
-	vn::vk::createCommandPool(m_device, cpool);
-	//vn::vk::createCommandPool(m_device, cpools);
+	//VkCommandPool cpoolp;
+	//vn::vk::createCommandPool(m_device, cpoolp);
 
-	std::vector<VkCommandBuffer> secondary;
-	vn::vk::createSecondaryCommandBuffers(m_device.getDevice(), cpool, m_context.m_scdetails, gfx, rpass, secondary);
+	std::unordered_map<uint8_t, VkCommandPool> cmdpool;
+	for (int i = 0; i < jobSystem.numThreads(); i++)
+	{
+		VkCommandPool cpool;
+		vn::vk::createCommandPool(m_device, cpool);
+		cmdpool[i] = cpool;
+	}
+	
+
+	std::vector<VkCommandBuffer> secondary(cmdpool.size() - 1);
+	for (int i = 1; i < cmdpool.size(); i++)
+	{
+		vn::vk::createSecondaryCommandBuffers(m_device.getDevice(), cmdpool[i], m_context.m_scdetails, gfx, rpass, secondary[i - 1]);
+	}
 
 	std::vector<VkCommandBuffer> primary;
-	vn::vk::createCommandBuffers(m_device.getDevice(), cpool, m_context.m_scdetails, gfx, rpass, primary, secondary);
+	vn::vk::createCommandBuffers(m_device.getDevice(), cmdpool[0], m_context.m_scdetails, gfx, rpass, primary, secondary);
 
 	//vn::vk::RenderTargetFramebuffer framebuffer(m_device, rpass, winSize);
+	uint8_t index = 0;
 
-	void* dataBufferRecord[] = { &secondary, &m_context.m_scdetails, &rpass, &gfx, &primary };
+	void* dataBufferRecord[] = { &secondary, &m_context.m_scdetails, &rpass, &gfx, &primary, &cmdpool, &m_device.getDevice(), &index };
 
 	Job recordbufferSecondary = jobSystem.createJob([](Job job)
 		{
+			vkResetCommandPool(*reinterpret_cast<VkDevice*>(job.data[6]),
+					reinterpret_cast<std::unordered_map<uint8_t, VkCommandPool>*>(job.data[5])->at(1), VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+
 			VkCommandBuffer buffer = reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->at(0);
-			std::cout << "RECORD 2nd COMMAND BUFFER THREAD INDEX: " << jobSystem.getThreadIndex() << std::endl;;
+			std::cout << "RECORD 2nd COMMAND BUFFER THREAD INDEX: " << jobSystem.getThreadIndex() << std::endl;
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT; // Optional
@@ -113,13 +127,13 @@ void Application::RunLoop()
 				VkClearValue clearColor = { 0.1f, 0.3f, 0.5f, 1.0f };
 				renderPassInfo.clearValueCount = 1;
 				renderPassInfo.pClearValues = &clearColor;
-
+				//VK_SUBPASS_CONTENTS_INLINE
 				vkCmdBeginRenderPass(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 
 				vkCmdBindPipeline(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, *reinterpret_cast<VkPipeline*>(job.data[3]));
 
-				//vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
-				vkCmdExecuteCommands(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->size(), reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->data());
+				vkCmdDraw(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), 3, 1, 0, 0);
+				//vkCmdExecuteCommands(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->size(), reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->data());
 
 				vkCmdEndRenderPass(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i));
 
@@ -129,11 +143,19 @@ void Application::RunLoop()
 			}
 		}, dataBufferRecord);
 
+	void* freecmdbufdata[] = { &primary, &secondary };
+
+	Job freeCmdBuffers = jobSystem.createJob([](Job job)
+		{
+
+		}, freecmdbufdata);
+
 //===================================================================================
 
 	//Main Loop
 	Input::window = m_context.getContext();
 
+	jobSystem.schedule(recordbufferPrimary);
 
     while(m_context.isOpen() && !m_states.empty())
     {
@@ -161,7 +183,7 @@ void Application::RunLoop()
 
 		// Create Command Buffers (and then combine them into Primary Cmd Buffers)
 		jobSystem.schedule(recordbufferSecondary);
-		jobSystem.schedule(recordbufferPrimary);
+		//jobSystem.schedule(recordbufferPrimary);
 
 			//vn::vk::createCommandBuffers(m_device.getDevice(), cpool, m_context.m_scdetails, gfx, rpass, primary, secondary); // Combine all the 2nd cmd buffers
 
@@ -180,7 +202,8 @@ void Application::RunLoop()
 		m_context.update();
 
 
-		vkResetCommandPool(m_device.getDevice(), cpool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+		//vkResetCommandPool(m_device.getDevice(), cmdpool[0], VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+		//vkResetCommandPool(m_device.getDevice(), cmdpool[1], VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 
         /// Handle Window Events
 		t += dt;

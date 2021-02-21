@@ -35,6 +35,11 @@ public:
 
 	//Returns a Job from a function pointer and parameters, does not add the job to the list
 	static Job createJob(JobFn job, void** data = nullptr);
+	
+	static uint8_t numThreads()
+	{
+		return std::thread::hardware_concurrency();
+	}
 
 	//Schedules a job
 	void schedule(Job job);

@@ -76,7 +76,7 @@ namespace vn::vk
 	void createCommandPool(vn::Device& device, VkCommandPool& commandPool);
 	void createCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers);
 
-	void createSecondaryCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers);
+	void createSecondaryCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, VkCommandBuffer& commandBuffers);
 
 	void createCommandLists(VkDevice device, VkCommandPool& commandPool, RenderTargetFramebuffer& framebuffer, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers);
 	

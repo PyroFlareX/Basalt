@@ -29,7 +29,7 @@ void JobSystem::schedule(Job job)
 
 void JobSystem::wait(unsigned int counterTarget, bool stayOnThread)
 {
-	while (counterTarget > m_counter.load())
+	while (counterTarget < m_counter.load())
 	{
 
 	}
