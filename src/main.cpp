@@ -19,7 +19,7 @@ struct Frame
 
 void print(Job job)
 {
-	for (int i = 0; i < 100; ++i)
+	for (int i = 0; i < 10; ++i)
 	{
 		std::cout << i << std::endl;
 	}
@@ -48,18 +48,28 @@ int main() {
 
 	Job j = jobSystem.createJob(&print);
 
-	for(int i = 0; i < 20; ++i)
+	for(int i = 0; i < 1; ++i)
 	{
 		jobSystem.schedule(j);
 	}
 
-	j = jobSystem.createJob(&start);
+	//j = jobSystem.createJob(&start);
 
 	jobSystem.schedule(j);
 
 	jobSystem.wait();
 
+	std::cout << "MAIN LOOP!\n";
+	Application app;
 
+	try {
+		app.RunLoop();
+	}
+	catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		system("pause");
+		return 1;
+	}
 
 	/*
 	// Windowing Context
@@ -115,5 +125,5 @@ int main() {
 	*/
 
 	system("pause");
-
+	return 0;
 }

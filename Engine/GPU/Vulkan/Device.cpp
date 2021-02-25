@@ -51,16 +51,18 @@ namespace vn
 		submitInfo.signalSemaphoreCount = 1;
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
-		if (vn::vk::inFlightFences[i] != VK_NULL_HANDLE) 
-		{
-			vkWaitForFences(device, 1, &vn::vk::inFlightFences[i], VK_TRUE, 500000000);
-		}
+		
 		
 		vkResetFences(device, 1, &vn::vk::inFlightFences[i]);
 
 
 		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, vn::vk::inFlightFences[i]) != VK_SUCCESS) {
 			throw std::runtime_error("failed to submit draw command buffer!");
+		}
+
+		if (vn::vk::inFlightFences[i] != VK_NULL_HANDLE) 
+		{
+			vkWaitForFences(device, 1, &vn::vk::inFlightFences[i], VK_TRUE, 500000000);
 		}
 
 		// goes from 0 to the buffer count for the swapchain buffers

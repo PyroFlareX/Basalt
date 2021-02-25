@@ -44,6 +44,9 @@ else()
 endif()
 
 
+#target_compile_options(Basalt PUBLIC -fsanitize=address -fno-omit-frame-pointer)
+#target_link_options(Basalt PUBLIC -fsanitize=address)
+
 # For Linking
 target_link_libraries(Basalt PRIVATE Vulkan::Vulkan Threads::Threads glfw)
 

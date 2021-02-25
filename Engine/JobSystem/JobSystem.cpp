@@ -64,13 +64,13 @@ void JobSystem::threadLoop()
 {
 	Job job;
 	using namespace std::chrono_literals;
-	auto d = 25ms;
+	auto d = 5ms;
 	while (running)
 	{
 		if (normalPriority.try_pop(job))
 		{
-			m_counter--;
 			job.job_Function(job);
+			m_counter--;
 		}
 		else
 		{
