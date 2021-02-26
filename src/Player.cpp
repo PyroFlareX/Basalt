@@ -3,7 +3,7 @@
 
 Player::Player()
 {
-	pos = vn::vec3(50.0f, 50.0f, 50.0f);
+	pos = vn::vec3(0.0f, 0.0f, -1.0f);
 	rot = vn::vec3(0.0f, 0.0f, 0.0f);
 	velocity = vn::vec3(0.0f, 0.0f, 0.0f);
 }

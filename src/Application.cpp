@@ -1,5 +1,6 @@
 #include "Application.h"
 
+#include "Camera.h"
 #include "States/Gamestate.h"
 
 #include <unordered_map>
@@ -69,9 +70,33 @@ void Application::RunLoop()
 	vn::vk::createCommandBuffers(m_device.getDevice(), cmdpool[0], m_context.m_scdetails, gfx, rpass, primary, secondary);
 
 	//vn::vk::RenderTargetFramebuffer framebuffer(m_device, rpass, winSize);
-	uint8_t index = 0;
+	
+	vn::vk::BufferDescription bufferdesc = {};
+	bufferdesc.dev = m_device;
 
-	void* dataBufferRecord[] = { &secondary, &m_context.m_scdetails, &rpass, &gfx, &primary, &cmdpool, &m_device.getDevice(), &index };
+	vn::Mesh mesh;
+	vn::Vertex vert;
+	
+	vert.position = vn::vec3(-0.5f, 0.5f, 0.6f);
+	mesh.vertices.push_back(vert);
+
+	vert.position = vn::vec3(0.5f, 0.5f, 0.6f);
+	mesh.vertices.push_back(vert);
+
+	vert.position = vn::vec3(0.0f, -0.5f, 0.6f);
+	mesh.vertices.push_back(vert);
+
+	mesh.indicies.push_back(0);
+	mesh.indicies.push_back(1);
+	mesh.indicies.push_back(2);
+
+	bufferdesc.m_mesh = mesh;
+	//vn::loadMeshFromObj("res/Models/sphere.obj");
+	vn::vk::Buffer buffer(bufferdesc);
+	buffer.uploadMesh();
+	
+
+	void* dataBufferRecord[] = { &secondary, &m_context.m_scdetails, &rpass, &gfx, &primary, &cmdpool, &m_device.getDevice(), &this->getCam(), &playout, &buffer };
 
 	Job recordbufferSecondary = jobSystem.createJob([](Job job)
 		{
@@ -79,6 +104,16 @@ void Application::RunLoop()
 					reinterpret_cast<std::unordered_map<uint8_t, VkCommandPool>*>(job.data[5])->find(1)->second, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 
 			VkCommandBuffer buffer = reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->at(0);
+			
+			Camera camtemp = *reinterpret_cast<Camera*>(job.data[7]);
+			vn::vk::Buffer* buffermesh = reinterpret_cast<vn::vk::Buffer*>(job.data[9]);
+
+			PushConstantsStruct pushconst{};
+			pushconst.proj = camtemp.getProjMatrix();
+			pushconst.view = camtemp.getViewMatrix();
+			vn::Transform t;
+			
+			pushconst.model = vn::makeModelMatrix(t);
 
 			VkCommandBufferBeginInfo beginInfo{};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -99,7 +134,18 @@ void Application::RunLoop()
 			vkCmdBindPipeline(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->at(0), VK_PIPELINE_BIND_POINT_GRAPHICS,
 							*reinterpret_cast<VkPipeline*>(job.data[3]));
 
-			vkCmdDraw(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->at(0), 3, 1, 0, 0);
+			vkCmdPushConstants(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->at(0), *reinterpret_cast<VkPipelineLayout*>(job.data[8]), 
+								VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
+
+			VkDeviceSize offset = 0;
+			vkCmdBindVertexBuffers(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->at(0), 0, 1, 
+								&buffermesh->getAPIResource(), &offset);
+
+			//vkCmdBindIndexBuffer(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->at(0), buffermesh->m_index, offset, VK_INDEX_TYPE_UINT32);
+
+			//vkCmdDrawIndexed(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->at(0), buffermesh->getNumElements(), 1, 0, 0, 0);
+
+			//vkCmdDraw(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->at(0), buffermesh->getSize(), 1, 0, 0);
 
 			if (vkEndCommandBuffer(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->at(0)) != VK_SUCCESS) {
 				throw std::runtime_error("failed to record command buffer!");
@@ -110,6 +156,20 @@ void Application::RunLoop()
 
 	Job recordbufferPrimary = jobSystem.createJob([](Job job)
 		{
+			Camera* camtemp = reinterpret_cast<Camera*>(job.data[7]);
+			vn::vk::Buffer* buffermesh = reinterpret_cast<vn::vk::Buffer*>(job.data[9]);
+
+			PushConstantsStruct pushconst = {};
+			pushconst.proj = camtemp->getProjMatrix();
+			pushconst.view = camtemp->getViewMatrix();
+			vn::Transform t;
+			t.pos.x = 0.0f;
+			t.pos.y = 0.0f;
+			t.pos.z = 0.0f;
+			
+			//t.rescale(t, vn::vec3(10.0f, 10.0f, 10.0f));
+
+			pushconst.model = vn::makeModelMatrix(t);
 			
 			for (size_t i = 0; i < reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->size(); i++) {
 				VkCommandBufferBeginInfo beginInfo{};
@@ -126,16 +186,26 @@ void Application::RunLoop()
 				renderPassInfo.renderArea.offset = { 0, 0 };
 				renderPassInfo.renderArea.extent = reinterpret_cast<SwapChainDetails*>(job.data[1])->swapChainExtent;
 
-				VkClearValue clearColor = { 0.1f, 0.3f, 0.5f, 1.0f };
+				VkClearValue clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 				renderPassInfo.clearValueCount = 1;
 				renderPassInfo.pClearValues = &clearColor;
 				//VK_SUBPASS_CONTENTS_INLINE //VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
-				vkCmdBeginRenderPass(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+				vkCmdBeginRenderPass(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 				vkCmdBindPipeline(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, *reinterpret_cast<VkPipeline*>(job.data[3]));
 
-				//vkCmdDraw(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), 3, 1, 0, 0);
-				vkCmdExecuteCommands(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), 1 /*reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->size()*/, reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->data());
+				vkCmdPushConstants(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), *reinterpret_cast<VkPipelineLayout*>(job.data[8]), 
+								VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
+
+				VkDeviceSize offset = 0;
+				vkCmdBindVertexBuffers(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), 0, 1, 
+									&buffermesh->getAPIResource(), &offset);
+
+				//vkCmdBindIndexBuffer(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->m_index, offset, VK_INDEX_TYPE_UINT32);
+
+				//vkCmdDrawIndexed(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->getNumElements(), 1, 0, 0, 0);
+				vkCmdDraw(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->getSize(), 1, 0, 0);
+				//vkCmdExecuteCommands(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), 1 /*reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->size()*/, reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->data());
 
 				vkCmdEndRenderPass(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i));
 
@@ -186,9 +256,9 @@ void Application::RunLoop()
 
 		// Create Command Buffers (and then combine them into Primary Cmd Buffers)
 
-		jobSystem.schedule(recordbufferSecondary);
+		//jobSystem.schedule(recordbufferSecondary);
 
-		jobSystem.wait();
+		//jobSystem.wait();
 
 		// Submit Work to GPU
 
@@ -217,8 +287,12 @@ void Application::RunLoop()
 		if (t >= 1)
 		{
 			std::cout << frames << " per sec\n";
+			std::cout << dt << " ms\n";
 			t = 0;
 			frames = 0;
+
+			std::cout << "CAMERA X: " << this->getCam().pos.x << "\n";
+			std::cout << "CAMERA ROT XY: " << this->getCam().rot.x << " " << this->getCam().rot.y << "\n";
 		}
 		handleEvents();
     }

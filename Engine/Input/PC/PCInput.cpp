@@ -15,7 +15,7 @@ namespace Input
 		Inputs input = { false, false, 0, 0, 0, 0, false, false };
 
 		static bool enableCursor = false;
-		enableCursor = true;
+		enableCursor = false;
 
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 

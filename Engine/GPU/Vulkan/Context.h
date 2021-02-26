@@ -2,6 +2,7 @@
 
 #include "Device.h"
 #include "Framebuffer.h"
+#include "Buffer.h"
 
 namespace vn
 {

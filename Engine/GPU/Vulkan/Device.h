@@ -2,6 +2,7 @@
 
 #include "VulkanHelpers.h"
 
+
 namespace vn
 {
 
@@ -17,6 +18,7 @@ namespace vn
 		VkDevice& getDevice();
 
 		void submitWork(std::vector<VkCommandBuffer>& cmdbuffer);
+		VmaAllocator& getAllocator();
 
 		VkQueue getPresentQueue();
 	private:
@@ -25,6 +27,8 @@ namespace vn
 
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
+
+		VmaAllocator m_allocatorVMA;
 	};
 
 }

@@ -10,12 +10,15 @@
 
 namespace vn
 {
+	class Mesh;
+
+	
 	std::string getFileString(const std::string& filePath);
 	
 
 	std::vector<char> readFile(const std::string& filePath);
 	
 
-
+	Mesh loadMeshFromObj(const std::string& filepath);
 
 }

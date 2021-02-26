@@ -14,6 +14,13 @@ namespace vn
 	{
 		vn::vk::pickPhysicalDevice(physDevice);
 		vn::vk::createLogicalDevice(device, physDevice, graphicsQueue, presentQueue);
+
+		//initialize the memory allocator
+		VmaAllocatorCreateInfo allocatorInfo = {};
+		allocatorInfo.physicalDevice = physDevice;
+		allocatorInfo.device = device;
+		allocatorInfo.instance = vk::m_instance;
+		vmaCreateAllocator(&allocatorInfo, &m_allocatorVMA);
 	}
 
 	QueueFamilyIndices Device::getQueueFamilies()
@@ -68,6 +75,12 @@ namespace vn
 		// goes from 0 to the buffer count for the swapchain buffers
 		i = (i + 1) % MAX_FRAMES_IN_FLIGHTA;
 	}
+
+	VmaAllocator& Device::getAllocator()
+	{
+		return m_allocatorVMA;
+	}
+
 	VkQueue Device::getPresentQueue()
 	{
 		return presentQueue;

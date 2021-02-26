@@ -3,6 +3,10 @@
 #define GLFW_INCLUDE_VULKAN
 #include <GLFW/glfw3.h>
 
+#include "VMA/vk_mem_alloc.h"
+
+#include "../../Resources/Mesh.h"
+
 #include <iostream>
 #include <stdexcept>
 #include <functional>
@@ -31,6 +35,21 @@ struct SwapChainSupportDetails {
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
 };
+
+struct VertexInputDescription 
+{
+    std::vector<VkVertexInputBindingDescription> bindings;
+    std::vector<VkVertexInputAttributeDescription> attributes;
+
+    VkPipelineVertexInputStateCreateFlags flags = 0;
+};
+
+struct PushConstantsStruct
+    {
+        vn::mat4 model;
+        vn::mat4 view;
+        vn::mat4 proj;
+    };
 
 struct SwapChainDetails
 {
@@ -80,6 +99,10 @@ namespace vn::vk
 
 	void createCommandLists(VkDevice device, VkCommandPool& commandPool, RenderTargetFramebuffer& framebuffer, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers);
 	
+
+	VertexInputDescription getVertexDescription();
+
+
 
 	//Dont use
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);

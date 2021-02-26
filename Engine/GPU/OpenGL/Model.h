@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../Engine/Resources/Mesh.h"
-#include "../Engine/glad/glad/glad.h"
+#include "../../Resources/Mesh.h"
+#include "glad/glad/glad.h"
 
 class Model
 {

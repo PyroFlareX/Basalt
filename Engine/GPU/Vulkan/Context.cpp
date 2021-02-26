@@ -1,4 +1,5 @@
 #include "Context.h"
+#include "VulkanHelpers.h"
 #include <GLFW/glfw3.h>
 
 
@@ -81,6 +82,8 @@ namespace vn
 				throw std::runtime_error("failed to create synchronization objects for a frame!");
 			}
 		}
+
+		
 	}
 
 	bool Context::isOpen()
