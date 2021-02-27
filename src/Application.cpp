@@ -89,9 +89,8 @@ void Application::RunLoop()
 	mesh.indicies.push_back(0);
 	mesh.indicies.push_back(1);
 	mesh.indicies.push_back(2);
-
-	bufferdesc.m_mesh = mesh;
-	//vn::loadMeshFromObj("res/Models/sphere.obj");
+	//bufferdesc.m_mesh = mesh;
+	bufferdesc.m_mesh = vn::loadMeshFromObj("res/Models/sphere.obj");
 	vn::vk::Buffer buffer(bufferdesc);
 	buffer.uploadMesh();
 	
@@ -193,13 +192,13 @@ void Application::RunLoop()
 				vkCmdBeginRenderPass(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 				vkCmdBindPipeline(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, *reinterpret_cast<VkPipeline*>(job.data[3]));
-
-				vkCmdPushConstants(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), *reinterpret_cast<VkPipelineLayout*>(job.data[8]), 
-								VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
-
+				
 				VkDeviceSize offset = 0;
 				vkCmdBindVertexBuffers(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), 0, 1, 
 									&buffermesh->getAPIResource(), &offset);
+
+				vkCmdPushConstants(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), *reinterpret_cast<VkPipelineLayout*>(job.data[8]),
+					VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
 
 				//vkCmdBindIndexBuffer(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->m_index, offset, VK_INDEX_TYPE_UINT32);
 

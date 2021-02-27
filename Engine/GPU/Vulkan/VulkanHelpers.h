@@ -45,11 +45,11 @@ struct VertexInputDescription
 };
 
 struct PushConstantsStruct
-    {
-        vn::mat4 model;
-        vn::mat4 view;
-        vn::mat4 proj;
-    };
+{
+    vn::mat4 model;
+	vn::mat4 view;
+    vn::mat4 proj;
+};
 
 struct SwapChainDetails
 {

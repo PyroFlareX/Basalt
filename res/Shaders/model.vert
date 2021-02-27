@@ -17,13 +17,19 @@ layout ( push_constant ) uniform constants
     mat4 proj;
 } PushConstants;
 
+vec3 colors[3] = vec3[](
+	vec3(1.0, 0.0, 0.0),
+	vec3(0.0, 1.0, 0.0),
+	vec3(0.0, 0.0, 1.0)
+	);
+
 //uniform mat3 normmat;
 //uniform vec3 lightsrc;
 
 void main()
 {
-	fragPos = vec3(PushConstants.model * vec4(aPos, 1.0));
+	fragPos = aPos; //vec3(PushConstants.model * vec4(aPos, 1.0));
 	textureCoordinates = aTexCoord;
-	normal = vec3(PushConstants.model * vec4(aNormal, 0.0));
-	gl_Position = PushConstants.proj * PushConstants.view * PushConstants.model * vec4(aPos, 1.0);
+	normal = aNormal; //vec3(PushConstants.model * vec4(aNormal, 0.0));
+	gl_Position = PushConstants.proj * PushConstants.view * /*PushConstants.model */ vec4(aPos, 1.0);
 }

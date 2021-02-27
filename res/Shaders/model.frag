@@ -28,5 +28,5 @@ void main()
 	
 	//FragColor = texture(texturec, textureCoordinates) * result;
 
-	FragColor = vec4(fragPos, 1.0);//* result;
+	FragColor = vec4(fragPos, 1.0);// * result;
 } 
