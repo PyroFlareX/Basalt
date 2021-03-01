@@ -67,13 +67,36 @@ bool GameState::input()
 
 void GameState::update(float dt)
 {
-	m_player.update(dt);
-	//m_world.update(dt);
+	void* data[] = { &dt, &m_player, nullptr, &m_gameObjects };
 
-	for (auto& obj : m_gameObjects)
-	{
-		obj.update();
-	}
+	// Player and World updates as a Job
+	Job update = jobSystem.createJob([](Job job)
+		{
+			float dt = *reinterpret_cast<float*>(job.data[0]);
+
+			reinterpret_cast<Player*>(job.data[1])->update(dt);
+			//m_world.update(dt);
+
+		}, data);
+
+	// Updates for all objects
+	Job objUpdates = jobSystem.createJob([](Job job)
+		{
+			for (auto& obj : *reinterpret_cast<std::vector<vn::GameObject>*>(job.data[3]))
+			{
+				void* objData[] = { &obj };
+				// A job for updating each individual object
+				Job doObjectUpdate = jobSystem.createJob([](Job jobObj)
+					{
+						reinterpret_cast<vn::GameObject*>(jobObj.data[0])->update();
+					}, objData);
+				jobSystem.schedule(doObjectUpdate);
+			}
+		}, data);
+
+	// Schedule the jobs
+	jobSystem.schedule(update);
+	jobSystem.schedule(objUpdates);
 }
 
 void GameState::lateUpdate(Camera* cam)

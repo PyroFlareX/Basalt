@@ -16,6 +16,12 @@ namespace vn::vk
 		VkImage img;
 		VkImageView imgView;
 
+		VkImage depthImg;
+		VkImageView depthImgView;
+
+		VmaAllocation imgAllocation;
+		VmaAllocation depthImageAllocation;
+
 		vn::vec2 m_size;
 	};
 }

@@ -200,10 +200,10 @@ void Application::RunLoop()
 				vkCmdPushConstants(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), *reinterpret_cast<VkPipelineLayout*>(job.data[8]),
 					VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
 
-				//vkCmdBindIndexBuffer(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->m_index, offset, VK_INDEX_TYPE_UINT32);
+				vkCmdBindIndexBuffer(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->m_index, offset, VK_INDEX_TYPE_UINT32);
 
-				//vkCmdDrawIndexed(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->getNumElements(), 1, 0, 0, 0);
-				vkCmdDraw(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->getSize(), 1, 0, 0);
+				vkCmdDrawIndexed(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->getNumElements(), 1, 0, 0, 0);
+				//vkCmdDraw(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->getSize(), 1, 0, 0);
 				//vkCmdExecuteCommands(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), 1 /*reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->size()*/, reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->data());
 
 				vkCmdEndRenderPass(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i));
@@ -248,7 +248,7 @@ void Application::RunLoop()
 		m_camera.update();
 
         /// Draw
-		//currentState().render(&m_renderer);
+		currentState().render(&m_renderer);
 		
 
         /// Render
@@ -267,12 +267,12 @@ void Application::RunLoop()
 		m_device.submitWork(primary);
 
 		
-		//m_renderer.render(m_camera);
+		m_renderer.render(m_camera);
 
 
 
 
-		//m_renderer.finish();
+		m_renderer.finish();
 
 		m_context.update();
 

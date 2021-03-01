@@ -10,23 +10,32 @@
 class Renderer
 {
     public:
-        Renderer();
+        Renderer(vn::Device& device);
 
 		void drawObject(vn::GameObject& entity);
 		void doCompute();
 		void render(Camera& cam);
-		void finish();
+		void finish(vn::vk::RenderTargetFramebuffer& fbo);
 
 		void clearQueue();
 
         ~Renderer();
+
+		GeneralRenderer m_generalRenderer;
+		ComputeRenderer m_computeRenderer;
+		
+		
     protected:
 
     private:
-		GeneralRenderer m_generalRenderer;
-		ComputeRenderer m_computeRenderer;
+		VkRenderPass renderpassdefault;
 
+		std::vector<VkCommandBuffer> m_primaryBuffers;
+		VkCommandPool m_pool;
 
+		std::vector<vn::vk::RenderTargetFramebuffer> m_framebuffers;
+
+		vn::Device device;
 };
 
 #endif // RENDERER_H

@@ -50,7 +50,7 @@ void Player::getInput(Input::Inputs vInput, bool VRmode)
 		velocity += change;
 
 		//Rotation
-		rot.x += vInput.RY * 0.05f;
+		rot.x -= vInput.RY * 0.05f;
 		rot.y += vInput.RX * 0.05f;
 	}
 	else

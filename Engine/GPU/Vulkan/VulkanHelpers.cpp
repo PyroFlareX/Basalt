@@ -486,7 +486,6 @@ namespace vn::vk
 		}*/
 	}
 
-	//Call Before Primary
 	void createSecondaryCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, VkCommandBuffer& commandBuffers)
 	{
 		//commandBuffers.resize(1);
