@@ -13,6 +13,8 @@ Application::Application() : m_camera(0)
 	// Needed for setup
 	m_context.setDeviceptr(&m_device);
 	m_context.initAPI();
+
+	m_renderer = new Renderer(&m_device);
 }
 
 void Application::setModeVR(bool haveVR) noexcept
@@ -41,16 +43,24 @@ void Application::RunLoop()
 
 	VkRenderPass rpass;
 	vn::vk::createRenderPass(m_device.getDevice(), m_context.m_scdetails, rpass);
-
+	/*
 	VkPipelineLayout playout;
 	VkPipeline gfx;
 	vn::vk::createGraphicsPipeline(rpass, m_context.m_scdetails, playout, gfx, m_device.getDevice());
-
+	*/
 	vn::vk::createFramebuffers(rpass, m_context.m_scdetails, m_device.getDevice());
+
+	vn::vk::FramebufferData framebufdata{};
+	framebufdata.handle = m_context.m_scdetails.swapChainFramebuffers;
+	framebufdata.imgView = m_context.m_scdetails.swapChainImageViews.at(0);
+	framebufdata.size = winSize;
+
+	//m_context.m_scdetails.
+
 
 	//VkCommandPool cpoolp;
 	//vn::vk::createCommandPool(m_device, cpoolp);
-
+	/*
 	std::unordered_map<uint8_t, VkCommandPool> cmdpool;
 	for (int i = 0; i < jobSystem.numThreads(); i++)
 	{
@@ -70,7 +80,9 @@ void Application::RunLoop()
 	vn::vk::createCommandBuffers(m_device.getDevice(), cmdpool[0], m_context.m_scdetails, gfx, rpass, primary, secondary);
 
 	//vn::vk::RenderTargetFramebuffer framebuffer(m_device, rpass, winSize);
-	
+	*/
+
+/*
 	vn::vk::BufferDescription bufferdesc = {};
 	bufferdesc.dev = m_device;
 
@@ -204,7 +216,7 @@ void Application::RunLoop()
 
 				vkCmdDrawIndexed(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->getNumElements(), 1, 0, 0, 0);
 				//vkCmdDraw(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), buffermesh->getSize(), 1, 0, 0);
-				//vkCmdExecuteCommands(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), 1 /*reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->size()*/, reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->data());
+				//vkCmdExecuteCommands(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i), 1 , reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[0])->data());
 
 				vkCmdEndRenderPass(reinterpret_cast<std::vector<VkCommandBuffer>*>(job.data[4])->at(i));
 
@@ -220,7 +232,7 @@ void Application::RunLoop()
 		{
 
 		}, freecmdbufdata);
-
+	*/
 //===================================================================================
 
 	//Main Loop
@@ -238,6 +250,7 @@ void Application::RunLoop()
 		
 		///Clear
 		m_context.clear();
+		m_renderer->clearQueue();
         
 		///Input
 		currentState().input();
@@ -246,10 +259,10 @@ void Application::RunLoop()
 		currentState().update(dt);
 		currentState().lateUpdate(&m_camera);
 		m_camera.update();
-
+		jobSystem.wait();
         /// Draw
-		currentState().render(&m_renderer);
-		
+		currentState().render(m_renderer);
+		jobSystem.wait();
 
         /// Render
 
@@ -261,21 +274,20 @@ void Application::RunLoop()
 
 		// Submit Work to GPU
 
-		vkResetCommandPool(m_device.getDevice(), cmdpool.find(0)->second, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
-		jobSystem.schedule(recordbufferPrimary);
-		jobSystem.wait();
-		m_device.submitWork(primary);
+		//vkResetCommandPool(m_device.getDevice(), cmdpool.find(0)->second, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+		//jobSystem.schedule(recordbufferPrimary);
+		//jobSystem.wait();
+		//m_device.submitWork(primary);
 
 		
-		m_renderer.render(m_camera);
+		m_renderer->render(m_camera);
 
 
 
-
-		m_renderer.finish();
-
+		m_renderer->finish(framebufdata);
+		jobSystem.wait();
 		m_context.update();
-
+		
 
 		//vkResetCommandPool(m_device.getDevice(), cmdpool[0], VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 		//vkResetCommandPool(m_device.getDevice(), cmdpool[1], VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);

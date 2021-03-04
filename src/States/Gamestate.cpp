@@ -46,6 +46,10 @@ GameState::GameState(Application& app)	:	Basestate(app)
 	//{
 	//	m_world.addObject(gobj);
 	//}
+	vn::Transform t;
+	vn::GameObject gobj(t);
+	
+	m_gameObjects.emplace_back(gobj);
 }
 
 GameState::~GameState()
@@ -67,14 +71,16 @@ bool GameState::input()
 
 void GameState::update(float dt)
 {
-	void* data[] = { &dt, &m_player, nullptr, &m_gameObjects };
+	static void** data = new void*[4]{ &dt, &m_player, nullptr, &m_gameObjects };
+	
+	m_player.update(dt);
 
 	// Player and World updates as a Job
 	Job update = jobSystem.createJob([](Job job)
 		{
-			float dt = *reinterpret_cast<float*>(job.data[0]);
+			float deltatime = *reinterpret_cast<float*>(job.data[0]);
 
-			reinterpret_cast<Player*>(job.data[1])->update(dt);
+			reinterpret_cast<Player*>(job.data[1])->update(deltatime);
 			//m_world.update(dt);
 
 		}, data);
@@ -95,8 +101,10 @@ void GameState::update(float dt)
 		}, data);
 
 	// Schedule the jobs
-	jobSystem.schedule(update);
-	jobSystem.schedule(objUpdates);
+	//jobSystem.schedule(update);
+	//jobSystem.schedule(objUpdates);
+
+	jobSystem.wait();
 }
 
 void GameState::lateUpdate(Camera* cam)

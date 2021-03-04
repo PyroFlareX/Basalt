@@ -107,6 +107,11 @@ namespace vn::vk
 		}
 	}
 
+	FramebufferData RenderTargetFramebuffer::getFramebufferData()
+	{
+		return FramebufferData();// { handle, imgView, m_size };
+	}
+
 	RenderTargetFramebuffer::~RenderTargetFramebuffer()
 	{
 		

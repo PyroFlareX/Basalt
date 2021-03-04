@@ -278,7 +278,7 @@ namespace vn::vk
 			throw std::runtime_error("failed to create render pass!");
 		}
 	}
-	void createGraphicsPipeline(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device)
+	void createGraphicsPipeline(VkRenderPass& renderPass,/* SwapChainDetails& swapdetails, */VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device)
 	{
 		auto vertShaderCode = vn::readFile("res/Shaders/vert.spv");
 		auto fragShaderCode = vn::readFile("res/Shaders/frag.spv");
@@ -315,17 +315,20 @@ namespace vn::vk
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
+
+		VkExtent2D extent = { 600.0f, 800.0f };
+
 		VkViewport viewport{};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
-		viewport.width = (float)swapdetails.swapChainExtent.width;
-		viewport.height = (float)swapdetails.swapChainExtent.height;
+		viewport.width = extent.width; //(float)swapdetails.swapChainExtent.width;
+		viewport.height = extent.height; //(float)swapdetails.swapChainExtent.height;
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 
 		VkRect2D scissor{};
 		scissor.offset = { 0, 0 };
-		scissor.extent = swapdetails.swapChainExtent;
+		scissor.extent = extent; //swapdetails.swapChainExtent;
 
 		VkPipelineViewportStateCreateInfo viewportState{};
 		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;

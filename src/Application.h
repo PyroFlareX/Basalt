@@ -46,7 +46,7 @@ private:
 
 	Camera m_camera;
     std::vector<std::unique_ptr<Basestate>> m_states;
-	Renderer m_renderer;
+	Renderer* m_renderer;
 
 	bool VRmode;
 };

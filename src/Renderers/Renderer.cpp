@@ -1,6 +1,6 @@
 #include "Renderer.h"
 
-Renderer::Renderer(vn::Device& renderingDevice) : m_generalRenderer(&renderingDevice, &renderpassdefault)
+Renderer::Renderer(vn::Device* renderingDevice)
 {
 	device = renderingDevice;
 
@@ -41,12 +41,12 @@ Renderer::Renderer(vn::Device& renderingDevice) : m_generalRenderer(&renderingDe
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		if (vkCreateRenderPass(device.getDevice(), &renderPassInfo, nullptr, &renderpassdefault) != VK_SUCCESS) {
+		if (vkCreateRenderPass(device->getDevice(), &renderPassInfo, nullptr, &renderpassdefault) != VK_SUCCESS) {
 			throw std::runtime_error("failed to create render pass!");
 		}
 	}
 
-	vn::vk::createCommandPool(device, m_pool);
+	vn::vk::createCommandPool(*device, m_pool);
 
 	m_primaryBuffers.resize(3);
 
@@ -56,15 +56,17 @@ Renderer::Renderer(vn::Device& renderingDevice) : m_generalRenderer(&renderingDe
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandBufferCount = m_primaryBuffers.size();
 
-	if (vkAllocateCommandBuffers(device.getDevice(), &allocInfo, m_primaryBuffers.data()) != VK_SUCCESS) 
+	if (vkAllocateCommandBuffers(device->getDevice(), &allocInfo, m_primaryBuffers.data()) != VK_SUCCESS) 
 	{
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
+
+	m_generalRenderer = new GeneralRenderer(renderingDevice, &renderpassdefault);
 }
 
 void Renderer::drawObject(vn::GameObject& entity)
 {
-	m_generalRenderer.addInstance(entity);
+	m_generalRenderer->addInstance(entity);
 }
 
 void Renderer::doCompute()
@@ -76,23 +78,30 @@ void Renderer::doCompute()
 void Renderer::render(Camera& cam)
 {
 	//Main Pass
+	static void** params = new void*[2]{ this, &cam };
+	
 
-	void* params[] = { this, &cam };
 	Job generalRender = jobSystem.createJob([](Job job)
 		{
-			reinterpret_cast<Renderer*>(job.data[0])->m_generalRenderer.render(*reinterpret_cast<Camera*>(job.data[1]));
+			static_cast<Renderer*>(job.data[0])->m_generalRenderer->render(*static_cast<Camera*>(job.data[1]));
 		}, params);
 
-	jobSystem.schedule(generalRender);
+	//jobSystem.schedule(generalRender);
+	m_generalRenderer->render(cam);
+
+	jobSystem.wait();
+	std::cout << "Render:::: \n";
 }
 
-void Renderer::finish(vn::vk::RenderTargetFramebuffer& fbo)
+void Renderer::finish(vn::vk::FramebufferData& fbo)
 {
-	vkResetCommandPool(device.getDevice(), m_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
+	vkResetCommandPool(device->getDevice(), m_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 	//Second Pass
-	auto renderLists = m_generalRenderer.getRenderlists();
+	auto renderLists = m_generalRenderer->getRenderlists();
 
-	for (size_t i = 0; i < m_primaryBuffers.size(); ++i) {
+	std::cout << "Finish:::: \n";
+
+	for (size_t i = 0; i < 3/*m_primaryBuffers.size()*/; ++i) {
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -103,9 +112,12 @@ void Renderer::finish(vn::vk::RenderTargetFramebuffer& fbo)
 		VkRenderPassBeginInfo renderPassInfo{};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = renderpassdefault;
-		renderPassInfo.framebuffer = reinterpret_cast<SwapChainDetails*>(job.data[1])->swapChainFramebuffers[i];
+		renderPassInfo.framebuffer = fbo.handle[i];
 		renderPassInfo.renderArea.offset = { 0, 0 };
-		renderPassInfo.renderArea.extent = reinterpret_cast<SwapChainDetails*>(job.data[1])->swapChainExtent;
+
+		VkExtent2D extent = {fbo.size.y, fbo.size.x};
+
+		renderPassInfo.renderArea.extent = extent;
 
 		VkClearValue clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 		renderPassInfo.clearValueCount = 1;
@@ -123,14 +135,15 @@ void Renderer::finish(vn::vk::RenderTargetFramebuffer& fbo)
 			throw std::runtime_error("failed to record command buffer!");
 		}
 	}
+	std::cout << "SUMBIT:::: \n";
+	device->submitWork(m_primaryBuffers);
 
-	clearQueue();
+	//clearQueue();
 }
 
 void Renderer::clearQueue()
 {
-
-	m_generalRenderer.clearQueue();
+	m_generalRenderer->clearQueue();
 }
 
 Renderer::~Renderer()

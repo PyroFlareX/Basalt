@@ -21,7 +21,13 @@ private:
 	bool firstrun = false;
 
 	std::vector<vn::GameObject> m_queue;
-	
+
+	std::vector<vn::vk::Buffer> m_meshbuffers;
+
+	VkPipelineLayout playout;
+	VkPipeline gfx;
+
+
 	VkCommandPool m_pool;
 	std::vector<VkCommandBuffer> m_renderlist;
 	vn::Device* p_device;

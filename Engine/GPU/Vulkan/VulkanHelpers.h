@@ -89,7 +89,7 @@ namespace vn::vk
 	void recreateSwapChain(GLFWwindow* window, VkDevice device);
 
 	void createRenderPass(VkDevice& device, SwapChainDetails& Swapdetails, VkRenderPass& renderPass);
-	void createGraphicsPipeline(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device);
+	void createGraphicsPipeline(VkRenderPass& renderPass,/* SwapChainDetails& swapdetails, */VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device);
 
 	void createFramebuffers(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkDevice device);
 	void createCommandPool(vn::Device& device, VkCommandPool& commandPool);

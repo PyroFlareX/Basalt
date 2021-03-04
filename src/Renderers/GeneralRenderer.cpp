@@ -9,7 +9,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass)
 
 	img.loadFromFile("res/container.jpg");
 
-	m_renderlist.resize(50);
+	m_renderlist.resize(1);
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -28,11 +28,39 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass)
 
 	inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
 	
-
+	
 	inheritanceInfo.framebuffer = VK_NULL_HANDLE;
 
 	beginInfo.pInheritanceInfo = &inheritanceInfo; // Optional
 
+	// Mesh
+	vn::vk::BufferDescription bufferdesc = {};
+	bufferdesc.dev = *p_device;
+
+	vn::Mesh mesh;
+	vn::Vertex vert;
+
+	vert.position = vn::vec3(-0.5f, 0.5f, 0.6f);
+	mesh.vertices.push_back(vert);
+
+	vert.position = vn::vec3(0.5f, 0.5f, 0.6f);
+	mesh.vertices.push_back(vert);
+
+	vert.position = vn::vec3(0.0f, -0.5f, 0.6f);
+	mesh.vertices.push_back(vert);
+
+	mesh.indicies.push_back(0);
+	mesh.indicies.push_back(1);
+	mesh.indicies.push_back(2);
+	//bufferdesc.m_mesh = mesh;
+	bufferdesc.m_mesh = vn::loadMeshFromObj("res/Models/sphere.obj");
+	vn::vk::Buffer buffer(bufferdesc);
+	buffer.uploadMesh();
+	m_meshbuffers.emplace_back(buffer);
+
+
+
+	vn::vk::createGraphicsPipeline(*m_renderpass, playout, gfx, mainDevice->getDevice());
 }
 
 void GeneralRenderer::addInstance(vn::GameObject& entity)
@@ -49,7 +77,18 @@ void GeneralRenderer::addInstance(vn::GameObject& entity)
 
 void GeneralRenderer::render(Camera& cam)
 {
-	
+
+	PushConstantsStruct pushconst = {};
+	pushconst.proj = cam.getProjMatrix();
+	pushconst.view = cam.getViewMatrix();
+	vn::Transform t;
+	t.pos.x = 0.0f;
+	t.pos.y = 0.0f;
+	t.pos.z = 0.0f;
+
+	//t.rescale(t, vn::vec3(10.0f, 10.0f, 10.0f));
+
+	pushconst.model = vn::makeModelMatrix(t);
 	
 
 	for (uint8_t i = 0; i < m_queue.size(); ++i)
@@ -60,18 +99,17 @@ void GeneralRenderer::render(Camera& cam)
 			throw std::runtime_error("failed to begin recording command buffer!");
 		}
 
-		vkCmdBindPipeline(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS,
-			*reinterpret_cast<VkPipeline*>(job.data[3]));
+		vkCmdBindPipeline(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, gfx);
 
-		vkCmdPushConstants(m_renderlist.at(i), *reinterpret_cast<VkPipelineLayout*>(job.data[8]),
+		vkCmdPushConstants(m_renderlist.at(i), playout,
 			VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
 
 		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(m_renderlist.at(i), 0, 1, &buffermesh->getAPIResource(), &offset);
+		vkCmdBindVertexBuffers(m_renderlist.at(i), 0, 1, &m_meshbuffers[0].getAPIResource(), &offset);
 
-		vkCmdBindIndexBuffer(m_renderlist.at(i), buffermesh->m_index, offset, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(m_renderlist.at(i), m_meshbuffers[0].m_index, offset, VK_INDEX_TYPE_UINT32);
 
-		vkCmdDrawIndexed(m_renderlist.at(i), buffermesh->getNumElements(), 1, 0, 0, 0);
+		vkCmdDrawIndexed(m_renderlist.at(i), m_meshbuffers[0].getNumElements(), 1, 0, 0, 0);
 
 
 		if (vkEndCommandBuffer(m_renderlist.at(i)) != VK_SUCCESS)
