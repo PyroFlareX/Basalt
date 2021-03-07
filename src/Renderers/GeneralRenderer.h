@@ -25,6 +25,7 @@ private:
 	
 	//Buffers
 	std::vector<vn::vk::Buffer> m_meshbuffers;
+	vn::vk::Buffer m_descriptorbuffer;
 
 	// Pipeline Stuff
 	VkPipelineLayout playout;
@@ -33,13 +34,13 @@ private:
 	VkCommandBufferInheritanceInfo inheritanceInfo{};
 	VkRenderPass* m_renderpass;
 
+	VkDescriptorPool m_descpool;
+	VkDescriptorSet m_descsetglobal;
+
 	// Vulkan Stuff
 	VkCommandPool m_pool;
 	std::vector<VkCommandBuffer> m_renderlist;
 	vn::Device* p_device;
 
-	
-
-	
 };
 

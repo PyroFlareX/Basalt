@@ -1,7 +1,7 @@
 #include "GeneralRenderer.h"
 
 
-GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass)
+GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) : m_descriptorbuffer(vn::vk::BufferDescription{ {}, *mainDevice })
 {
 	p_device = mainDevice;
 	vn::vk::createCommandPool(*p_device, m_pool);
@@ -57,7 +57,36 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass)
 	buffer.uploadMesh();
 	m_meshbuffers.emplace_back(buffer);
 
+	// Descriptor Sets
+	/*VkDescriptorPoolCreateInfo descpoolinfo{};
+	
+	descpoolinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	descpoolinfo.pNext = nullptr;
+	descpoolinfo.poolSizeCount = 1;
+	VkDescriptorPoolSize descpoolsize{};
+	descpoolsize.descriptorCount = 1;
+	descpoolsize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descpoolinfo.pPoolSizes = &descpoolsize;
+	descpoolinfo.maxSets = 1;
 
+	vkCreateDescriptorPool(p_device->getDevice(), &descpoolinfo, nullptr, &m_descpool);
+
+	VkDescriptorSetLayoutBinding setlayoutbinding{};
+	setlayoutbinding.binding = 0;
+	setlayoutbinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	setlayoutbinding.stageFlags = VK_SHADER_STAGE_ALL;
+
+	VkDescriptorSetLayoutCreateInfo desclayoutinfo{};
+	desclayoutinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	desclayoutinfo.pNext = nullptr;
+	desclayoutinfo.bindingCount = 0;
+	desclayoutinfo.pBindings = ;
+
+	VkDescriptorSetLayout desclayout;
+	/// TODO: FINISH DESCRIPTOR SETS (DO IT BINDLESS)
+	vkCreateDescriptorSetLayout(p_device->getDevice(), , nullptr, &desclayout);*/
+
+	// Pipelines
 	vn::vk::createGraphicsPipeline(*m_renderpass, playout, gfx, mainDevice->getDevice());
 }
 

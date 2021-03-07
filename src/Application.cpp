@@ -85,8 +85,6 @@ void Application::RunLoop()
 		jobSystem.wait();
 
         /// Render
-
-		
 		m_renderer->render(m_camera);
 
 

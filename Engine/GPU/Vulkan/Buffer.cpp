@@ -75,6 +75,8 @@ namespace vn::vk
     void Buffer::setAPIResource(VkBuffer buffer)
     {
         m_buffer = buffer;
+
+
     }
 
     VkBuffer& Buffer::getAPIResource()
