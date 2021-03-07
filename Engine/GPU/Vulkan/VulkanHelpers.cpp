@@ -151,6 +151,9 @@ namespace vn::vk
 			imageCount = swapChainSupport.capabilities.maxImageCount;
 		}
 
+		//TEMP
+		//imageCount = 3;
+
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
 		createInfo.surface = m_surface;
@@ -316,7 +319,9 @@ namespace vn::vk
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 
-		VkExtent2D extent = { 600.0f, 800.0f };
+		VkExtent2D extent = { 600, 800 };
+		extent.height = 600;
+		extent.width = 800;
 
 		VkViewport viewport{};
 		viewport.x = 0.0f;

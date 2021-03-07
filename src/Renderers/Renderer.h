@@ -33,7 +33,7 @@ class Renderer
 		std::vector<VkCommandBuffer> m_primaryBuffers;
 		VkCommandPool m_pool;
 
-		std::vector<vn::vk::RenderTargetFramebuffer> m_framebuffers;
+		//std::vector<vn::vk::RenderTargetFramebuffer> m_framebuffers;
 
 		vn::Device* device;
 };

@@ -74,7 +74,6 @@ void Renderer::doCompute()
 
 }
 
-
 void Renderer::render(Camera& cam)
 {
 	//Main Pass
@@ -97,11 +96,11 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 {
 	vkResetCommandPool(device->getDevice(), m_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 	//Second Pass
-	auto renderLists = m_generalRenderer->getRenderlists();
+	auto& renderLists = m_generalRenderer->getRenderlists();
 
 	std::cout << "Finish:::: \n";
 
-	for (size_t i = 0; i < 3/*m_primaryBuffers.size()*/; ++i) {
+	for (size_t i = 0; i < m_primaryBuffers.size(); ++i) {
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -115,7 +114,9 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 		renderPassInfo.framebuffer = fbo.handle[i];
 		renderPassInfo.renderArea.offset = { 0, 0 };
 
-		VkExtent2D extent = {fbo.size.y, fbo.size.x};
+		VkExtent2D extent;
+		extent.height = (int)fbo.size.y;
+		extent.width = (int)fbo.size.x ;
 
 		renderPassInfo.renderArea.extent = extent;
 
@@ -123,10 +124,9 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 		//VK_SUBPASS_CONTENTS_INLINE //VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
-		vkCmdBeginRenderPass(m_primaryBuffers.at(i), &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
+		vkCmdBeginRenderPass(m_primaryBuffers.at(i), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 		
-
-		vkCmdExecuteCommands(m_primaryBuffers.at(i), renderLists.size(), renderLists.data());
+		//vkCmdExecuteCommands(m_primaryBuffers.at(i), renderLists.size(), renderLists.data());
 
 		vkCmdEndRenderPass(m_primaryBuffers.at(i));
 

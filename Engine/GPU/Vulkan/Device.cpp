@@ -42,9 +42,11 @@ namespace vn
 	{
 		static int i = 0;
 
+		VkResult result;
+
 		VkSubmitInfo submitInfo{};
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-
+		
 		VkSemaphore waitSemaphores[] = { vn::vk::imageAvailableSemaphores[i] };
 		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 		submitInfo.waitSemaphoreCount = 1;
@@ -59,14 +61,18 @@ namespace vn
 		submitInfo.pSignalSemaphores = signalSemaphores;
 
 		
-		
 		vkResetFences(device, 1, &vn::vk::inFlightFences[i]);
 
+		result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, vn::vk::inFlightFences[i]);
+		
 
-		if (vkQueueSubmit(graphicsQueue, 1, &submitInfo, vn::vk::inFlightFences[i]) != VK_SUCCESS) {
+		if (result != VK_SUCCESS) 
+		{
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 
+		vkQueueWaitIdle(graphicsQueue);
+		
 		if (vn::vk::inFlightFences[i] != VK_NULL_HANDLE) 
 		{
 			vkWaitForFences(device, 1, &vn::vk::inFlightFences[i], VK_TRUE, 500000000);

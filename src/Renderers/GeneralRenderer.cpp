@@ -125,7 +125,7 @@ void GeneralRenderer::clearQueue()
 	vkResetCommandPool(p_device->getDevice(), m_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 }
 
-std::vector<VkCommandBuffer> GeneralRenderer::getRenderlists() const
+std::vector<VkCommandBuffer>& GeneralRenderer::getRenderlists()
 {
 	return m_renderlist;
 }

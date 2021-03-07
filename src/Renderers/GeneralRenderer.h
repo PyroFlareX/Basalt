@@ -13,7 +13,7 @@ public:
 
 	void clearQueue();
 
-	std::vector<VkCommandBuffer> getRenderlists() const;
+	std::vector<VkCommandBuffer>& getRenderlists();
 	
 	~GeneralRenderer();
 private:
