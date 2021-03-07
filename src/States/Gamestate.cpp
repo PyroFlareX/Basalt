@@ -71,9 +71,9 @@ bool GameState::input()
 
 void GameState::update(float dt)
 {
-	static void** data = new void*[4]{ &dt, &m_player, nullptr, &m_gameObjects };
+	void** data = new void*[4]{ &dt, &m_player, nullptr, &m_gameObjects };
 	
-	m_player.update(dt);
+	//m_player.update(dt);
 
 	// Player and World updates as a Job
 	Job update = jobSystem.createJob([](Job job)
@@ -101,10 +101,12 @@ void GameState::update(float dt)
 		}, data);
 
 	// Schedule the jobs
-	//jobSystem.schedule(update);
+	jobSystem.schedule(update);
 	//jobSystem.schedule(objUpdates);
 
 	jobSystem.wait();
+
+	delete[] data;
 }
 
 void GameState::lateUpdate(Camera* cam)

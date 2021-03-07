@@ -85,11 +85,10 @@ void Renderer::render(Camera& cam)
 			static_cast<Renderer*>(job.data[0])->m_generalRenderer->render(*static_cast<Camera*>(job.data[1]));
 		}, params);
 
-	//jobSystem.schedule(generalRender);
-	m_generalRenderer->render(cam);
+	jobSystem.schedule(generalRender);
+	//m_generalRenderer->render(cam);
 
 	jobSystem.wait();
-	std::cout << "Render:::: \n";
 }
 
 void Renderer::finish(vn::vk::FramebufferData& fbo)
@@ -98,7 +97,6 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 	//Second Pass
 	auto& renderLists = m_generalRenderer->getRenderlists();
 
-	std::cout << "Finish:::: \n";
 
 	for (size_t i = 0; i < m_primaryBuffers.size(); ++i) {
 		VkCommandBufferBeginInfo beginInfo{};
@@ -135,7 +133,7 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 			throw std::runtime_error("failed to record command buffer!");
 		}
 	}
-	std::cout << "SUMBIT:::: \n";
+
 	device->submitWork(m_primaryBuffers);
 
 	//clearQueue();

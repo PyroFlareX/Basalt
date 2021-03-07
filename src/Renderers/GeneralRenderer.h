@@ -21,21 +21,25 @@ private:
 	bool firstrun = false;
 
 	std::vector<vn::GameObject> m_queue;
-
+	vn::Image img;
+	
+	//Buffers
 	std::vector<vn::vk::Buffer> m_meshbuffers;
 
+	// Pipeline Stuff
 	VkPipelineLayout playout;
 	VkPipeline gfx;
+	VkCommandBufferBeginInfo beginInfo{};
+	VkCommandBufferInheritanceInfo inheritanceInfo{};
+	VkRenderPass* m_renderpass;
 
-
+	// Vulkan Stuff
 	VkCommandPool m_pool;
 	std::vector<VkCommandBuffer> m_renderlist;
 	vn::Device* p_device;
 
-	vn::Image img;
+	
 
-	VkCommandBufferBeginInfo beginInfo{};
-	VkCommandBufferInheritanceInfo inheritanceInfo{};
-	VkRenderPass* m_renderpass;
+	
 };
 

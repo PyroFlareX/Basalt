@@ -28,10 +28,9 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass)
 
 	inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
 	
-	
 	inheritanceInfo.framebuffer = VK_NULL_HANDLE;
 
-	beginInfo.pInheritanceInfo = &inheritanceInfo; // Optional
+	beginInfo.pInheritanceInfo = &inheritanceInfo;
 
 	// Mesh
 	vn::vk::BufferDescription bufferdesc = {};
@@ -57,7 +56,6 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass)
 	vn::vk::Buffer buffer(bufferdesc);
 	buffer.uploadMesh();
 	m_meshbuffers.emplace_back(buffer);
-
 
 
 	vn::vk::createGraphicsPipeline(*m_renderpass, playout, gfx, mainDevice->getDevice());
@@ -86,14 +84,13 @@ void GeneralRenderer::render(Camera& cam)
 	t.pos.y = 0.0f;
 	t.pos.z = 0.0f;
 
-	//t.rescale(t, vn::vec3(10.0f, 10.0f, 10.0f));
+	t.rescale(t, vn::vec3(0.5f, 0.5f, 0.5f));
 
 	pushconst.model = vn::makeModelMatrix(t);
 	
 
 	for (uint8_t i = 0; i < m_queue.size(); ++i)
 	{
-
 		if (vkBeginCommandBuffer(m_renderlist.at(i), &beginInfo) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("failed to begin recording command buffer!");
@@ -106,11 +103,10 @@ void GeneralRenderer::render(Camera& cam)
 
 		VkDeviceSize offset = 0;
 		vkCmdBindVertexBuffers(m_renderlist.at(i), 0, 1, &m_meshbuffers[0].getAPIResource(), &offset);
-
+		
 		vkCmdBindIndexBuffer(m_renderlist.at(i), m_meshbuffers[0].m_index, offset, VK_INDEX_TYPE_UINT32);
 
 		vkCmdDrawIndexed(m_renderlist.at(i), m_meshbuffers[0].getNumElements(), 1, 0, 0, 0);
-
 
 		if (vkEndCommandBuffer(m_renderlist.at(i)) != VK_SUCCESS)
 		{
