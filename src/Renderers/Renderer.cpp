@@ -124,9 +124,9 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 		//VK_SUBPASS_CONTENTS_INLINE //VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
-		vkCmdBeginRenderPass(m_primaryBuffers.at(i), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		vkCmdBeginRenderPass(m_primaryBuffers.at(i), &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
 		
-		//vkCmdExecuteCommands(m_primaryBuffers.at(i), renderLists.size(), renderLists.data());
+		vkCmdExecuteCommands(m_primaryBuffers.at(i), renderLists.size(), renderLists.data());
 
 		vkCmdEndRenderPass(m_primaryBuffers.at(i));
 
