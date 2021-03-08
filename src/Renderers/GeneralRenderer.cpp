@@ -1,13 +1,14 @@
 #include "GeneralRenderer.h"
 
 
-GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) : m_descriptorbuffer(vn::vk::BufferDescription{ {}, *mainDevice })
+GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //: m_descriptorbuffer(vn::vk::BufferDescription{})
 {
 	p_device = mainDevice;
 	vn::vk::createCommandPool(*p_device, m_pool);
 	m_renderpass = rpass;
 
 	img.loadFromFile("res/container.jpg");
+	
 
 	m_renderlist.resize(1);
 
@@ -33,8 +34,10 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) : 
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 
 	// Mesh
-	vn::vk::BufferDescription bufferdesc = {};
-	bufferdesc.dev = *p_device;
+	m_models.emplace_back(new vn::vk::Model(vn::loadMeshFromObj("res/Models/sphere.obj"), p_device));
+
+	/*vn::vk::BufferDescription bufferdesc = {};
+	bufferdesc.dev = p_device;
 
 	vn::Mesh mesh;
 	vn::Vertex vert;
@@ -55,40 +58,45 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) : 
 	bufferdesc.m_mesh = vn::loadMeshFromObj("res/Models/sphere.obj");
 	vn::vk::Buffer buffer(bufferdesc);
 	buffer.uploadMesh();
-	m_meshbuffers.emplace_back(buffer);
+	m_meshbuffers.emplace_back(buffer);*/
 
-	// Descriptor Sets
-	/*VkDescriptorPoolCreateInfo descpoolinfo{};
+
+	// Descriptor Pools
+	VkDescriptorPoolCreateInfo descpoolinfo{};
 	
 	descpoolinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descpoolinfo.pNext = nullptr;
 	descpoolinfo.poolSizeCount = 1;
+
 	VkDescriptorPoolSize descpoolsize{};
 	descpoolsize.descriptorCount = 1;
 	descpoolsize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+
 	descpoolinfo.pPoolSizes = &descpoolsize;
 	descpoolinfo.maxSets = 1;
 
 	vkCreateDescriptorPool(p_device->getDevice(), &descpoolinfo, nullptr, &m_descpool);
 
+	// Descriptor Sets
 	VkDescriptorSetLayoutBinding setlayoutbinding{};
 	setlayoutbinding.binding = 0;
 	setlayoutbinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	setlayoutbinding.stageFlags = VK_SHADER_STAGE_ALL;
+	setlayoutbinding.descriptorCount = 1;
 
 	VkDescriptorSetLayoutCreateInfo desclayoutinfo{};
 	desclayoutinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	desclayoutinfo.pNext = nullptr;
-	desclayoutinfo.bindingCount = 0;
-	desclayoutinfo.pBindings = ;
+	desclayoutinfo.bindingCount = 1;
+	desclayoutinfo.pBindings = &setlayoutbinding;
 
 	VkDescriptorSetLayout desclayout;
 	/// TODO: FINISH DESCRIPTOR SETS (DO IT BINDLESS)
-	vkCreateDescriptorSetLayout(p_device->getDevice(), , nullptr, &desclayout);*/
+	vkCreateDescriptorSetLayout(p_device->getDevice(), &desclayoutinfo, nullptr, &desclayout);
 
 	// Pipelines
 	//vn::vk::createGraphicsPipeline(*m_renderpass, playout, gfx, mainDevice->getDevice());
-	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout);
+	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout, desclayout);
 }
 
 void GeneralRenderer::addInstance(vn::GameObject& entity)
@@ -132,11 +140,12 @@ void GeneralRenderer::render(Camera& cam)
 			VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
 
 		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(m_renderlist.at(i), 0, 1, &m_meshbuffers[0].getAPIResource(), &offset);
+		vkCmdBindVertexBuffers(m_renderlist.at(i), 0, 1, &m_models.at(0)->getVertexBuffer()->getAPIResource(), &offset);
 		
-		vkCmdBindIndexBuffer(m_renderlist.at(i), m_meshbuffers[0].m_index, offset, VK_INDEX_TYPE_UINT32);
-
-		vkCmdDrawIndexed(m_renderlist.at(i), m_meshbuffers[0].getNumElements(), 1, 0, 0, 0);
+		//offset = 3072;//VmaAlignUp(m_models.at(0)->getVertexBuffer()->getSize(), 1024U);
+		vkCmdBindIndexBuffer(m_renderlist.at(i), m_models.at(0)->getIndexBuffer()->getAPIResource(), offset, VK_INDEX_TYPE_UINT32);
+		
+		vkCmdDrawIndexed(m_renderlist.at(i), m_models.at(0)->getIndexBuffer()->getNumElements(), 1, 0, 0, 0);
 
 		if (vkEndCommandBuffer(m_renderlist.at(i)) != VK_SUCCESS)
 		{
@@ -158,5 +167,8 @@ std::vector<VkCommandBuffer>& GeneralRenderer::getRenderlists()
 
 GeneralRenderer::~GeneralRenderer()
 {
-
+	for (auto* model : m_models)
+	{
+		delete model;
+	}
 }

@@ -411,7 +411,7 @@ namespace vn::vk
 		vkDestroyShaderModule(device, vertShaderModule, nullptr);
 	}
 
-	void createPipeline(vn::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout) // Add thing for which type of pipeline
+	void createPipeline(vn::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout) // Add thing for which type of pipeline
 	{
 		auto vertShaderCode = vn::readFile("res/Shaders/vert.spv");
 		auto fragShaderCode = vn::readFile("res/Shaders/frag.spv");
@@ -505,6 +505,7 @@ namespace vn::vk
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = 0;
+		pipelineLayoutInfo.pSetLayouts = &dlayout;
 
 		VkPushConstantRange constants{};
 		constants.offset = 0;

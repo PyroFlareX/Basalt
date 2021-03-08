@@ -93,7 +93,7 @@ namespace vn::vk
 	void createRenderPass(VkDevice& device, SwapChainDetails& Swapdetails, VkRenderPass& renderPass);
 	void createGraphicsPipeline(VkRenderPass& renderPass,/* SwapChainDetails& swapdetails, */VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device);
 
-	void createPipeline(vn::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout);
+	void createPipeline(vn::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout);
 
 	void createFramebuffers(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkDevice device);
 	void createCommandPool(vn::Device& device, VkCommandPool& commandPool);

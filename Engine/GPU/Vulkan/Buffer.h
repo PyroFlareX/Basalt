@@ -5,15 +5,29 @@
 #include "Device.h"
 #include <stdexcept>
 
+namespace vn
+{
+	enum BufferUsage
+	{
+		VERTEX_BUFFER,
+		INDEX_BUFFER,
+		UNIFORM_BUFFER,
+		STORAGE_BUFFER,
+		INDIRECT_BUFFER,
 
+		BUFFER_TYPE_COUNT
+	};
+}
 
 namespace vn::vk {
 
     struct BufferDescription
     {
-        vn::Mesh m_mesh;
-
-        vn::Device dev;
+		vn::Device* dev;
+		vn::BufferUsage bufferType;
+		unsigned int size = 0;
+		unsigned int stride = 0;
+		void* bufferData = nullptr;
     };
 
 
@@ -26,21 +40,19 @@ namespace vn::vk {
         unsigned int getSize();
         unsigned int getNumElements();
 
-        void uploadMesh();
+        void uploadBuffer();
 
-        void setAPIResource(VkBuffer buffer);
+        void setAPIResource(VkBuffer& buffer);
         VkBuffer& getAPIResource();
 
-        VkBuffer m_index;
+		void deleteBuffer();
 
         ~Buffer();
     private:
         VkBuffer m_buffer;
-        //VkBuffer m_index;
 
         BufferDescription m_desc;
 
         VmaAllocation m_allocation;
-        VmaAllocation m_indexAlloc;
     };
 }

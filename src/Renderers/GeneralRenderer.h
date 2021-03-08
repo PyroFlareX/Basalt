@@ -24,8 +24,8 @@ private:
 	vn::Image img;
 	
 	//Buffers
-	std::vector<vn::vk::Buffer> m_meshbuffers;
-	vn::vk::Buffer m_descriptorbuffer;
+	std::vector<vn::vk::Model*> m_models;
+	//vn::vk::Buffer m_descriptorbuffer;
 
 	// Pipeline Stuff
 	VkPipelineLayout playout;
