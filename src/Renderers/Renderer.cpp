@@ -77,7 +77,7 @@ void Renderer::doCompute()
 void Renderer::render(Camera& cam)
 {
 	//Main Pass
-	static void** params = new void*[2]{ this, &cam };
+	void* params[] = { this, &cam };
 	
 
 	Job generalRender = jobSystem.createJob([](Job job)
@@ -85,10 +85,11 @@ void Renderer::render(Camera& cam)
 			static_cast<Renderer*>(job.data[0])->m_generalRenderer->render(*static_cast<Camera*>(job.data[1]));
 		}, params);
 
-	jobSystem.schedule(generalRender);
-	//m_generalRenderer->render(cam);
+	
+	m_generalRenderer->render(cam);
 
-	jobSystem.wait();
+	//jobSystem.schedule(generalRender);
+	//jobSystem.wait();
 }
 
 void Renderer::finish(vn::vk::FramebufferData& fbo)
@@ -147,4 +148,7 @@ void Renderer::clearQueue()
 Renderer::~Renderer()
 {
     //dtor
+	vkDestroyRenderPass(device->getDevice(), renderpassdefault, nullptr);
+	vkDestroyCommandPool(device->getDevice(), m_pool, nullptr);
+	delete m_generalRenderer;
 }

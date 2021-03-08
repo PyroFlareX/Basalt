@@ -29,9 +29,16 @@ void JobSystem::schedule(Job job)
 
 void JobSystem::wait(unsigned int counterTarget, bool stayOnThread)
 {
+	Job job;
+
 	while (counterTarget < m_counter.load())
 	{
-
+		//Do some jobs on the waiting thread
+		if (normalPriority.try_pop(job))
+		{
+			job.job_Function(job);
+			m_counter--;
+		}
 	}
 	
 	return;

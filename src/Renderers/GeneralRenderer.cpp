@@ -87,7 +87,8 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) : 
 	vkCreateDescriptorSetLayout(p_device->getDevice(), , nullptr, &desclayout);*/
 
 	// Pipelines
-	vn::vk::createGraphicsPipeline(*m_renderpass, playout, gfx, mainDevice->getDevice());
+	//vn::vk::createGraphicsPipeline(*m_renderpass, playout, gfx, mainDevice->getDevice());
+	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout);
 }
 
 void GeneralRenderer::addInstance(vn::GameObject& entity)

@@ -107,6 +107,13 @@ namespace vn
 
 	Context::~Context()
 	{
+		for (int i = 0; i < m_scdetails.swapChainImageViews.size(); ++i)
+		{
+			vkDestroyImageView(m_Device->getDevice(), m_scdetails.swapChainImageViews[i], nullptr);
+		}
+		vkDestroySwapchainKHR(m_Device->getDevice(), m_swapchain, nullptr);
+		vkDestroySurfaceKHR(vn::vk::m_instance, vn::vk::m_surface, nullptr);
+
 		vkDestroyInstance(vn::vk::m_instance, nullptr);
 		glfwDestroyWindow(m_window);
 	}

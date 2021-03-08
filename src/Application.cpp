@@ -101,16 +101,19 @@ void Application::RunLoop()
 		if (t >= 1)
 		{
 			std::cout << frames << " per sec\n";
-			std::cout << dt << " ms\n";
+			std::cout << dt * 1000 << " ms\n";
 			t = 0;
 			frames = 0;
 
-			std::cout << "CAMERA X: " << this->getCam().pos.x << "\n";
+			std::cout << "CAMERA POS XZ: " << this->getCam().pos.x << " " << this->getCam().pos.z << "\n";
 			std::cout << "CAMERA ROT XY: " << this->getCam().rot.x << " " << this->getCam().rot.y << "\n";
 		}
 		handleEvents();
     }
 	m_context.close();
+
+	delete m_renderer;
+	
 }
 
 

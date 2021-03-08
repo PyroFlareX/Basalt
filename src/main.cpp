@@ -13,7 +13,7 @@ JobSystem jobSystem;
 
 struct Frame
 {
-	float dt = 0;
+	float dt = 0.0f;
 
 };
 
@@ -29,7 +29,6 @@ void print(Job job)
 
 void start(Job job)
 {
-	std::cout << "Job MAIN STARTING OWO XDDDDD\n";
 	Application app;
 
 	try {
@@ -124,6 +123,5 @@ int main() {
 	}
 	*/
 
-	system("pause");
 	return 0;
 }

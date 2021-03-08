@@ -142,12 +142,6 @@ namespace vn::vk
 	// ALSO THIS TODO
 	void cleanupSwapChain();
 
-	
-
-
-
-
-
 
 
 

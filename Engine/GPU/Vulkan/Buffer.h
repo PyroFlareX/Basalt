@@ -5,15 +5,16 @@
 #include "Device.h"
 #include <stdexcept>
 
+
+
 namespace vn::vk {
+
     struct BufferDescription
     {
         vn::Mesh m_mesh;
 
         vn::Device dev;
     };
-
-    
 
 
     class Buffer
