@@ -29,6 +29,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 
 	inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;
 	
+	// Set to Null because the finish render function has the target frame buffer to render to
 	inheritanceInfo.framebuffer = VK_NULL_HANDLE;
 
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
@@ -36,30 +37,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	// Mesh
 	m_models.emplace_back(new vn::vk::Model(vn::loadMeshFromObj("res/Models/sphere.obj"), p_device));
 
-	/*vn::vk::BufferDescription bufferdesc = {};
-	bufferdesc.dev = p_device;
-
-	vn::Mesh mesh;
-	vn::Vertex vert;
-
-	vert.position = vn::vec3(-0.5f, 0.5f, 0.6f);
-	mesh.vertices.push_back(vert);
-
-	vert.position = vn::vec3(0.5f, 0.5f, 0.6f);
-	mesh.vertices.push_back(vert);
-
-	vert.position = vn::vec3(0.0f, -0.5f, 0.6f);
-	mesh.vertices.push_back(vert);
-
-	mesh.indicies.push_back(0);
-	mesh.indicies.push_back(1);
-	mesh.indicies.push_back(2);
-	//bufferdesc.m_mesh = mesh;
-	bufferdesc.m_mesh = vn::loadMeshFromObj("res/Models/sphere.obj");
-	vn::vk::Buffer buffer(bufferdesc);
-	buffer.uploadMesh();
-	m_meshbuffers.emplace_back(buffer);*/
-
+	
 
 	// Descriptor Pools
 	VkDescriptorPoolCreateInfo descpoolinfo{};
@@ -95,7 +73,6 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	vkCreateDescriptorSetLayout(p_device->getDevice(), &desclayoutinfo, nullptr, &desclayout);
 
 	// Pipelines
-	//vn::vk::createGraphicsPipeline(*m_renderpass, playout, gfx, mainDevice->getDevice());
 	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout, desclayout);
 }
 
@@ -142,7 +119,6 @@ void GeneralRenderer::render(Camera& cam)
 		VkDeviceSize offset = 0;
 		vkCmdBindVertexBuffers(m_renderlist.at(i), 0, 1, &m_models.at(0)->getVertexBuffer()->getAPIResource(), &offset);
 		
-		//offset = 3072;//VmaAlignUp(m_models.at(0)->getVertexBuffer()->getSize(), 1024U);
 		vkCmdBindIndexBuffer(m_renderlist.at(i), m_models.at(0)->getIndexBuffer()->getAPIResource(), offset, VK_INDEX_TYPE_UINT32);
 		
 		vkCmdDrawIndexed(m_renderlist.at(i), m_models.at(0)->getIndexBuffer()->getNumElements(), 1, 0, 0, 0);
@@ -159,7 +135,7 @@ void GeneralRenderer::clearQueue()
 	m_queue.clear();
 	vkResetCommandPool(p_device->getDevice(), m_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 }
-
+// Get list of secondary cmd buffers
 std::vector<VkCommandBuffer>& GeneralRenderer::getRenderlists()
 {
 	return m_renderlist;

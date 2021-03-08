@@ -35,7 +35,7 @@ namespace vn::vk
         bufferInfo.size = getSize();
 
 		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-
+		// To get the buffer type
 		if (m_desc.bufferType == vn::BufferUsage::VERTEX_BUFFER)
 		{
 			bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
@@ -85,7 +85,7 @@ namespace vn::vk
 
 	void Buffer::deleteBuffer()
 	{
-		//vmaDestroyBuffer(m_desc.dev->getAllocator(), m_buffer, m_allocation);
+		vmaDestroyBuffer(m_desc.dev->getAllocator(), m_buffer, m_allocation);
 	}
 
 }

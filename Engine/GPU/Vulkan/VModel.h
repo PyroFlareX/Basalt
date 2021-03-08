@@ -4,6 +4,7 @@
 
 namespace vn::vk
 {
+	// This is a renderable 3D mesh
     class Model
     {
 	public:
@@ -58,7 +59,7 @@ namespace vn::vk
 		{
 			for (auto& buffer : m_modelbuffers)
 			{
-				//delete buffer;
+				delete buffer;
 			}
 		}
 

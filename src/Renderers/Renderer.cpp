@@ -86,17 +86,17 @@ void Renderer::render(Camera& cam)
 		}, params);
 
 	
-	m_generalRenderer->render(cam);
+	//m_generalRenderer->render(cam);
 
-	//jobSystem.schedule(generalRender);
-	//jobSystem.wait();
+	jobSystem.schedule(generalRender);
+	jobSystem.wait();
 }
 
 void Renderer::finish(vn::vk::FramebufferData& fbo)
 {
 	vkResetCommandPool(device->getDevice(), m_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 	//Second Pass
-	auto& renderLists = m_generalRenderer->getRenderlists();
+	auto& renderLists = m_generalRenderer->getRenderlists(); // The secondary command buffers
 
 
 	for (size_t i = 0; i < m_primaryBuffers.size(); ++i) {
