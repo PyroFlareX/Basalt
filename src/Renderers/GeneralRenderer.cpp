@@ -44,33 +44,89 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	
 	descpoolinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 	descpoolinfo.pNext = nullptr;
-	descpoolinfo.poolSizeCount = 1;
+	descpoolinfo.poolSizeCount = 1; // 2;
 
-	VkDescriptorPoolSize descpoolsize{};
-	descpoolsize.descriptorCount = 1;
-	descpoolsize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	VkDescriptorPoolSize descpoolsize[2] = {};
+	descpoolsize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descpoolsize[0].descriptorCount = 1;
+	
+	descpoolsize[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	descpoolsize[1].descriptorCount = 1;
 
-	descpoolinfo.pPoolSizes = &descpoolsize;
+	descpoolinfo.pPoolSizes = &descpoolsize[0];
 	descpoolinfo.maxSets = 1;
 
 	vkCreateDescriptorPool(p_device->getDevice(), &descpoolinfo, nullptr, &m_descpool);
 
 	// Descriptor Sets
-	VkDescriptorSetLayoutBinding setlayoutbinding{};
-	setlayoutbinding.binding = 0;
-	setlayoutbinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	setlayoutbinding.stageFlags = VK_SHADER_STAGE_ALL;
-	setlayoutbinding.descriptorCount = 1;
+	VkDescriptorSetLayoutBinding setlayoutbinding[2] = {};
+	setlayoutbinding[0].binding = 0;
+	setlayoutbinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	setlayoutbinding[0].stageFlags = VK_SHADER_STAGE_ALL;
+	setlayoutbinding[0].descriptorCount = 1;
+
+	setlayoutbinding[1].binding = 1;
+	setlayoutbinding[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	setlayoutbinding[1].stageFlags = VK_SHADER_STAGE_ALL;
+	setlayoutbinding[1].descriptorCount = 1;
 
 	VkDescriptorSetLayoutCreateInfo desclayoutinfo{};
 	desclayoutinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	desclayoutinfo.pNext = nullptr;
-	desclayoutinfo.bindingCount = 1;
-	desclayoutinfo.pBindings = &setlayoutbinding;
+	desclayoutinfo.bindingCount = 1; // 2;
+	desclayoutinfo.pBindings = &setlayoutbinding[0];
 
 	VkDescriptorSetLayout desclayout;
-	/// TODO: FINISH DESCRIPTOR SETS (DO IT BINDLESS)
+	
 	vkCreateDescriptorSetLayout(p_device->getDevice(), &desclayoutinfo, nullptr, &desclayout);
+
+	VkDescriptorSetAllocateInfo descriptorAllocInfo{};
+	descriptorAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	descriptorAllocInfo.descriptorPool = m_descpool;
+	descriptorAllocInfo.descriptorSetCount = 1;
+	descriptorAllocInfo.pSetLayouts = &desclayout;
+
+	vkAllocateDescriptorSets(p_device->getDevice(), &descriptorAllocInfo, &m_descsetglobal);
+	
+	/// TODO: FINISH DESCRIPTOR SETS (DO IT BINDLESS)
+	// Descriptor Set Buffers:
+	vn::vk::BufferDescription uniform;
+	uniform.bufferType = vn::BufferUsage::UNIFORM_BUFFER;
+	uniform.dev = p_device;
+	uniform.size = 4;
+	uniform.stride = 4;
+
+
+	vn::vk::BufferDescription storage;
+	storage.bufferType = vn::BufferUsage::STORAGE_BUFFER;
+	storage.dev = p_device;
+	storage.size = 2;
+	storage.stride = 64;
+
+	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(uniform));
+	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(storage));
+	
+	VkDescriptorBufferInfo bufferInfo1{};
+	bufferInfo1.buffer = m_descriptorBuffers.at(0)->getAPIResource();
+	bufferInfo1.offset = 0;
+	bufferInfo1.range = 16;
+
+	VkDescriptorBufferInfo bufferInfo2{};
+	bufferInfo2.buffer = m_descriptorBuffers.at(1)->getAPIResource();
+	bufferInfo2.offset = 0;
+	bufferInfo2.range = 128;
+
+	VkWriteDescriptorSet descWrite{};
+	descWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descWrite.dstSet = m_descsetglobal;
+	descWrite.dstBinding = 0;
+	descWrite.dstArrayElement = 0; // Double check later
+	descWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descWrite.descriptorCount = 1;
+	descWrite.pBufferInfo = &bufferInfo1;
+	// Double check other values later
+
+	//vkUpdateDescriptorSets(p_device->getDevice(), 1, &descWrite, 0, nullptr);
 
 	// Pipelines
 	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout, desclayout);
@@ -121,6 +177,10 @@ void GeneralRenderer::render(Camera& cam)
 		
 		vkCmdBindIndexBuffer(m_renderlist.at(i), m_models.at(0)->getIndexBuffer()->getAPIResource(), offset, VK_INDEX_TYPE_UINT32);
 		
+
+		//vkCmdBindDescriptorSets(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, playout, 0, 1, &m_descsetglobal, 0, nullptr);
+
+
 		vkCmdDrawIndexed(m_renderlist.at(i), m_models.at(0)->getIndexBuffer()->getNumElements(), 1, 0, 0, 0);
 
 		if (vkEndCommandBuffer(m_renderlist.at(i)) != VK_SUCCESS)
