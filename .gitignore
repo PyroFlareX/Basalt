@@ -352,3 +352,10 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+
+#CMake
+cmake-build-release/
+cmake-build-debug/
+
+#Jetbrains
+.idea/

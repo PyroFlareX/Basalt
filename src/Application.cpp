@@ -5,8 +5,7 @@
 
 #include <unordered_map>
 
-Application::Application() : m_camera(0)
-{
+Application::Application() : m_camera(0) {
 	pushState(std::make_unique<GameState>(*this));
 	setModeVR(false);
 
@@ -17,13 +16,11 @@ Application::Application() : m_camera(0)
 	m_renderer = new Renderer(&m_device);
 }
 
-void Application::setModeVR(bool haveVR) noexcept
-{
+void Application::setModeVR(bool haveVR) noexcept {
 	VRmode = haveVR;
 }
 
-void Application::RunLoop()
-{
+void Application::RunLoop() {
 	//Initial Utilities Setup
 	vn::Clock clock;
 	float t = 0;
@@ -35,13 +32,13 @@ void Application::RunLoop()
 	//m_context.update();
 
 	vn::vec2 winSize = vn::vec2(800.0f, 600.0f);
-	
-	
+
+
 //===================================================================================
 
 	VkRenderPass rpass;
 	vn::vk::createRenderPass(m_device.getDevice(), m_context.m_scdetails, rpass);
-	
+
 
 	vn::vk::createFramebuffers(rpass, m_context.m_scdetails, m_device.getDevice());
 
@@ -59,47 +56,44 @@ void Application::RunLoop()
 	//jobSystem.schedule(recordbufferPrimary);
 	jobSystem.wait();
 
-    while(m_context.isOpen() && !m_states.empty())
-    {
+	while (m_context.isOpen() && !m_states.empty()) {
 		dt = clock.restart();
-		
-		
-        ///Main Loop, do cycle of Input, Update, Draw, Render & Swap Buffers, Handle Events
-		
+
+
+		///Main Loop, do cycle of Input, Update, Draw, Render & Swap Buffers, Handle Events
+
 		///Clear
 		m_context.clear();
 		m_renderer->clearQueue();
-        
+
 		///Input
 		currentState().input();
-		
-        /// Update
+
+		/// Update
 		currentState().update(dt);
 		currentState().lateUpdate(&m_camera);
 		m_camera.update();
 		jobSystem.wait();
 
 
-        /// Draw
+		/// Draw
 		currentState().render(m_renderer);
 		jobSystem.wait();
 
-        /// Render
+		/// Render
 		m_renderer->render(m_camera);
-
 
 
 		m_renderer->finish(framebufdata);
 		jobSystem.wait();
 		m_context.update();
-		
 
 
-        /// Handle Window Events
+
+		/// Handle Window Events
 		t += dt;
 		frames++;
-		if (t >= 1)
-		{
+		if (t >= 1) {
 			std::cout << frames << " per sec\n";
 			std::cout << dt * 1000 << " ms\n";
 			t = 0;
@@ -109,28 +103,24 @@ void Application::RunLoop()
 			std::cout << "CAMERA ROT XY: " << this->getCam().rot.x << " " << this->getCam().rot.y << "\n";
 		}
 		handleEvents();
-    }
+	}
 	m_context.close();
 
 	delete m_renderer;
-	
+
 }
 
 
-void Application::popState()
-{
-    m_states.pop_back();
+void Application::popState() {
+	m_states.pop_back();
 }
 
-Basestate& Application::currentState()
-{
-    return *m_states.back();
+Basestate &Application::currentState() {
+	return *m_states.back();
 }
 
-void Application::handleEvents()
-{
-	if (VRmode)
-	{
+void Application::handleEvents() {
+	if (VRmode) {
 		//Handle VR Events Function
 	}
 

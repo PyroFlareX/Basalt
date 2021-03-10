@@ -11,33 +11,33 @@
 #include "States/Basestate.h"
 
 
-class Application
-{
+class Application {
 public:
-    Application();
+	Application();
 
 	//Configuration Settings
 	void setModeVR(bool haveVR) noexcept;
 
-    void RunLoop();
+	void RunLoop();
 
-    //State Stuff
+	//State Stuff
 
-	void pushState(std::unique_ptr<Basestate> state)
-	{
+	void pushState(std::unique_ptr<Basestate> state) {
 		m_states.emplace_back(std::move(state));
 	}
 
-    void popState();
-    void handleEvents();
-	Camera& getCam() 
-	{
+	void popState();
+
+	void handleEvents();
+
+	Camera &getCam() {
 		return m_camera;
 	}
+
 protected:
 
 private:
-    Basestate& currentState();
+	Basestate &currentState();
 
 	// Windowing Context
 	vn::Context m_context;
@@ -45,8 +45,8 @@ private:
 	vn::Device m_device;
 
 	Camera m_camera;
-    std::vector<std::unique_ptr<Basestate>> m_states;
-	Renderer* m_renderer;
+	std::vector<std::unique_ptr<Basestate>> m_states;
+	Renderer *m_renderer;
 
 	bool VRmode;
 };

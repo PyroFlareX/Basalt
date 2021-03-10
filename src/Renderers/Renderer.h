@@ -7,35 +7,37 @@
 #include "../../Engine/Engine.h"
 
 
-class Renderer
-{
-    public:
-        Renderer(vn::Device* device);
+class Renderer {
+public:
+	Renderer(vn::Device *device);
 
-		void drawObject(vn::GameObject& entity);
-		void doCompute();
-		void render(Camera& cam);
-		void finish(vn::vk::FramebufferData& fbo);
+	void drawObject(vn::GameObject &entity);
 
-		void clearQueue();
+	void doCompute();
 
-        ~Renderer();
+	void render(Camera &cam);
 
-		GeneralRenderer* m_generalRenderer;
-		ComputeRenderer* m_computeRenderer;
-		
-		
-    protected:
+	void finish(vn::vk::FramebufferData &fbo);
 
-    private:
-		VkRenderPass renderpassdefault;
+	void clearQueue();
 
-		std::vector<VkCommandBuffer> m_primaryBuffers;
-		VkCommandPool m_pool;
+	~Renderer();
 
-		//std::vector<vn::vk::RenderTargetFramebuffer> m_framebuffers;
+	GeneralRenderer *m_generalRenderer;
+	ComputeRenderer *m_computeRenderer;
 
-		vn::Device* device;
+
+protected:
+
+private:
+	VkRenderPass renderpassdefault;
+
+	std::vector<VkCommandBuffer> m_primaryBuffers;
+	VkCommandPool m_pool;
+
+	//std::vector<vn::vk::RenderTargetFramebuffer> m_framebuffers;
+
+	vn::Device *device;
 };
 
 #endif // RENDERER_H

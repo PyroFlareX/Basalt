@@ -2,8 +2,7 @@
 
 #include "../Engine/Engine.h"
 
-class Player : public vn::Transform
-{
+class Player : public vn::Transform {
 public:
 	Player();
 
@@ -14,6 +13,7 @@ public:
 	void update(float dt);
 
 	~Player();
+
 private:
 
 	bool isFlying;

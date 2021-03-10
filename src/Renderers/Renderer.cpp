@@ -1,7 +1,6 @@
 #include "Renderer.h"
 
-Renderer::Renderer(vn::Device* renderingDevice)
-{
+Renderer::Renderer(vn::Device *renderingDevice) {
 	device = renderingDevice;
 
 	{
@@ -56,47 +55,41 @@ Renderer::Renderer(vn::Device* renderingDevice)
 	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 	allocInfo.commandBufferCount = m_primaryBuffers.size();
 
-	if (vkAllocateCommandBuffers(device->getDevice(), &allocInfo, m_primaryBuffers.data()) != VK_SUCCESS) 
-	{
+	if (vkAllocateCommandBuffers(device->getDevice(), &allocInfo, m_primaryBuffers.data()) != VK_SUCCESS) {
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 
 	m_generalRenderer = new GeneralRenderer(renderingDevice, &renderpassdefault);
 }
 
-void Renderer::drawObject(vn::GameObject& entity)
-{
+void Renderer::drawObject(vn::GameObject &entity) {
 	m_generalRenderer->addInstance(entity);
 }
 
-void Renderer::doCompute()
-{
+void Renderer::doCompute() {
 
 }
 
-void Renderer::render(Camera& cam)
-{
+void Renderer::render(Camera &cam) {
 	//Main Pass
-	void* params[] = { this, &cam };
-	
+	void *params[] = {this, &cam};
 
-	Job generalRender = jobSystem.createJob([](Job job)
-		{
-			static_cast<Renderer*>(job.data[0])->m_generalRenderer->render(*static_cast<Camera*>(job.data[1]));
-		}, params);
 
-	
+	Job generalRender = jobSystem.createJob([](Job job) {
+		static_cast<Renderer *>(job.data[0])->m_generalRenderer->render(*static_cast<Camera *>(job.data[1]));
+	}, params);
+
+
 	//m_generalRenderer->render(cam);
 
 	jobSystem.schedule(generalRender);
 	jobSystem.wait();
 }
 
-void Renderer::finish(vn::vk::FramebufferData& fbo)
-{
+void Renderer::finish(vn::vk::FramebufferData &fbo) {
 	vkResetCommandPool(device->getDevice(), m_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 	//Second Pass
-	auto& renderLists = m_generalRenderer->getRenderlists(); // The secondary command buffers
+	auto &renderLists = m_generalRenderer->getRenderlists(); // The secondary command buffers
 
 
 	for (size_t i = 0; i < m_primaryBuffers.size(); ++i) {
@@ -111,27 +104,26 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = renderpassdefault;
 		renderPassInfo.framebuffer = fbo.handle[i];
-		renderPassInfo.renderArea.offset = { 0, 0 };
+		renderPassInfo.renderArea.offset = {0, 0};
 
 		VkExtent2D extent;
-		extent.height = (int)fbo.size.y;
-		extent.width = (int)fbo.size.x ;
+		extent.height = (int) fbo.size.y;
+		extent.width = (int) fbo.size.x;
 
 		renderPassInfo.renderArea.extent = extent;
 
 		//VkClearDepthStencilValue depthClear = {};
-		VkClearValue clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
+		VkClearValue clearColor = {0.1f, 0.1f, 0.1f, 1.0f};
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;
 		//VK_SUBPASS_CONTENTS_INLINE //VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS
 		vkCmdBeginRenderPass(m_primaryBuffers.at(i), &renderPassInfo, VK_SUBPASS_CONTENTS_SECONDARY_COMMAND_BUFFERS);
-		
+
 		vkCmdExecuteCommands(m_primaryBuffers.at(i), renderLists.size(), renderLists.data());
 
 		vkCmdEndRenderPass(m_primaryBuffers.at(i));
 
-		if (vkEndCommandBuffer(m_primaryBuffers.at(i)) != VK_SUCCESS) 
-		{
+		if (vkEndCommandBuffer(m_primaryBuffers.at(i)) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer!");
 		}
 	}
@@ -141,14 +133,12 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 	//clearQueue();
 }
 
-void Renderer::clearQueue()
-{
+void Renderer::clearQueue() {
 	m_generalRenderer->clearQueue();
 }
 
-Renderer::~Renderer()
-{
-    //dtor
+Renderer::~Renderer() {
+	//dtor
 	vkDestroyRenderPass(device->getDevice(), renderpassdefault, nullptr);
 	vkDestroyCommandPool(device->getDevice(), m_pool, nullptr);
 	delete m_generalRenderer;

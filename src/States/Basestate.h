@@ -6,19 +6,22 @@
 
 class Application;
 
-class Basestate
-{
+class Basestate {
 public:
-	Basestate(Application& app)	:	app(app)	{};
+	Basestate(Application &app) : app(app) {};
 
-    virtual bool input() = 0;
-    virtual void update(float dt) = 0;
-	virtual void lateUpdate(Camera* cam) = 0;
-	virtual void render(Renderer* renderer) = 0;
+	virtual bool input() = 0;
 
-    virtual ~Basestate() = default;
+	virtual void update(float dt) = 0;
+
+	virtual void lateUpdate(Camera *cam) = 0;
+
+	virtual void render(Renderer *renderer) = 0;
+
+	virtual ~Basestate() = default;
+
 protected:
-	Application& app;
+	Application &app;
 };
 
 

@@ -11,30 +11,26 @@
 
 JobSystem jobSystem;
 
-struct Frame
-{
+struct Frame {
 	float dt = 0.0f;
 
 };
 
-void print(Job job)
-{
-	for (int i = 0; i < 10; ++i)
-	{
+void print(Job job) {
+	for (int i = 0; i < 10; ++i) {
 		std::cout << i << std::endl;
 	}
 	std::cout << "Job done\n";
 	return;
 }
 
-void start(Job job)
-{
+void start(Job job) {
 	Application app;
 
 	try {
 		app.RunLoop();
 	}
-	catch (const std::exception& e) {
+	catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
 		system("pause");
 		return;
@@ -47,8 +43,7 @@ int main() {
 
 	Job j = jobSystem.createJob(&print);
 
-	for(int i = 0; i < 1; ++i)
-	{
+	for (int i = 0; i < 1; ++i) {
 		jobSystem.schedule(j);
 	}
 
@@ -64,7 +59,7 @@ int main() {
 	try {
 		app.RunLoop();
 	}
-	catch (const std::exception& e) {
+	catch (const std::exception &e) {
 		std::cerr << e.what() << std::endl;
 		system("pause");
 		return 1;

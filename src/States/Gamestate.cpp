@@ -1,9 +1,7 @@
 #include "Gamestate.h"
 
 
-
-GameState::GameState(Application& app)	:	Basestate(app)
-{
+GameState::GameState(Application &app) : Basestate(app) {
 	app.getCam().follow(m_player);
 
 	//Original Code For Setting Positions
@@ -38,7 +36,7 @@ GameState::GameState(Application& app)	:	Basestate(app)
 	//vn::saveStateToFile("res/Levels/Test/Test.json", m_gameObjects);*/
 
 	//Temporary 
-	
+
 
 	//Loads GameObjects
 	//vn::loadStateFromFile("res/Levels/Test/Test.json", m_gameObjects);
@@ -48,18 +46,16 @@ GameState::GameState(Application& app)	:	Basestate(app)
 	//}
 	vn::Transform t;
 	vn::GameObject gobj(t);
-	
+
 	m_gameObjects.emplace_back(gobj);
 }
 
-GameState::~GameState()
-{
+GameState::~GameState() {
 	//res/Levels/TestEnd/TestEnd.json
 	//vn::saveStateToFile("res/Levels/TestEnd/TestEnd.json", m_gameObjects);
 }
 
-bool GameState::input()
-{
+bool GameState::input() {
 
 	vInput = Input::getInput();
 
@@ -69,36 +65,31 @@ bool GameState::input()
 	return false;
 }
 
-void GameState::update(float dt)
-{
-	void* data[] = { &dt, &m_player, nullptr, &m_gameObjects };
-	
+void GameState::update(float dt) {
+	void *data[] = {&dt, &m_player, nullptr, &m_gameObjects};
+
 	//m_player.update(dt);
 
 	// Player and World updates as a Job
-	Job update = jobSystem.createJob([](Job job)
-		{
-			float deltatime = *static_cast<float*>(job.data[0]);
+	Job update = jobSystem.createJob([](Job job) {
+		float deltatime = *static_cast<float *>(job.data[0]);
 
-			static_cast<Player*>(job.data[1])->update(deltatime);
-			//m_world.update(dt);
+		static_cast<Player *>(job.data[1])->update(deltatime);
+		//m_world.update(dt);
 
-		}, data);
+	}, data);
 
 	// Updates for all objects
-	Job objUpdates = jobSystem.createJob([](Job job)
-		{
-			for (auto& obj : *static_cast<std::vector<vn::GameObject>*>(job.data[3]))
-			{
-				void* objData[] = { &obj };
-				// A job for updating each individual object
-				Job doObjectUpdate = jobSystem.createJob([](Job jobObj)
-					{
-						static_cast<vn::GameObject*>(jobObj.data[0])->update();
-					}, objData);
-				jobSystem.schedule(doObjectUpdate);
-			}
-		}, data);
+	Job objUpdates = jobSystem.createJob([](Job job) {
+		for (auto &obj : *static_cast<std::vector<vn::GameObject> *>(job.data[3])) {
+			void *objData[] = {&obj};
+			// A job for updating each individual object
+			Job doObjectUpdate = jobSystem.createJob([](Job jobObj) {
+				static_cast<vn::GameObject *>(jobObj.data[0])->update();
+			}, objData);
+			jobSystem.schedule(doObjectUpdate);
+		}
+	}, data);
 
 	// Schedule the jobs
 	jobSystem.schedule(update);
@@ -108,15 +99,12 @@ void GameState::update(float dt)
 
 }
 
-void GameState::lateUpdate(Camera* cam)
-{
-	
+void GameState::lateUpdate(Camera *cam) {
+
 }
 
-void GameState::render(Renderer* renderer)
-{		
-	for (auto& obj : m_gameObjects)
-	{
+void GameState::render(Renderer *renderer) {
+	for (auto &obj : m_gameObjects) {
 		obj.getCurrentTransform();
 		renderer->drawObject(obj);
 	}

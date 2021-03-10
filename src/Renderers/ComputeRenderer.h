@@ -2,8 +2,7 @@
 
 #include "../Camera.h"
 
-class ComputeRenderer
-{
+class ComputeRenderer {
 public:
 	ComputeRenderer();
 
@@ -11,6 +10,7 @@ public:
 	void render();
 
 	~ComputeRenderer();
+
 private:
 
 };
