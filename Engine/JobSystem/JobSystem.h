@@ -18,26 +18,23 @@ constexpr unsigned int LOW_PRIORITY_SIZE = 256;
 
 struct Job;
 
-using JobFn = void(*)(Job);
+using JobFn = void (*)(Job);
 
-struct Job
-{
+struct Job {
 	JobFn job_Function;
-	void** data;
-	Counter* counter;
+	void **data;
+	Counter *counter;
 };
 
 
-class JobSystem
-{
+class JobSystem {
 public:
 	JobSystem();
 
 	//Returns a Job from a function pointer and parameters, does not add the job to the list
-	static Job createJob(JobFn job, void** data = nullptr);
-	
-	static uint8_t numThreads()
-	{
+	static Job createJob(JobFn job, void **data = nullptr);
+
+	static uint8_t numThreads() {
 		return std::thread::hardware_concurrency();
 	}
 
@@ -51,6 +48,7 @@ public:
 	int getThreadIndex();
 
 	~JobSystem();
+
 private:
 	std::vector<std::thread> threads;
 	//std::vector<Fiber> fibers;

@@ -6,40 +6,35 @@
 #include <cctype>
 #include <functional>
 
-namespace vn
-{
-	typedef glm::vec2	vec2;
-	typedef glm::vec3	vec3;
-	typedef glm::vec4	vec4;
+namespace vn {
+	typedef glm::vec2 vec2;
+	typedef glm::vec3 vec3;
+	typedef glm::vec4 vec4;
 
-	typedef glm::u8vec2	u8vec2;
-	typedef glm::u8vec3	u8vec3;
-	typedef glm::u8vec4	u8vec4;
-	
-	typedef glm::mat4	mat4;
+	typedef glm::u8vec2 u8vec2;
+	typedef glm::u8vec3 u8vec3;
+	typedef glm::u8vec4 u8vec4;
 
-	class Transform
-	{
+	typedef glm::mat4 mat4;
+
+	class Transform {
 	public:
 		vec3 pos = vec3(0.0f, 0.0f, 0.0f);
 		vec3 rot = vec3(0.0f, 0.0f, 0.0f);
 		vec3 scale = vec3(1.0f, 1.0f, 1.0f);
 		vec3 origin = vec3(0.0f, 0.0f, 0.0f);
 
-		static Transform& translate(Transform& entity, const vec3& offset)
-		{
+		static Transform &translate(Transform &entity, const vec3 &offset) {
 			entity.pos += offset;
 			return entity;
 		}
 
-		static Transform& rotate(Transform& entity, const vec3& angle)
-		{
+		static Transform &rotate(Transform &entity, const vec3 &angle) {
 			entity.rot += angle;
 			return entity;
 		}
 
-		static Transform& rescale(Transform& entity, const vec3& relativeScale)
-		{
+		static Transform &rescale(Transform &entity, const vec3 &relativeScale) {
 			entity.scale = entity.scale * relativeScale;
 			return entity;
 		}
@@ -47,13 +42,10 @@ namespace vn
 }
 
 //For hashing (e.g. usage in std::maps)
-namespace std
-{
+namespace std {
 	template<>
-	struct hash<vn::vec3>
-	{
-		size_t operator()(const vn::vec3& vect) const noexcept
-		{
+	struct hash<vn::vec3> {
+		size_t operator()(const vn::vec3 &vect) const noexcept {
 			std::hash<decltype(vect.x)> hasher;
 
 			auto hash1 = hasher(vect.x);

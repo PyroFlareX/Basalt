@@ -3,11 +3,8 @@
 #include <GLFW/glfw3.h>
 
 
-
-namespace vn
-{
-	Context::Context()
-	{
+namespace vn {
+	Context::Context() {
 		glfwInit();
 
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -16,14 +13,14 @@ namespace vn
 		glfwSetWindowUserPointer(m_window, this);
 	}
 
-	void Context::clear()
-	{
+	void Context::clear() {
 		// Acquire the INDEX into the swapchain for the next image
-		VkResult result = vkAcquireNextImageKHR(m_Device->getDevice(), m_swapchain, UINT64_MAX, vn::vk::imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(m_Device->getDevice(), m_swapchain, UINT64_MAX,
+		                                        vn::vk::imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE,
+		                                        &imageIndex);
 	}
 
-	void Context::update()
-	{
+	void Context::update() {
 		glfwPollEvents();
 
 		VkResult result;
@@ -32,11 +29,11 @@ namespace vn
 		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
 
 		// Waits to present until the "render finished" semaphore (signal) is "signaled" (when the render is done, the semaphore is triggered by)
-		VkSemaphore signalSemaphores[] = { vn::vk::renderFinishedSemaphores[currentFrame] };
+		VkSemaphore signalSemaphores[] = {vn::vk::renderFinishedSemaphores[currentFrame]};
 		presentInfo.waitSemaphoreCount = 1;
 		presentInfo.pWaitSemaphores = signalSemaphores;
 
-		VkSwapchainKHR swapChains[] = { m_swapchain };
+		VkSwapchainKHR swapChains[] = {m_swapchain};
 		presentInfo.swapchainCount = 1;
 		presentInfo.pSwapchains = swapChains;
 
@@ -49,13 +46,11 @@ namespace vn
 		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHTA;
 	}
 
-	void Context::close()
-	{
-		
+	void Context::close() {
+
 	}
 
-	void Context::initAPI()
-	{
+	void Context::initAPI() {
 		vn::vk::createInstance("Basalt");
 		vn::vk::createSurface(m_window);
 		m_Device->init();
@@ -76,39 +71,35 @@ namespace vn
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
 		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHTA; i++) {
-			if (vkCreateSemaphore(m_Device->getDevice(), &semaphoreInfo, nullptr, &vn::vk::imageAvailableSemaphores[i]) != VK_SUCCESS ||
-				vkCreateSemaphore(m_Device->getDevice(), &semaphoreInfo, nullptr, &vn::vk::renderFinishedSemaphores[i]) != VK_SUCCESS ||
-				vkCreateFence(m_Device->getDevice(), &fenceInfo, nullptr, &vn::vk::inFlightFences[i]) != VK_SUCCESS) {
+			if (vkCreateSemaphore(m_Device->getDevice(), &semaphoreInfo, nullptr,
+			                      &vn::vk::imageAvailableSemaphores[i]) != VK_SUCCESS ||
+			    vkCreateSemaphore(m_Device->getDevice(), &semaphoreInfo, nullptr,
+			                      &vn::vk::renderFinishedSemaphores[i]) != VK_SUCCESS ||
+			    vkCreateFence(m_Device->getDevice(), &fenceInfo, nullptr, &vn::vk::inFlightFences[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create synchronization objects for a frame!");
 			}
 		}
 
-		
+
 	}
 
-	bool Context::isOpen()
-	{
-		if (glfwWindowShouldClose(m_window))
-		{
+	bool Context::isOpen() {
+		if (glfwWindowShouldClose(m_window)) {
 			return false;
 		}
 		return true;
 	}
 
-	GLFWwindow* Context::getContext()
-	{
+	GLFWwindow *Context::getContext() {
 		return m_window;
 	}
 
-	void Context::setDeviceptr(Device* pdevice)
-	{
+	void Context::setDeviceptr(Device *pdevice) {
 		m_Device = pdevice;
 	}
 
-	Context::~Context()
-	{
-		for (int i = 0; i < m_scdetails.swapChainImageViews.size(); ++i)
-		{
+	Context::~Context() {
+		for (int i = 0; i < m_scdetails.swapChainImageViews.size(); ++i) {
 			vkDestroyImageView(m_Device->getDevice(), m_scdetails.swapChainImageViews[i], nullptr);
 		}
 		vkDestroySwapchainKHR(m_Device->getDevice(), m_swapchain, nullptr);

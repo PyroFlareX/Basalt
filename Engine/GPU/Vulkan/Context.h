@@ -4,29 +4,32 @@
 #include "Framebuffer.h"
 #include "VModel.h"
 
-namespace vn
-{
-	class Context
-	{
+namespace vn {
+	class Context {
 	public:
 		Context();
 
 		void clear();
+
 		void update();
+
 		void close();
+
 		void initAPI();
+
 		bool isOpen();
 
-		GLFWwindow* getContext();
-		void setDeviceptr(Device* pdevice);
+		GLFWwindow *getContext();
+
+		void setDeviceptr(Device *pdevice);
 
 		~Context();
 
 		SwapChainDetails m_scdetails;
 	private: // For members
-		GLFWwindow* m_window;
+		GLFWwindow *m_window;
 
-		Device* m_Device;
+		Device *m_Device;
 
 		//SwapChainDetails m_scdetails;
 		VkSwapchainKHR m_swapchain;

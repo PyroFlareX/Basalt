@@ -3,19 +3,17 @@
 #include "../../Resources/Mesh.h"
 #include "glad/glad/glad.h"
 
-class Model
-{
+class Model {
 public:
 	Model() = default;
-	Model(const vn::Mesh& mesh)
-	{
+
+	Model(const vn::Mesh &mesh) {
 		addData(mesh);
 	}
 
 	~Model() { deleteData(); }
 
-	void addData(const vn::Mesh& mesh)
-	{
+	void addData(const vn::Mesh &mesh) {
 		genVAO();
 
 		//addVBO(3, mesh.vertices);
@@ -27,13 +25,11 @@ public:
 		glBindVertexArray(0);
 	}
 
-	void deleteData()
-	{
+	void deleteData() {
 		glBindVertexArray(0);
 		glDeleteVertexArrays(1, &m_info.VAO);
-		
-		if (bufferObjects.size() > 0)
-		{
+
+		if (bufferObjects.size() > 0) {
 			glDeleteBuffers(bufferObjects.size(), bufferObjects.data());
 		}
 
@@ -41,22 +37,21 @@ public:
 		vboCount = 0;
 	}
 
-	void genVAO()
-	{
+	void genVAO() {
 		glGenVertexArrays(1, &m_info.VAO); //VAO
-		glBindVertexArray(m_info.VAO);		//Bind VAO
-	}
-	void bindVAO()
-	{
-		glBindVertexArray(m_info.VAO);		//Bind VAO
+		glBindVertexArray(m_info.VAO);        //Bind VAO
 	}
 
-	void addVBO(int dim, const std::vector<float>& data)
-	{
+	void bindVAO() {
+		glBindVertexArray(m_info.VAO);        //Bind VAO
+	}
+
+	void addVBO(int dim, const std::vector<float> &data) {
 		unsigned int VBO;
-		glGenBuffers(1, &VBO);		//Gen VBO
+		glGenBuffers(1, &VBO);        //Gen VBO
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(/*vn::Vertex*/ float) * data.size(), data.data(), GL_STATIC_DRAW);	//Store Verticies
+		glBufferData(GL_ARRAY_BUFFER, sizeof(/*vn::Vertex*/ float) * data.size(), data.data(),
+		             GL_STATIC_DRAW);    //Store Verticies
 		//Shader Attributes
 		//Position
 		glVertexAttribPointer(static_cast<GLuint>(vboCount), dim, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -71,36 +66,38 @@ public:
 		bufferObjects.push_back(VBO);
 	}
 
-	void addVBOVert(int dim, const std::vector<vn::Vertex>& data)
-	{
+	void addVBOVert(int dim, const std::vector<vn::Vertex> &data) {
 		unsigned int VBO;
-		glGenBuffers(1, &VBO);		//Gen VBO
+		glGenBuffers(1, &VBO);        //Gen VBO
 		glBindBuffer(GL_ARRAY_BUFFER, VBO);
-		glBufferData(GL_ARRAY_BUFFER, sizeof(vn::Vertex) * data.size(), data.data(), GL_STATIC_DRAW);	//Store Verticies
+		glBufferData(GL_ARRAY_BUFFER, sizeof(vn::Vertex) * data.size(), data.data(),
+		             GL_STATIC_DRAW);    //Store Verticies
 		//Shader Attributes
 		//Position
 		glEnableVertexAttribArray(static_cast<GLuint>(vboCount));
 		glVertexAttribPointer(static_cast<GLuint>(vboCount), 3, GL_FLOAT, GL_FALSE, sizeof(vn::Vertex), nullptr);
-		
+
 		//Normals
 		glEnableVertexAttribArray(static_cast<GLuint>(++vboCount));
-		glVertexAttribPointer(static_cast<GLuint>(vboCount), 3, GL_FLOAT, GL_FALSE, sizeof(vn::Vertex), (void*)(3 * sizeof(float)));
-		
+		glVertexAttribPointer(static_cast<GLuint>(vboCount), 3, GL_FLOAT, GL_FALSE, sizeof(vn::Vertex),
+		                      (void *) (3 * sizeof(float)));
+
 		//UV
 		glEnableVertexAttribArray(static_cast<GLuint>(++vboCount));
-		glVertexAttribPointer(static_cast<GLuint>(vboCount), 2, GL_FLOAT, GL_FALSE, sizeof(vn::Vertex), (void*)(6 * sizeof(float)));
-		
+		glVertexAttribPointer(static_cast<GLuint>(vboCount), 2, GL_FLOAT, GL_FALSE, sizeof(vn::Vertex),
+		                      (void *) (6 * sizeof(float)));
+
 
 		bufferObjects.push_back(VBO);
 	}
 
-	void addEBO(const std::vector<unsigned int>& indicies)
-	{
+	void addEBO(const std::vector<unsigned int> &indicies) {
 		m_info.indiciesCount = indicies.size();
 		unsigned int EBO;
-		glGenBuffers(1, &EBO);		//Gen EBO
+		glGenBuffers(1, &EBO);        //Gen EBO
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indicies.size(), indicies.data(), GL_STATIC_DRAW);	//Store Indicies
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * indicies.size(), indicies.data(),
+		             GL_STATIC_DRAW);    //Store Indicies
 	}
 
 	//Unnecessary Currently
@@ -124,7 +121,7 @@ public:
 
 	int getNumIndicies() const { return m_info.indiciesCount; }
 
-	vn::renderInfo& getInfo() { return m_info; }
+	vn::renderInfo &getInfo() { return m_info; }
 
 private:
 	vn::renderInfo m_info;

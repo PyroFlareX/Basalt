@@ -1,6 +1,5 @@
 #include "GameObject.h"
 
-namespace vn
-{
-	
+namespace vn {
+
 }

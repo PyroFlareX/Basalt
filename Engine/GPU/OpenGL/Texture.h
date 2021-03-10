@@ -3,20 +3,16 @@
 #include "../glad/glad/glad.h"
 #include "Image.h"
 
-namespace vn
-{
-	class Texture
-	{
+namespace vn {
+	class Texture {
 	public:
-		Texture()
-		{
+		Texture() {
 			glGenTextures(1, &ID);
 			glBindTexture(GL_TEXTURE_2D, ID);
 			glBindTexture(GL_TEXTURE_2D, 0);
 		}
 
-		Texture(const std::string& filepath)
-		{
+		Texture(const std::string &filepath) {
 			glGenTextures(1, &ID);
 			glBindTexture(GL_TEXTURE_2D, ID);
 			glBindTexture(GL_TEXTURE_2D, 0);
@@ -24,13 +20,13 @@ namespace vn
 			this->loadFromFile(filepath);
 		}
 
-		void loadFromFile(const std::string& filepath)
-		{
+		void loadFromFile(const std::string &filepath) {
 			Image i;
 			i.loadFromFile(filepath);
 
 			bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, i.getSize().x, i.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, i.getPixelsPtr());
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, i.getSize().x, i.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+			             i.getPixelsPtr());
 
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
@@ -40,10 +36,10 @@ namespace vn
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1);
 		}
 
-		void loadFromImage(const Image i)
-		{
+		void loadFromImage(const Image i) {
 			bind();
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, i.getSize().x, i.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE, i.getPixelsPtr());
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, i.getSize().x, i.getSize().y, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+			             i.getPixelsPtr());
 
 			glGenerateMipmap(GL_TEXTURE_2D);
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST_MIPMAP_NEAREST);
@@ -53,13 +49,11 @@ namespace vn
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAX_LEVEL, 1);
 		}
 
-		const void bind()
-		{
+		const void bind() {
 			glBindTexture(GL_TEXTURE_2D, ID);
 		}
 
-		~Texture()
-		{
+		~Texture() {
 			glDeleteTextures(1, &ID);
 		}
 

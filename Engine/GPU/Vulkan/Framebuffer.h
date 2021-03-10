@@ -2,24 +2,22 @@
 
 #include "../../Types/Types.h"
 
-namespace vn::vk
-{
-	struct FramebufferData
-	{
+namespace vn::vk {
+	struct FramebufferData {
 		std::vector<VkFramebuffer> handle;
 		VkImageView imgView;
 		vn::vec2 size;
 	};
 
 
-	class RenderTargetFramebuffer
-	{
+	class RenderTargetFramebuffer {
 	public:
-		RenderTargetFramebuffer(vn::Device device, VkRenderPass& renderPass, vn::vec2 extent);
+		RenderTargetFramebuffer(vn::Device device, VkRenderPass &renderPass, vn::vec2 extent);
 
 		FramebufferData getFramebufferData();
 
 		~RenderTargetFramebuffer();
+
 	private:
 		VkFramebuffer handle;
 		VkImage img;

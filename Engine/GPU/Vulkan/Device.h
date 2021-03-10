@@ -3,24 +3,26 @@
 #include "VulkanHelpers.h"
 
 
-namespace vn
-{
+namespace vn {
 
-	class Device
-	{
+	class Device {
 	public:
 		Device();
 
 		void init();
 
 		QueueFamilyIndices getQueueFamilies();
-		SwapChainSupportDetails getSwapchainDetails();
-		VkDevice& getDevice();
 
-		void submitWork(std::vector<VkCommandBuffer>& cmdbuffer);
-		VmaAllocator& getAllocator();
+		SwapChainSupportDetails getSwapchainDetails();
+
+		VkDevice &getDevice();
+
+		void submitWork(std::vector<VkCommandBuffer> &cmdbuffer);
+
+		VmaAllocator &getAllocator();
 
 		VkQueue getPresentQueue();
+
 	private:
 		VkPhysicalDevice physDevice;
 		VkDevice device;

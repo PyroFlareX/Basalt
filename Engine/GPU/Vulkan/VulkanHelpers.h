@@ -1,6 +1,7 @@
 #pragma once
 
 #define GLFW_INCLUDE_VULKAN
+
 #include <GLFW/glfw3.h>
 
 #include "VMA/vk_mem_alloc.h"
@@ -17,8 +18,7 @@
 #include <set>
 #include <optional>
 
-namespace vn
-{
+namespace vn {
 	class Device;
 }
 struct QueueFamilyIndices {
@@ -36,23 +36,20 @@ struct SwapChainSupportDetails {
 	std::vector<VkPresentModeKHR> presentModes;
 };
 
-struct VertexInputDescription 
-{
-    std::vector<VkVertexInputBindingDescription> bindings;
-    std::vector<VkVertexInputAttributeDescription> attributes;
+struct VertexInputDescription {
+	std::vector<VkVertexInputBindingDescription> bindings;
+	std::vector<VkVertexInputAttributeDescription> attributes;
 
-    VkPipelineVertexInputStateCreateFlags flags = 0;
+	VkPipelineVertexInputStateCreateFlags flags = 0;
 };
 
-struct PushConstantsStruct
-{
-    vn::mat4 model;
+struct PushConstantsStruct {
+	vn::mat4 model;
 	vn::mat4 view;
-    vn::mat4 proj;
+	vn::mat4 proj;
 };
 
-struct SwapChainDetails
-{
+struct SwapChainDetails {
 	std::vector<VkImage> swapChainImages;
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
@@ -61,9 +58,7 @@ struct SwapChainDetails
 };
 
 
-
-namespace vn::vk
-{
+namespace vn::vk {
 	//GLOBALS
 	extern VkInstance m_instance;
 	extern VkSurfaceKHR m_surface;
@@ -75,64 +70,96 @@ namespace vn::vk
 	extern std::vector<VkSemaphore> renderFinishedSemaphores;
 	extern std::vector<VkFence> inFlightFences;
 	extern std::vector<VkFence> imagesInFlight;
-	
+
 	class RenderTargetFramebuffer;
 
 	//Creates an instance of Vulkan
 	void createInstance(std::string name);
+
 	//Creates a renderable surface for Vulkan
-	void createSurface(GLFWwindow* window);
+	void createSurface(GLFWwindow *window);
 
-	void pickPhysicalDevice(VkPhysicalDevice& physicalDevice);
-	void createLogicalDevice(VkDevice& device, VkPhysicalDevice& physicalDevice, VkQueue& graphicsQueue, VkQueue& presentQueue);
+	void pickPhysicalDevice(VkPhysicalDevice &physicalDevice);
 
-	void createSwapChain(VkSwapchainKHR& swapchain, vn::Device& device, SwapChainDetails& swapdetails, GLFWwindow* window);
-	void createImageViews(SwapChainDetails& swapdetails, VkDevice device);
-	void recreateSwapChain(GLFWwindow* window, VkDevice device);
+	void createLogicalDevice(VkDevice &device, VkPhysicalDevice &physicalDevice, VkQueue &graphicsQueue,
+	                         VkQueue &presentQueue);
 
-	void createRenderPass(VkDevice& device, SwapChainDetails& Swapdetails, VkRenderPass& renderPass);
-	void createGraphicsPipeline(VkRenderPass& renderPass,/* SwapChainDetails& swapdetails, */VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device);
+	void
+	createSwapChain(VkSwapchainKHR &swapchain, vn::Device &device, SwapChainDetails &swapdetails, GLFWwindow *window);
 
-	void createPipeline(vn::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout);
+	void createImageViews(SwapChainDetails &swapdetails, VkDevice device);
 
-	void createFramebuffers(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkDevice device);
-	void createCommandPool(vn::Device& device, VkCommandPool& commandPool);
-	void createCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers);
+	void recreateSwapChain(GLFWwindow *window, VkDevice device);
 
-	void createSecondaryCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, VkCommandBuffer& commandBuffers);
+	void createRenderPass(VkDevice &device, SwapChainDetails &Swapdetails, VkRenderPass &renderPass);
 
-	void createCommandLists(VkDevice device, VkCommandPool& commandPool, RenderTargetFramebuffer& framebuffer, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers);
-	
+	void createGraphicsPipeline(VkRenderPass &renderPass,/* SwapChainDetails& swapdetails, */
+	                            VkPipelineLayout &pipelineLayout, VkPipeline &graphicsPipeline, VkDevice device);
+
+	void createPipeline(vn::Device &device, VkPipeline &pipeline, VkRenderPass &rpass, VkPipelineLayout &playout,
+	                    VkDescriptorSetLayout &dlayout);
+
+	void createFramebuffers(VkRenderPass &renderPass, SwapChainDetails &swapdetails, VkDevice device);
+
+	void createCommandPool(vn::Device &device, VkCommandPool &commandPool);
+
+	void createCommandBuffers(VkDevice device, VkCommandPool &commandPool, SwapChainDetails &swapdetails,
+	                          VkPipeline graphicsPipeline, VkRenderPass renderPass,
+	                          std::vector<VkCommandBuffer> &commandBuffers, std::vector<VkCommandBuffer> &secBuffers);
+
+	void createSecondaryCommandBuffers(VkDevice device, VkCommandPool &commandPool, SwapChainDetails &swapdetails,
+	                                   VkPipeline graphicsPipeline, VkRenderPass renderPass,
+	                                   VkCommandBuffer &commandBuffers);
+
+	void createCommandLists(VkDevice device, VkCommandPool &commandPool, RenderTargetFramebuffer &framebuffer,
+	                        VkPipeline graphicsPipeline, VkRenderPass renderPass,
+	                        std::vector<VkCommandBuffer> &commandBuffers, std::vector<VkCommandBuffer> &secBuffers);
+
 
 	VertexInputDescription getVertexDescription();
 
 
-
 	//Dont use
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
 	//Dont use
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+
 	//Dont use
-	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
+	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
+
 	//Dont use
-	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
+
 	//Dont use
-	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities, GLFWwindow* window);
+	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, GLFWwindow *window);
+
 	//Dont use
-	VkShaderModule createShaderModule(const std::vector<char>& code, VkDevice device);
-	
+	VkShaderModule createShaderModule(const std::vector<char> &code, VkDevice device);
+
 	bool isDeviceSuitable(VkPhysicalDevice device);
+
 	bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-	std::vector<const char*> getRequiredExtensions();
+
+	std::vector<const char *> getRequiredExtensions();
 
 	//VALIDATION LAYER STUFF
-	VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType, const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData);
+	VKAPI_ATTR VkBool32 VKAPI_CALL
+	debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
+	              const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData);
 
 	void setupDebugMessenger();
-	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
+
+	void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+
 	bool checkValidationLayerSupport();
-	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT * pDebugMessenger);
-	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
+
+	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
+	                                      const VkAllocationCallbacks *pAllocator,
+	                                      VkDebugUtilsMessengerEXT *pDebugMessenger);
+
+	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
+	                                   const VkAllocationCallbacks *pAllocator);
 
 
 	// TODO IDK HOW TO WITHOUT GLOBALS
@@ -143,15 +170,13 @@ namespace vn::vk
 	void cleanupSwapChain();
 
 
+	const std::vector<const char *> deviceExtensions =
+			{
+					VK_KHR_SWAPCHAIN_EXTENSION_NAME
+			};
 
-
-	const std::vector<const char*> deviceExtensions =
-	{
-		VK_KHR_SWAPCHAIN_EXTENSION_NAME
-	};
-
-	const std::vector<const char*> validationLayers =
-	{
-		"VK_LAYER_KHRONOS_validation"
-	};
+	const std::vector<const char *> validationLayers =
+			{
+					"VK_LAYER_KHRONOS_validation"
+			};
 }

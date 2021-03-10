@@ -2,12 +2,11 @@
 #define INPUT_H
 
 #define GLFW_INCLUDE_VULKAN
+
 #include <GLFW/glfw3.h>
 
-namespace Input
-{
-	struct Inputs
-	{
+namespace Input {
+	struct Inputs {
 		bool up;
 		bool down;
 		int LX;
@@ -20,7 +19,7 @@ namespace Input
 
 	Inputs getInput();
 
-	extern GLFWwindow* window;
+	extern GLFWwindow *window;
 };
 
 #endif // INPUT_H

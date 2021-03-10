@@ -2,14 +2,13 @@
 
 #include <array>
 
-using F_ptr = void(*)(void*);
+using F_ptr = void (*)(void *);
 constexpr int MAX_ARGS = 8;
 
-struct Fiber
-{
+struct Fiber {
 	F_ptr fiberFunction;
-	std::array<void*, MAX_ARGS> args;
+	std::array<void *, MAX_ARGS> args;
 
-	void* handle;
+	void *handle;
 
 };

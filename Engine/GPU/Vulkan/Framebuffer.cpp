@@ -1,11 +1,8 @@
 #include "Framebuffer.h"
 
 
-
-namespace vn::vk
-{
-	RenderTargetFramebuffer::RenderTargetFramebuffer(vn::Device device, VkRenderPass& renderPass, vn::vec2 extent)
-	{
+namespace vn::vk {
+	RenderTargetFramebuffer::RenderTargetFramebuffer(vn::Device device, VkRenderPass &renderPass, vn::vec2 extent) {
 		m_size = extent;
 
 		//Allocation Info
@@ -90,7 +87,7 @@ namespace vn::vk
 
 		// CREATE FRAMEBUFFER
 		VkImageView attachments[] = {
-			imgView
+				imgView
 		};
 
 		VkFramebufferCreateInfo framebufferInfo{};
@@ -107,13 +104,11 @@ namespace vn::vk
 		}
 	}
 
-	FramebufferData RenderTargetFramebuffer::getFramebufferData()
-	{
+	FramebufferData RenderTargetFramebuffer::getFramebufferData() {
 		return FramebufferData();// { handle, imgView, m_size };
 	}
 
-	RenderTargetFramebuffer::~RenderTargetFramebuffer()
-	{
-		
+	RenderTargetFramebuffer::~RenderTargetFramebuffer() {
+
 	}
 }

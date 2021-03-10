@@ -5,14 +5,11 @@
 #include <glm/gtx/euler_angles.hpp>
 #include <iostream>
 
-namespace vn
-{
-	class GameObject
-	{
+namespace vn {
+	class GameObject {
 	public:
-		GameObject(Transform& trans) : transform(trans)
-		{
-			
+		GameObject(Transform &trans) : transform(trans) {
+
 			hasTransform = true;
 			mass = 1.0f;
 
@@ -22,19 +19,16 @@ namespace vn
 		};
 
 
-		virtual void init()
-		{
+		virtual void init() {
 
 		};
 
-		virtual void update()
-		{
+		virtual void update() {
 
 		};
 
 		// @Brief Returns the current Transform (internal engine) of the object so it may be used in graphics
-		Transform& getCurrentTransform()
-		{
+		Transform &getCurrentTransform() {
 			/*if (!hasTransform)
 			{
 				Transform trans;
@@ -60,17 +54,18 @@ namespace vn
 			return transform;
 		}
 
-		float				mass;
+		float mass;
 
 		int model_id = 0;
 		int texture_id = 0;
 
 		virtual ~GameObject() = default;
+
 	private:
 
 		bool hasTransform = false;
 
 		Transform transform;
-		
+
 	};
 }

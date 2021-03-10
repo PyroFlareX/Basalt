@@ -1,6 +1,5 @@
 #include "Types.h"
 
-namespace vn
-{
-	
+namespace vn {
+
 }

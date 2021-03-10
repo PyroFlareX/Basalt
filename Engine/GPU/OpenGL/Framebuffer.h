@@ -4,13 +4,10 @@
 #include "Texture.h"
 #include <iostream>
 
-namespace vn
-{
-	class Framebuffer
-	{
+namespace vn {
+	class Framebuffer {
 	public:
-		Framebuffer(vec2 size)	:	m_size(size),	FBO(0),	RBO(0)
-		{
+		Framebuffer(vec2 size) : m_size(size), FBO(0), RBO(0) {
 			glGenFramebuffers(1, &FBO);
 			glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 			// Create a color attachment texture
@@ -25,26 +22,25 @@ namespace vn
 			glBindRenderbuffer(GL_RENDERBUFFER, RBO);
 			glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, m_size.x, m_size.y);
 			glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_RENDERBUFFER, RBO);
-			
+
 			if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 				std::cout << "Framebuffer is not complete!" << std::endl;
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		}
 
-		void bind()
-		{
+		void bind() {
 			glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 		}
-		Texture& getTexture()
-		{
+
+		Texture &getTexture() {
 			return m_texture;
 		}
 
-		~Framebuffer()
-		{
+		~Framebuffer() {
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
 			glDeleteFramebuffers(1, &FBO);
 		}
+
 	private:
 		vec2 m_size;
 		Texture m_texture;

@@ -12,9 +12,7 @@
 
 extern JobSystem jobSystem;
 
-namespace vn
-{
-
+namespace vn {
 
 
 }
