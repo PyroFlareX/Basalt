@@ -504,7 +504,7 @@ namespace vn::vk
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0; // Change to 1 for desciptors
+		pipelineLayoutInfo.setLayoutCount = 1; // Change to 1 for desciptors
 		pipelineLayoutInfo.pSetLayouts = &dlayout;
 
 		VkPushConstantRange constants{};

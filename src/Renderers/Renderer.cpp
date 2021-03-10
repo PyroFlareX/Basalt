@@ -119,6 +119,7 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 
 		renderPassInfo.renderArea.extent = extent;
 
+		//VkClearDepthStencilValue depthClear = {};
 		VkClearValue clearColor = { 0.1f, 0.1f, 0.1f, 1.0f };
 		renderPassInfo.clearValueCount = 1;
 		renderPassInfo.pClearValues = &clearColor;

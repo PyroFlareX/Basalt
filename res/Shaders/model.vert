@@ -1,14 +1,26 @@
 #version 450
 #extension GL_ARB_separate_shader_objects : enable
 
+struct outVert
+{
+	vec3 fragPos;
+	vec3 normal;
+	vec2 textureCoordinates;
+};
 
 layout(location = 0) in vec3 aPos;
 layout(location = 1) in vec3 aNormal;
 layout(location = 2) in vec2 aTexCoord;
 
-layout (location = 2) out vec2 textureCoordinates;
-layout (location = 1) out vec3 normal;
-layout (location = 0) out vec3 fragPos;
+layout (location = 0) out outVert outVertShader;
+
+layout (set = 0, binding = 0) uniform testbuffer
+{
+	float x;
+	float y;
+	float z;
+	float w;
+} testbufferdata;
 
 layout ( push_constant ) uniform constants
 {
@@ -28,8 +40,8 @@ vec3 colors[3] = vec3[](
 
 void main()
 {
-	fragPos = aPos; //vec3(PushConstants.model * vec4(aPos, 1.0));
-	textureCoordinates = aTexCoord;
-	normal = aNormal; //vec3(PushConstants.model * vec4(aNormal, 0.0));
+	outVertShader.fragPos = aPos; //vec3(PushConstants.model * vec4(aPos, 1.0));
+	outVertShader.textureCoordinates = aTexCoord;
+	outVertShader.normal = aNormal; //vec3(PushConstants.model * vec4(aNormal, 0.0));
 	gl_Position = PushConstants.proj * PushConstants.view * /*PushConstants.model */ vec4(aPos, 1.0);
 }

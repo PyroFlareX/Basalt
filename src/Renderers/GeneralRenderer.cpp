@@ -75,6 +75,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	desclayoutinfo.pNext = nullptr;
 	desclayoutinfo.bindingCount = 1; // 2;
 	desclayoutinfo.pBindings = &setlayoutbinding[0];
+	desclayoutinfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT;
 
 	VkDescriptorSetLayout desclayout;
 	
@@ -89,13 +90,24 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	vkAllocateDescriptorSets(p_device->getDevice(), &descriptorAllocInfo, &m_descsetglobal);
 	
 	/// TODO: FINISH DESCRIPTOR SETS (DO IT BINDLESS)
+
+	struct test
+	{
+		float x = 1;
+		float y = 2;
+		float z = 3;
+		float w = 4;
+	};
+
+	test* uniformbufferthing = new test;
+
 	// Descriptor Set Buffers:
 	vn::vk::BufferDescription uniform;
 	uniform.bufferType = vn::BufferUsage::UNIFORM_BUFFER;
 	uniform.dev = p_device;
 	uniform.size = 4;
 	uniform.stride = 4;
-
+	uniform.bufferData = uniformbufferthing;
 
 	vn::vk::BufferDescription storage;
 	storage.bufferType = vn::BufferUsage::STORAGE_BUFFER;
@@ -106,6 +118,9 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(uniform));
 	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(storage));
 	
+	m_descriptorBuffers.at(0)->uploadBuffer();
+	//m_descriptorBuffers.at(1)->uploadBuffer();
+
 	VkDescriptorBufferInfo bufferInfo1{};
 	bufferInfo1.buffer = m_descriptorBuffers.at(0)->getAPIResource();
 	bufferInfo1.offset = 0;
@@ -126,7 +141,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	descWrite.pBufferInfo = &bufferInfo1;
 	// Double check other values later
 
-	//vkUpdateDescriptorSets(p_device->getDevice(), 1, &descWrite, 0, nullptr);
+	vkUpdateDescriptorSets(p_device->getDevice(), 1, &descWrite, 0, nullptr);
 
 	// Pipelines
 	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout, desclayout);
@@ -169,6 +184,8 @@ void GeneralRenderer::render(Camera& cam)
 
 		vkCmdBindPipeline(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, gfx);
 
+		vkCmdBindDescriptorSets(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, playout, 0, 1, &m_descsetglobal, 0, nullptr);
+
 		vkCmdPushConstants(m_renderlist.at(i), playout,
 			VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
 
@@ -177,9 +194,6 @@ void GeneralRenderer::render(Camera& cam)
 		
 		vkCmdBindIndexBuffer(m_renderlist.at(i), m_models.at(0)->getIndexBuffer()->getAPIResource(), offset, VK_INDEX_TYPE_UINT32);
 		
-
-		//vkCmdBindDescriptorSets(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, playout, 0, 1, &m_descsetglobal, 0, nullptr);
-
 
 		vkCmdDrawIndexed(m_renderlist.at(i), m_models.at(0)->getIndexBuffer()->getNumElements(), 1, 0, 0, 0);
 
