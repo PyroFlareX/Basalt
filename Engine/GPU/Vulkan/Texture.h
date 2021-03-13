@@ -5,6 +5,12 @@
 
 namespace vn::vk
 {
+	struct texture_t
+	{
+		VkImage imgvk;
+		VkImageView imgviewvk;
+	};
+
 	class Texture
 	{
 	public:
@@ -13,8 +19,16 @@ namespace vn::vk
 		// Upload the img here
 		void loadFromImage(vn::Image& img);
 
+		texture_t getAPITextureInfo()
+		{
+			return texture_t{ textureImg, textureImgView };
+		}
+
 	private:
 		VkImage textureImg;
+		VkImageView textureImgView;
 		VmaAllocation textureAllocation;
+
+		vn::Device* p_device;
 	};
 }

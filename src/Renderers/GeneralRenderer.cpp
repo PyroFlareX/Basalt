@@ -8,6 +8,8 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	m_renderpass = rpass;
 
 	img.loadFromFile("res/container.jpg");
+	vn::vk::Texture texture(p_device);
+	texture.loadFromImage(img);
 	
 
 	m_renderlist.resize(1);
@@ -59,21 +61,26 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	vkCreateDescriptorPool(p_device->getDevice(), &descpoolinfo, nullptr, &m_descpool);
 
 	// Descriptor Sets
-	VkDescriptorSetLayoutBinding setlayoutbinding[2] = {};
+	VkDescriptorSetLayoutBinding setlayoutbinding[3] = {};
 	setlayoutbinding[0].binding = 0;
 	setlayoutbinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	setlayoutbinding[0].stageFlags = VK_SHADER_STAGE_ALL;
 	setlayoutbinding[0].descriptorCount = 1;
 
 	setlayoutbinding[1].binding = 1;
-	setlayoutbinding[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	setlayoutbinding[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 	setlayoutbinding[1].stageFlags = VK_SHADER_STAGE_ALL;
 	setlayoutbinding[1].descriptorCount = 1;
+	
+	setlayoutbinding[2].binding = 2;
+	setlayoutbinding[2].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLER;
+	setlayoutbinding[2].stageFlags = VK_SHADER_STAGE_ALL;
+	setlayoutbinding[2].descriptorCount = 1;
 
 	VkDescriptorSetLayoutCreateInfo desclayoutinfo{};
 	desclayoutinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	desclayoutinfo.pNext = nullptr;
-	desclayoutinfo.bindingCount = 1; // 2;
+	desclayoutinfo.bindingCount = 3; // 2;
 	desclayoutinfo.pBindings = &setlayoutbinding[0];
 	desclayoutinfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT;
 
@@ -102,6 +109,8 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	test* uniformbufferthing = new test;
 
 	// Descriptor Set Buffers:
+
+	// Uniform buffer
 	vn::vk::BufferDescription uniform;
 	uniform.bufferType = vn::BufferUsage::UNIFORM_BUFFER;
 	uniform.dev = p_device;
@@ -109,6 +118,11 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	uniform.stride = 4;
 	uniform.bufferData = uniformbufferthing;
 
+	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(uniform));
+
+	m_descriptorBuffers.at(0)->uploadBuffer();
+
+	//Storage Buffer
 	vn::vk::BufferDescription storage;
 	storage.bufferType = vn::BufferUsage::STORAGE_BUFFER;
 	storage.dev = p_device;
@@ -116,10 +130,8 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	storage.stride = 64;
 	storage.bufferData = nullptr;
 
-	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(uniform));
 	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(storage));
-	
-	m_descriptorBuffers.at(0)->uploadBuffer();
+
 	//m_descriptorBuffers.at(1)->uploadBuffer();
 
 	VkDescriptorBufferInfo bufferInfo1{};
@@ -132,17 +144,35 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	bufferInfo2.offset = 0;
 	bufferInfo2.range = 128;
 
-	VkWriteDescriptorSet descWrite{};
-	descWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descWrite.dstSet = m_descsetglobal;
-	descWrite.dstBinding = 0;
-	descWrite.dstArrayElement = 0; // Double check later
-	descWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	descWrite.descriptorCount = 1;
-	descWrite.pBufferInfo = &bufferInfo1;
+	VkDescriptorImageInfo imageinfo1{};
+
+	VkImageLayout imglayout;
+	
+	imageinfo1.imageView = imageinfo1.imageView;
+	imageinfo1.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+
+	VkWriteDescriptorSet descWrite[3] = {};
+	descWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descWrite[0].dstSet = m_descsetglobal;
+	descWrite[0].dstBinding = 0;
+	descWrite[0].dstArrayElement = 0; // Double check later
+	descWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descWrite[0].descriptorCount = 1;
+	descWrite[0].pBufferInfo = &bufferInfo1;
+	
+	descWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descWrite[1].dstSet = m_descsetglobal;
+	descWrite[1].dstBinding = 1;
+	descWrite[1].dstArrayElement = 0; // Double check later
+	descWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+	descWrite[1].descriptorCount = 1;
+	descWrite[1].pImageInfo = &imageinfo1;
+	
+
+	
 	// Double check other values later
 
-	vkUpdateDescriptorSets(p_device->getDevice(), 1, &descWrite, 0, nullptr);
+	vkUpdateDescriptorSets(p_device->getDevice(), 2, &descWrite[0], 0, nullptr);
 
 	// Pipelines
 	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout, desclayout);
