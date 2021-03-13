@@ -58,7 +58,7 @@ namespace Input
 		{
 			glfwGetCursorPos(window, &x, &y);
 			glfwSetCursorPos(window, 0, 0);
-			input.RY += y;
+			input.RY -= y;
 			input.RX += x;
 		}
 		else

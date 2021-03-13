@@ -114,6 +114,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	storage.dev = p_device;
 	storage.size = 2;
 	storage.stride = 64;
+	storage.bufferData = nullptr;
 
 	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(uniform));
 	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(storage));
