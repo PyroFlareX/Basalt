@@ -7,7 +7,10 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	vn::vk::createCommandPool(*p_device, m_pool);
 	m_renderpass = rpass;
 
-	img.loadFromFile("res/container.jpg");
+	if (img.loadFromFile("res/container.jpg"))
+	{
+		std::cout << "Image creation success \n";
+	}
 	vn::vk::Texture texture(p_device);
 	texture.loadFromImage(img);
 	

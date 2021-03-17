@@ -29,13 +29,29 @@ void vn::vk::Texture::loadFromImage(vn::Image& img)
 	image.mipLevels = 1;
 	image.arrayLayers = 1;
 	image.samples = VK_SAMPLE_COUNT_1_BIT;
+	image.flags = VK_IMAGE_ASPECT_COLOR_BIT;
 	image.tiling = VK_IMAGE_TILING_OPTIMAL;
+	image.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	// We will sample directly from the color attachment
 	image.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
 	image.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 	VkResult result = vmaCreateImage(p_device->getAllocator(), &image, &imgAllocInfo, &textureImg, &textureAllocation, nullptr);
-	std::cout << result << " THIS IS THE BUG MASTA G\n";
+	std::cout << result << " THIS IS THE BUG BUDDY! \n";
+
+	
+
+	// MAP TEXTURE
+	void* texture;
+	vmaMapMemory(p_device->getAllocator(), textureAllocation, &texture);
+
+	size_t numpixels = img.getSize().x * img.getSize().y;
+
+	memcpy(texture, img.getPixelsPtr(), numpixels * sizeof(vn::u8vec4));
+
+	vmaUnmapMemory(p_device->getAllocator(), textureAllocation);
+	
+
 
 	VkImageViewCreateInfo createInfo{};
 	createInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
@@ -52,19 +68,8 @@ void vn::vk::Texture::loadFromImage(vn::Image& img)
 	createInfo.subresourceRange.baseArrayLayer = 0;
 	createInfo.subresourceRange.layerCount = 1;
 
-	if (vkCreateImageView(p_device->getDevice(), &createInfo, nullptr, &textureImgView) != VK_SUCCESS) 
+	if (vkCreateImageView(p_device->getDevice(), &createInfo, nullptr, &textureImgView) != VK_SUCCESS)
 	{
 		throw std::runtime_error("failed to create image views!");
 	}
-
-	// MAP TEXTURE
-	void* texture;
-	vmaMapMemory(p_device->getAllocator(), textureAllocation, &texture);
-
-	size_t numpixels = img.getSize().x * img.getSize().y;
-
-	memcpy(texture, img.getPixelsPtr(), numpixels * sizeof(vn::u8vec4));
-
-	vmaUnmapMemory(p_device->getAllocator(), textureAllocation);
-	
 }
