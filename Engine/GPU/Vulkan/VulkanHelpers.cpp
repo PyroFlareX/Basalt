@@ -9,7 +9,7 @@ namespace vn::vk
 	//GLOBALS
 	VkInstance m_instance;
 	VkSurfaceKHR m_surface;
-	bool validationlayers = true;
+	bool validationlayers = false;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
 	// SYNCHING GLOBALS
@@ -893,10 +893,14 @@ namespace vn::vk
 	bool checkValidationLayerSupport()
 	{
 		uint32_t layerCount;
-		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+		VkResult res = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+		std::cout << "Validation LAyer Support: " << res << std::endl;
 
 		std::vector<VkLayerProperties> availableLayers(layerCount);
-		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+		res = vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+		std::cout << "Validation LAyer Support2: " << res << std::endl;
 
 		for (const char* layerName : validationLayers) {
 			bool layerFound = false;

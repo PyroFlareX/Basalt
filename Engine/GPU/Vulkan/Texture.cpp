@@ -29,11 +29,11 @@ void vn::vk::Texture::loadFromImage(vn::Image& img)
 	image.mipLevels = 1;
 	image.arrayLayers = 1;
 	image.samples = VK_SAMPLE_COUNT_1_BIT;
-	image.flags = VK_IMAGE_ASPECT_COLOR_BIT;
+	image.flags = 0;
+	image.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
 	image.tiling = VK_IMAGE_TILING_OPTIMAL;
 	image.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	// We will sample directly from the color attachment
-	image.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
+	
 	image.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
 	VkResult result = vmaCreateImage(p_device->getAllocator(), &image, &imgAllocInfo, &textureImg, &textureAllocation, nullptr);
