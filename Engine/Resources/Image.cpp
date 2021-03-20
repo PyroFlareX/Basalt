@@ -1,7 +1,11 @@
 #include "Image.h"
 
-namespace vn {
-	Image::Image() : m_size(0, 0) {
+#include "stb_image.h"
+
+namespace vn
+{
+	Image::Image()	:	m_size(0, 0)
+	{
 
 	}
 
@@ -25,9 +29,21 @@ namespace vn {
 		m_pixels.swap(newPixels);
 	}
 
-	bool Image::loadFromFile(const std::string &filename) {
-		//	@TODO	Use stb_image
-		return false;
+	bool Image::loadFromFile(const std::string& filename)
+	{
+		int x;
+		int y;
+		int channels;
+		stbi_uc* pixels;
+
+		pixels = stbi_load(filename.c_str(), &x, &y, &channels, STBI_rgb_alpha);
+		if (!pixels)
+		{
+			return false;
+		}
+		
+		create(x, y, (u8vec4*)pixels);
+		return true;
 	}
 
 	bool Image::loadFromMemory(const void *data, std::size_t size) {

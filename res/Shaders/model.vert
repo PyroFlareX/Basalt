@@ -40,8 +40,11 @@ vec3 colors[3] = vec3[](
 
 void main()
 {
+
 	outVertShader.fragPos = aPos; //vec3(PushConstants.model * vec4(aPos, 1.0));
 	outVertShader.textureCoordinates = aTexCoord;
 	outVertShader.normal = aNormal; //vec3(PushConstants.model * vec4(aNormal, 0.0));
 	gl_Position = PushConstants.proj * PushConstants.view * /*PushConstants.model */ vec4(aPos, 1.0);
+	
+	gl_Position.y = -gl_Position.y;	//HACK
 }

@@ -3,6 +3,7 @@
 #include "Device.h"
 #include "Framebuffer.h"
 #include "VModel.h"
+#include "Texture.h"
 
 namespace vn {
 	class Context {

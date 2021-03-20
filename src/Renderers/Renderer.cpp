@@ -22,6 +22,7 @@ Renderer::Renderer(vn::Device *renderingDevice) {
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
+		
 
 		VkSubpassDependency dependency{};
 		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
@@ -104,6 +105,7 @@ void Renderer::finish(vn::vk::FramebufferData &fbo) {
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = renderpassdefault;
 		renderPassInfo.framebuffer = fbo.handle[i];
+
 		renderPassInfo.renderArea.offset = {0, 0};
 
 		VkExtent2D extent;

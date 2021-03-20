@@ -20,6 +20,8 @@ layout (set = 0, binding = 0) uniform testbuffer
 	float w;
 } testbufferdata;
 
+layout (set = 0, binding = 1) uniform sampler2D texturec;
+
 //uniform sampler2D texturec;
 //uniform vec3 lightsrc;
 
@@ -32,13 +34,13 @@ void main()
 
 	//vec3 lightDir = normalize(lightsrc - outVertShader.fragPos);
 
-    vec3 lightDir = normalize(vec3(0.0, 0.0, 0.0) - outVertShader.fragPos);
+    vec3 lightDir = normalize(vec3(10.0, 10.0, 10.0) - outVertShader.fragPos);
 	float diff = max(dot(norm, lightDir), 0.0);
 	vec3 diffuse = diff * lightColor;
 	
 	vec4 result = vec4(ambient + diffuse, 1.0);
 	
-	//FragColor = texture(texturec, outVertShader.textureCoordinates) * result;
+	FragColor = texture(texturec, outVertShader.textureCoordinates) * result;
 
-	FragColor = vec4(outVertShader.fragPos, 1.0);// * result;
+	//FragColor = vec4(outVertShader.fragPos, 1.0) * result;
 } 

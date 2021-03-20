@@ -28,7 +28,7 @@ namespace vn::vk {
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.pEngineName = "Basalt : Vinegar";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.apiVersion = VK_API_VERSION_1_0;
+		appInfo.apiVersion = VK_API_VERSION_1_1;
 
 		VkInstanceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -839,6 +839,7 @@ namespace vn::vk {
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		}
 
+
 		return extensions;
 	}
 
@@ -898,10 +899,14 @@ namespace vn::vk {
 
 	bool checkValidationLayerSupport() {
 		uint32_t layerCount;
-		vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+		VkResult res = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
+
+		std::cout << "Validation LAyer Support: " << res << std::endl;
 
 		std::vector<VkLayerProperties> availableLayers(layerCount);
-		vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+		res = vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
+
+		std::cout << "Validation LAyer Support2: " << res << std::endl;
 
 		for (const char *layerName : validationLayers) {
 			bool layerFound = false;
