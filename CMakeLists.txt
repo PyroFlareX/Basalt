@@ -30,25 +30,28 @@ add_executable(Basalt ${src} ${header} ${engineheader} ${enginesrc})
 find_package(Threads REQUIRED)
 find_package(Vulkan REQUIRED)
 
-if(EXISTS ${CMAKE_SOURCE_DIR}/Libraries/glm/CMakeLists.txt)
-    include_directories(Libraries/glm)
-else()
-    find_package(glm REQUIRED)
-endif()
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
 
-if(EXISTS ${CMAKE_SOURCE_DIR}/Libraries/glfw/CMakeLists.txt)
-    add_subdirectory(Libraries/glfw)
-	include_directories(Libraries/glfw/include)
-else()
-    find_package(glfw3 REQUIRED)
-endif()
+#if(EXISTS ${CMAKE_SOURCE_DIR}/Libraries/glm/CMakeLists.txt)
+#    include_directories(Libraries/glm)
+#else()
+#    find_package(glm REQUIRED)
+#endif()
+
+#if(EXISTS ${CMAKE_SOURCE_DIR}/Libraries/glfw/CMakeLists.txt)
+#    add_subdirectory(Libraries/glfw)
+#	include_directories(Libraries/glfw/include)
+#else()
+#    find_package(glfw3 REQUIRED)
+#endif()
 
 
 #target_compile_options(Basalt PUBLIC -fsanitize=address -fno-omit-frame-pointer)
 #target_link_options(Basalt PUBLIC -fsanitize=address)
 
 # For Linking
-target_link_libraries(Basalt PRIVATE Vulkan::Vulkan Threads::Threads glfw)
+target_link_libraries(Basalt PRIVATE Vulkan::Vulkan Threads::Threads ${CONAN_LIBS})
 
 
 

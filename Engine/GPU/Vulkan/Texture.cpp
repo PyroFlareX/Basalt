@@ -31,7 +31,7 @@ void vn::vk::Texture::loadFromImage(vn::Image& img)
 	image.samples = VK_SAMPLE_COUNT_1_BIT;
 	image.flags = 0;
 	image.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
-	image.tiling = VK_IMAGE_TILING_OPTIMAL;
+	image.tiling = VK_IMAGE_TILING_LINEAR;
 	image.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	
 	image.sharingMode = VK_SHARING_MODE_EXCLUSIVE;

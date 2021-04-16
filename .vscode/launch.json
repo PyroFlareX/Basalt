@@ -8,7 +8,7 @@
             "type": "lldb",
             "request": "launch",
             "name": "Debug",
-            "program": "${workspaceFolder}/../BVBuilds/Basalt",
+            "program": "${workspaceFolder}/build/Basalt",
             "args": [],
             "cwd": "${workspaceFolder}"
         }
