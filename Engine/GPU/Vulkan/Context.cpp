@@ -46,7 +46,7 @@ namespace vn
 		result = vkQueuePresentKHR(m_Device->getPresentQueue(), &presentInfo);
 
 		// Increase Frame Index
-		currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHTA;
+		currentFrame = (currentFrame + 1) % vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS;
 	}
 
 	void Context::close()
@@ -63,9 +63,9 @@ namespace vn
 		vn::vk::createImageViews(m_scdetails, m_Device->getDevice());
 
 		//INIT SYNCH PRIMITIVES
-		vn::vk::imageAvailableSemaphores.resize(MAX_FRAMES_IN_FLIGHTA);
-		vn::vk::renderFinishedSemaphores.resize(MAX_FRAMES_IN_FLIGHTA);
-		vn::vk::inFlightFences.resize(MAX_FRAMES_IN_FLIGHTA);
+		vn::vk::imageAvailableSemaphores.resize(vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS);
+		vn::vk::renderFinishedSemaphores.resize(vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS);
+		vn::vk::inFlightFences.resize(vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS);
 		vn::vk::imagesInFlight.resize(m_scdetails.swapChainImages.size(), VK_NULL_HANDLE);
 
 		VkSemaphoreCreateInfo semaphoreInfo{};
@@ -75,7 +75,7 @@ namespace vn
 		fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
 		fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-		for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHTA; i++) {
+		for (size_t i = 0; i < vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS; i++) {
 			if (vkCreateSemaphore(m_Device->getDevice(), &semaphoreInfo, nullptr, &vn::vk::imageAvailableSemaphores[i]) != VK_SUCCESS ||
 				vkCreateSemaphore(m_Device->getDevice(), &semaphoreInfo, nullptr, &vn::vk::renderFinishedSemaphores[i]) != VK_SUCCESS ||
 				vkCreateFence(m_Device->getDevice(), &fenceInfo, nullptr, &vn::vk::inFlightFences[i]) != VK_SUCCESS) {

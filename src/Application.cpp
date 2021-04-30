@@ -50,6 +50,8 @@ void Application::RunLoop()
 	framebufdata.imgView = m_context.m_scdetails.swapChainImageViews.at(0);
 	framebufdata.size = winSize;
 
+	
+	std::cout << "framebufdata handles: [size, handle] " << framebufdata.handle.size() << " \n";// << framebufdata.handle.at(0) 
 
 //===================================================================================
 

@@ -41,5 +41,4 @@ namespace vn
 }
 constexpr int WIDTHA = 800;
 constexpr int HEIGHTA = 600;
-constexpr int MAX_FRAMES_IN_FLIGHTA = 3;
 

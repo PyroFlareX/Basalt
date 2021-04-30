@@ -49,7 +49,7 @@ Renderer::Renderer(vn::Device* renderingDevice)
 
 	vn::vk::createCommandPool(*device, m_pool);
 
-	m_primaryBuffers.resize(3);
+	m_primaryBuffers.resize(vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS);
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -112,6 +112,7 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 		renderPassInfo.renderPass = renderpassdefault;
 		renderPassInfo.framebuffer = fbo.handle[i];
+
 		renderPassInfo.renderArea.offset = { 0, 0 };
 		
 		VkExtent2D extent;

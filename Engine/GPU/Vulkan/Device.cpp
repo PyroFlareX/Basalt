@@ -1,7 +1,6 @@
 #include "Device.h"
 
 
-constexpr int MAX_FRAMES_IN_FLIGHTA = 3;
 
 namespace vn
 {
@@ -80,7 +79,7 @@ namespace vn
 		}
 
 		// goes from 0 to the buffer count for the swapchain buffers
-		i = (i + 1) % MAX_FRAMES_IN_FLIGHTA;
+		i = (i + 1) % vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS;
 	}
 
 	VmaAllocator& Device::getAllocator()

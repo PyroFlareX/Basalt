@@ -46,7 +46,7 @@ struct VertexInputDescription
 
 struct PushConstantsStruct
 {
-    vn::mat4 model;
+//  vn::mat4 model;
 	vn::mat4 view;
     vn::mat4 proj;
 };
@@ -65,6 +65,8 @@ struct SwapChainDetails
 namespace vn::vk
 {
 	//GLOBALS
+	extern short NUM_SWAPCHAIN_FRAMEBUFFERS;
+
 	extern VkInstance m_instance;
 	extern VkSurfaceKHR m_surface;
 	extern bool validationlayers;

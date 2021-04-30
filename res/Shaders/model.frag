@@ -22,8 +22,6 @@ layout (set = 0, binding = 0) uniform testbuffer
 
 layout (set = 0, binding = 1) uniform sampler2D texturec;
 
-//uniform sampler2D texturec;
-//uniform vec3 lightsrc;
 
 void main()
 {

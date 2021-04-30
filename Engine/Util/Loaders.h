@@ -10,7 +10,7 @@
 
 namespace vn
 {
-	class Mesh;
+	struct Mesh;
 
 	
 	std::string getFileString(const std::string& filePath);

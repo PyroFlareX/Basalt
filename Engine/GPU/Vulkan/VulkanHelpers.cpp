@@ -3,14 +3,15 @@
 #include "../../Util/Loaders.h"
 #include "Device.h"
 #include "Framebuffer.h"
-#include <vulkan/vulkan_core.h>
 
 namespace vn::vk
 {
 	//GLOBALS
+	short NUM_SWAPCHAIN_FRAMEBUFFERS = 0;
+
 	VkInstance m_instance;
 	VkSurfaceKHR m_surface;
-	bool validationlayers = true;
+	bool validationlayers = false;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
 	// SYNCHING GLOBALS
@@ -32,7 +33,7 @@ namespace vn::vk
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.pEngineName = "Basalt : Vinegar";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.apiVersion = VK_API_VERSION_1_1;
+		appInfo.apiVersion = VK_API_VERSION_1_2;
 
 		VkInstanceCreateInfo createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
@@ -153,7 +154,8 @@ namespace vn::vk
 		}
 
 		//TEMP
-		//imageCount = 3;
+		std::cout << "imageCount = " << imageCount << "\n";
+		NUM_SWAPCHAIN_FRAMEBUFFERS = imageCount;
 
 		VkSwapchainCreateInfoKHR createInfo{};
 		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
@@ -896,12 +898,12 @@ namespace vn::vk
 		uint32_t layerCount;
 		VkResult res = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
 
-		std::cout << "Validation LAyer Support: " << res << std::endl;
+		std::cout << "Validation Layer Support: " << res << std::endl;
 
 		std::vector<VkLayerProperties> availableLayers(layerCount);
 		res = vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
-		std::cout << "Validation LAyer Support2: " << res << std::endl;
+		std::cout << "Validation Layer Support2: " << res << std::endl;
 
 		for (const char* layerName : validationLayers) {
 			bool layerFound = false;
