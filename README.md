@@ -55,6 +55,20 @@
  You see that the Job lambda uses the data from the pointers, ``reinterpret_cast<T*>(job.data[n])`` where ``T`` is type, ``n`` is index in the ``data`` array. this is how I recommend you do so, but you may know better than I of course, so do as you please. 
  The Vulkan backend is done through a CommandPool map per thread, and some other complicated stuff that I'd rather not spent an hour typing out the intracasies of. Secondary cmd buffers are recorded in renderer jobs, then combined into a singe primary cmd buffer at the end of the renderer queue secondaries building.
 
+ # Example of Asset System
+ ```cpp
+#include <iostream>
+
+void foo()
+{
+	vn::AssetManager<int> manager;
+
+	manager.addAsset(5, "first int");
+
+	std::cout << "test: " << manager.getAsset("first int") << "\n";
+}```
+
+
  ## Contributing?
  I am open to contributions, but until more of the renderer is done, the project is currently in Vulkan dream land of never ending paperwork and possibilties for more wrist cramping. The style guide is camelCase, brackets are on the next line, make as many functions thread-safe or consteval/constexpr as possible. Keep templates and modern STL shenanigans and language quirks out of this please as well. Use unordered_map and vector for most heap or map uses, and use unique or shared_ptrs instead of raw pointers as well. No using volitile obviously. Keep new library additions to a minimum as well, the only new ones I will tolerate is a networking lib, audio playback, and scripting.
  <p>Some things I don't have the time for on my plate, but should be friendly enough to PR, would be for the implementation of a high and low priority queue in the Job Scheduler (just another MPMC queue really tbh, then another check in the main thread loop). Also Vulkan cleanup stuff. I'm just way too lazy tbh, but the driver cleans 90% ish of it up anyways, but still good to do manually. This too can be jobified. </p>

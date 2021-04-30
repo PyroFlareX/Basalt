@@ -36,7 +36,6 @@ conan_basic_setup()
 
 # For Linking
 target_link_libraries(Basalt ${CONAN_LIBS} Vulkan::Vulkan Threads::Threads )
-#target_link_libraries(Basalt ${CONAN_LIBS})
 message(STATUS ${CONAN_LIBS})
 
-target_compile_features(Basalt PRIVATE cxx_std_17)
+target_compile_features(Basalt PRIVATE cxx_std_20)
