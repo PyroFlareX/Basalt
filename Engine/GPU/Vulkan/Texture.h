@@ -2,6 +2,7 @@
 
 #include "Buffer.h"
 #include "../../Resources/Image.h"
+#include <vulkan/vulkan_core.h>
 
 namespace vn::vk
 {
@@ -28,6 +29,7 @@ namespace vn::vk
 		VkImage textureImg;
 		VkImageView textureImgView;
 		VmaAllocation textureAllocation;
+		VkDeviceMemory deviceMem;
 
 		vn::Device* p_device;
 	};

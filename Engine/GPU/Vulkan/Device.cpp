@@ -20,6 +20,7 @@ namespace vn
 		allocatorInfo.physicalDevice = physDevice;
 		allocatorInfo.device = device;
 		allocatorInfo.instance = vk::m_instance;
+
 		vmaCreateAllocator(&allocatorInfo, &m_allocatorVMA);
 	}
 

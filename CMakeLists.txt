@@ -22,8 +22,6 @@ file(GLOB_RECURSE enginesrc RELATIVE ${CMAKE_SOURCE_DIR} "Engine/*.cpp")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-set(osrc ${src} "${CMAKE_SOURCE_DIR}/src/Main.cpp")
-#set(osrc ${osrc} "${CMAKE_SOURCE_DIR}/Engine/glad/glad.c")
 add_executable(Basalt ${src} ${header} ${engineheader} ${enginesrc})
 
 # For Libraries
@@ -33,27 +31,12 @@ find_package(Vulkan REQUIRED)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
-#if(EXISTS ${CMAKE_SOURCE_DIR}/Libraries/glm/CMakeLists.txt)
-#    include_directories(Libraries/glm)
-#else()
-#    find_package(glm REQUIRED)
-#endif()
-
-#if(EXISTS ${CMAKE_SOURCE_DIR}/Libraries/glfw/CMakeLists.txt)
-#    add_subdirectory(Libraries/glfw)
-#	include_directories(Libraries/glfw/include)
-#else()
-#    find_package(glfw3 REQUIRED)
-#endif()
-
-
 #target_compile_options(Basalt PUBLIC -fsanitize=address -fno-omit-frame-pointer)
 #target_link_options(Basalt PUBLIC -fsanitize=address)
 
 # For Linking
-target_link_libraries(Basalt PRIVATE Vulkan::Vulkan Threads::Threads ${CONAN_LIBS})
-
-
-
+target_link_libraries(Basalt ${CONAN_LIBS} Vulkan::Vulkan Threads::Threads )
+#target_link_libraries(Basalt ${CONAN_LIBS})
+message(STATUS ${CONAN_LIBS})
 
 target_compile_features(Basalt PRIVATE cxx_std_17)

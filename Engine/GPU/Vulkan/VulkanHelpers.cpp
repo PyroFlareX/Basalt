@@ -3,13 +3,14 @@
 #include "../../Util/Loaders.h"
 #include "Device.h"
 #include "Framebuffer.h"
+#include <vulkan/vulkan_core.h>
 
 namespace vn::vk
 {
 	//GLOBALS
 	VkInstance m_instance;
 	VkSurfaceKHR m_surface;
-	bool validationlayers = false;
+	bool validationlayers = true;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
 	// SYNCHING GLOBALS
@@ -479,7 +480,7 @@ namespace vn::vk
 		rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 		rasterizer.lineWidth = 1.0f;
 		rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
-		rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;
+		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		rasterizer.depthBiasEnable = VK_FALSE;
 
 		VkPipelineMultisampleStateCreateInfo multisampling{};

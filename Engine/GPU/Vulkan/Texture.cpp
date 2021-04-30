@@ -15,7 +15,7 @@ void vn::vk::Texture::loadFromImage(vn::Image& img)
 	//Allocation Info
 	VmaAllocationCreateInfo imgAllocInfo = {};
 	imgAllocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-	imgAllocInfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+	//imgAllocInfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
 
 	// CREATE IMAGE
@@ -31,25 +31,61 @@ void vn::vk::Texture::loadFromImage(vn::Image& img)
 	image.samples = VK_SAMPLE_COUNT_1_BIT;
 	image.flags = 0;
 	image.usage = VK_IMAGE_USAGE_SAMPLED_BIT;
-	image.tiling = VK_IMAGE_TILING_LINEAR;
+	image.tiling = VK_IMAGE_TILING_LINEAR;//VK_IMAGE_TILING_OPTIMAL;
 	image.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 	
 	image.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	VkResult result = vmaCreateImage(p_device->getAllocator(), &image, &imgAllocInfo, &textureImg, &textureAllocation, nullptr);
+	VkResult result = vkCreateImage(p_device->getDevice(), &image, nullptr, &textureImg);
 	std::cout << result << " THIS IS THE BUG BUDDY! \n";
+
+	VkDeviceSize offset = 0;
+	void* texture = nullptr;
+	size_t sizeImg = sizeof(vn::u8vec4) * (int)img.getSize().x * (int)img.getSize().y;
+	VkDeviceSize sizeDev = sizeImg;
+
+	VkMemoryAllocateInfo meminfo{};
+	meminfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+	
+
+	VkMemoryRequirements memreqs;
+	vkGetImageMemoryRequirements(p_device->getDevice(), textureImg, &memreqs);
+
+	VkPhysicalDeviceMemoryProperties memProperties;
+	vkGetPhysicalDeviceMemoryProperties(p_device->getPhysicalDevice(), &memProperties);
+
+	uint32_t index = 0;
+	meminfo.memoryTypeIndex = 2;
+	// @TODO: FINISH THE MEM STUFF
+	for(uint32_t i = 0; i < memProperties.memoryTypeCount; i++) 
+	{
+		if((memreqs.memoryTypeBits & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)))// == (VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT)) 
+		{
+			index = i;
+			meminfo.memoryTypeIndex = i;
+			std::cout << i << " This is i\n";
+			break;
+		}
+	}
+
+	meminfo.allocationSize = memreqs.size;//sizeDev;
+	
+
+	result = vkAllocateMemory(p_device->getDevice(), &meminfo, nullptr, &deviceMem);
+	std::cout << result << " THIS IS THE BUG BUDDYAlloc! \n";
+
+
+	result = vkBindImageMemory(p_device->getDevice(), textureImg, deviceMem, 0);
+	std::cout << result << " THIS IS THE BUG BUDDYBIND! \n";
 
 	
 
-	// MAP TEXTURE
-	void* texture;
-	vmaMapMemory(p_device->getAllocator(), textureAllocation, &texture);
+	result = vkMapMemory(p_device->getDevice(), deviceMem, offset, sizeDev, 0, &texture);
+	std::cout << result << " THIS IS THE BUG BUDDYMAP! \n";
 
-	size_t numpixels = img.getSize().x * img.getSize().y;
+	memcpy(texture, img.getPixelsPtr(), sizeImg);
 
-	memcpy(texture, img.getPixelsPtr(), numpixels * sizeof(vn::u8vec4));
-
-	vmaUnmapMemory(p_device->getAllocator(), textureAllocation);
+	vkUnmapMemory(p_device->getDevice(), deviceMem);
 	
 
 

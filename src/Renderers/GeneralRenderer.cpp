@@ -40,7 +40,8 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 
 	// Mesh
-	m_models.emplace_back(new vn::vk::Model(vn::loadMeshFromObj("res/Models/sphere.obj"), p_device));
+	vn::Mesh m = vn::loadMeshFromObj("res/Models/sphere.obj");
+	m_models.emplace_back(new vn::vk::Model(m, p_device));
 
 	
 
@@ -55,11 +56,11 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	descpoolsize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	descpoolsize[0].descriptorCount = 1;
 	
-	descpoolsize[1].type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	descpoolsize[1].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
 	descpoolsize[1].descriptorCount = 1;
 
 	descpoolinfo.pPoolSizes = &descpoolsize[0];
-	descpoolinfo.maxSets = 1;
+	descpoolinfo.maxSets = 2;
 
 	vkCreateDescriptorPool(p_device->getDevice(), &descpoolinfo, nullptr, &m_descpool);
 
@@ -83,9 +84,9 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	VkDescriptorSetLayoutCreateInfo desclayoutinfo{};
 	desclayoutinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 	desclayoutinfo.pNext = nullptr;
-	desclayoutinfo.bindingCount = 3; // 2;
+	desclayoutinfo.bindingCount = 2; // 2;
 	desclayoutinfo.pBindings = &setlayoutbinding[0];
-	desclayoutinfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT_EXT;
+	desclayoutinfo.flags = 0;//VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 
 	VkDescriptorSetLayout desclayout;
 	
@@ -96,6 +97,8 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	descriptorAllocInfo.descriptorPool = m_descpool;
 	descriptorAllocInfo.descriptorSetCount = 1;
 	descriptorAllocInfo.pSetLayouts = &desclayout;
+	
+	
 
 	vkAllocateDescriptorSets(p_device->getDevice(), &descriptorAllocInfo, &m_descsetglobal);
 	
@@ -125,34 +128,21 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 
 	m_descriptorBuffers.at(0)->uploadBuffer();
 
-	//Storage Buffer
-	vn::vk::BufferDescription storage;
-	storage.bufferType = vn::BufferUsage::STORAGE_BUFFER;
-	storage.dev = p_device;
-	storage.size = 2;
-	storage.stride = 64;
-	storage.bufferData = nullptr;
 
-	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(storage));
 
-	//m_descriptorBuffers.at(1)->uploadBuffer();
 
 	VkDescriptorBufferInfo bufferInfo1{};
 	bufferInfo1.buffer = m_descriptorBuffers.at(0)->getAPIResource();
 	bufferInfo1.offset = 0;
 	bufferInfo1.range = 16;
 
-	VkDescriptorBufferInfo bufferInfo2{};
-	bufferInfo2.buffer = m_descriptorBuffers.at(1)->getAPIResource();
-	bufferInfo2.offset = 0;
-	bufferInfo2.range = 128;
 
 	VkDescriptorImageInfo imageinfo1{};
 
-	VkImageLayout imglayout;
 	
-	imageinfo1.imageView = imageinfo1.imageView;
+	imageinfo1.imageView = texture.getAPITextureInfo().imgviewvk;
 	imageinfo1.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	
 
 	VkWriteDescriptorSet descWrite[3] = {};
 	descWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;

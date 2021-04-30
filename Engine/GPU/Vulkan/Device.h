@@ -16,6 +16,7 @@ namespace vn
 		QueueFamilyIndices getQueueFamilies();
 		SwapChainSupportDetails getSwapchainDetails();
 		VkDevice& getDevice();
+		VkPhysicalDevice& getPhysicalDevice() { return physDevice; }
 
 		void submitWork(std::vector<VkCommandBuffer>& cmdbuffer);
 		VmaAllocator& getAllocator();
