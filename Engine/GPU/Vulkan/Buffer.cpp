@@ -13,17 +13,17 @@ namespace vn::vk
 		deleteBuffer();
     }
 
-    unsigned int Buffer::getStride()
+    size_t Buffer::getStride()
     {
         return m_desc.stride;
     }
 
-    unsigned int Buffer::getSize()
+    size_t Buffer::getSize()
     {
 		return m_desc.size * m_desc.stride;
     }
 
-    unsigned int Buffer::getNumElements()
+    size_t Buffer::getNumElements()
     {
         return m_desc.size;
     }

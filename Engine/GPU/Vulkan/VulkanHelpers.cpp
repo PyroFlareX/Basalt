@@ -329,8 +329,8 @@ namespace vn::vk
 		VkViewport viewport{};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
-		viewport.width = extent.width; //(float)swapdetails.swapChainExtent.width;
-		viewport.height = extent.height; //(float)swapdetails.swapChainExtent.height;
+		viewport.width = (int)extent.width; //(float)swapdetails.swapChainExtent.width;
+		viewport.height = (int)extent.height; //(float)swapdetails.swapChainExtent.height;
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 
@@ -459,8 +459,8 @@ namespace vn::vk
 		VkViewport viewport{};
 		viewport.x = 0.0f;
 		viewport.y = 0.0f;
-		viewport.width = extent.width;
-		viewport.height = extent.height;
+		viewport.width = (int)extent.width;
+		viewport.height = (int)extent.height;
 		viewport.minDepth = 0.0f;
 		viewport.maxDepth = 1.0f;
 

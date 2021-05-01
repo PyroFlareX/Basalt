@@ -18,8 +18,8 @@ namespace vn::vk
 		image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		image.imageType = VK_IMAGE_TYPE_2D;
 		image.format = VK_FORMAT_B8G8R8A8_SRGB;
-		image.extent.width = extent.x;
-		image.extent.height = extent.y;
+		image.extent.width = (int)extent.x;
+		image.extent.height = (int)extent.y;
 		image.extent.depth = 1;
 		image.mipLevels = 1;
 		image.arrayLayers = 1;
@@ -56,8 +56,8 @@ namespace vn::vk
 		Dimage.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 		Dimage.imageType = VK_IMAGE_TYPE_2D;
 		Dimage.format = VK_FORMAT_D32_SFLOAT;
-		Dimage.extent.width = extent.x;
-		Dimage.extent.height = extent.y;
+		Dimage.extent.width = (int)extent.x;
+		Dimage.extent.height = (int)extent.y;
 		Dimage.extent.depth = 1;
 		Dimage.mipLevels = 1;
 		Dimage.arrayLayers = 1;
@@ -98,8 +98,8 @@ namespace vn::vk
 		framebufferInfo.renderPass = renderPass;
 		framebufferInfo.attachmentCount = 2;
 		framebufferInfo.pAttachments = attachments;
-		framebufferInfo.width = extent.x;
-		framebufferInfo.height = extent.y;
+		framebufferInfo.width = (int)extent.x;
+		framebufferInfo.height = (int)extent.y;
 		framebufferInfo.layers = 1;
 
 		if (vkCreateFramebuffer(device.getDevice(), &framebufferInfo, nullptr, &handle) != VK_SUCCESS) {

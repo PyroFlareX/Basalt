@@ -3,7 +3,6 @@
 #include "Camera.h"
 #include "States/Gamestate.h"
 
-#include <unordered_map>
 
 Application::Application() : m_camera(0)
 {
@@ -26,10 +25,10 @@ void Application::RunLoop()
 {
 	//Initial Utilities Setup
 	vn::Clock clock;
-	float t = 0;
+	double t = 0;
 	double dt = 0;
-	float frames = 0.0f;
-
+	double frames = 0.0f;
+	
 	//Refresh Window
 	//m_context.clear();
 	//m_context.update();
@@ -96,7 +95,7 @@ void Application::RunLoop()
 		m_context.update();
 		
 
-		std::cout << dt * 1000 << " ms\n";
+		//std::cout << dt * 1000 << " ms\n";
         /// Handle Window Events
 		t += dt;
 		frames++;

@@ -25,8 +25,8 @@ namespace vn::vk {
     {
 		vn::Device* dev;
 		vn::BufferUsage bufferType;
-		unsigned int size = 0;
-		unsigned int stride = 0;
+		size_t size = 0;
+		size_t stride = 0;
 		void* bufferData = nullptr;
     };
 
@@ -36,9 +36,9 @@ namespace vn::vk {
     public:
         Buffer(BufferDescription bufdesc);
 
-        unsigned int getStride();
-        unsigned int getSize();
-        unsigned int getNumElements();
+        size_t getStride();
+        size_t getSize();
+        size_t getNumElements();
 
         void uploadBuffer();
 

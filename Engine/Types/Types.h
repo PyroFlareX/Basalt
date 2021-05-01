@@ -52,7 +52,7 @@ namespace std
 	template<>
 	struct hash<vn::vec3>
 	{
-		size_t operator()(const vn::vec3& vect) const noexcept
+		size_t operator()(vn::vec3& vect) const noexcept
 		{
 			std::hash<decltype(vect.x)> hasher;
 

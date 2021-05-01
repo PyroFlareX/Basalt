@@ -14,15 +14,18 @@ namespace vn
 
 	}
 
+	// Not yet implemented
 	void Image::copy(const Image& src, vec2 dest)
 	{
 
 	}
 
+	// Not yet implemented
 	void Image::create(unsigned int x, unsigned int y, const u8vec4& color)
 	{
 		m_size = vec2(x, y);
-		//std::vector<u8vec4>newImage()
+		std::vector<u8vec4> newImage(x * y, color);
+		m_pixels.swap(newImage);
 	}
 
 	void Image::create(unsigned int x, unsigned int y, const u8vec4* pixels)

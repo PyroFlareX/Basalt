@@ -4,6 +4,7 @@ Renderer::Renderer(vn::Device* renderingDevice)
 {
 	device = renderingDevice;
 
+	//Folding Scope
 	{
 		VkAttachmentDescription colorAttachment{};
 		colorAttachment.format = VK_FORMAT_B8G8R8A8_SRGB;
