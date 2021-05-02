@@ -5,8 +5,8 @@
 namespace vn::vk
 {
 	// This is a renderable 3D mesh
-    class Model
-    {
+	class Model
+	{
 	public:
 		Model(vn::Mesh& mesh, vn::Device* dev)
 		{
@@ -66,5 +66,5 @@ namespace vn::vk
 	private:
 		std::vector<Buffer*> m_modelbuffers;
 		vn::Mesh m_mesh;
-    };
+	};
 }

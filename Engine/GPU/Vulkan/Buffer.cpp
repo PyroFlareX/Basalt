@@ -3,36 +3,36 @@
 namespace vn::vk
 {
 	Buffer::Buffer(BufferDescription bufdesc) : m_desc(bufdesc)
-    {
+	{
 
-        
-    }
+		
+	}
 
-    Buffer::~Buffer()
-    {
+	Buffer::~Buffer()
+	{
 		deleteBuffer();
-    }
+	}
 
-    size_t Buffer::getStride()
-    {
-        return m_desc.stride;
-    }
+	size_t Buffer::getStride()
+	{
+		return m_desc.stride;
+	}
 
-    size_t Buffer::getSize()
-    {
+	size_t Buffer::getSize()
+	{
 		return m_desc.size * m_desc.stride;
-    }
+	}
 
-    size_t Buffer::getNumElements()
-    {
-        return m_desc.size;
-    }
+	size_t Buffer::getNumElements()
+	{
+		return m_desc.size;
+	}
 
-    void Buffer::uploadBuffer()
-    {
-        VkBufferCreateInfo bufferInfo{};
-        bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-        bufferInfo.size = getSize();
+	void Buffer::uploadBuffer()
+	{
+		VkBufferCreateInfo bufferInfo{};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = getSize();
 
 		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 		// To get the buffer type
@@ -56,32 +56,32 @@ namespace vn::vk
 		{
 			bufferInfo.usage = VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
 		}
-        
-        bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-        
-        VmaAllocationCreateInfo allocInfo = {};
-        allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-        
-        vmaCreateBuffer(m_desc.dev->getAllocator(), &bufferInfo, &allocInfo, &m_buffer, &m_allocation, nullptr);
+		
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		
+		VmaAllocationCreateInfo allocInfo = {};
+		allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+		
+		vmaCreateBuffer(m_desc.dev->getAllocator(), &bufferInfo, &allocInfo, &m_buffer, &m_allocation, nullptr);
 
-        void* bufferdata;
-        //Maps GPU memory to CPU visible address
-        vmaMapMemory(m_desc.dev->getAllocator(), m_allocation, &bufferdata);
+		void* bufferdata;
+		//Maps GPU memory to CPU visible address
+		vmaMapMemory(m_desc.dev->getAllocator(), m_allocation, &bufferdata);
 
-        memcpy(bufferdata, m_desc.bufferData, getSize());
+		memcpy(bufferdata, m_desc.bufferData, getSize());
 
-        vmaUnmapMemory(m_desc.dev->getAllocator(), m_allocation);
-    }
+		vmaUnmapMemory(m_desc.dev->getAllocator(), m_allocation);
+	}
 
-    void Buffer::setAPIResource(VkBuffer& buffer)
-    {
-        m_buffer = buffer;
-    }
+	void Buffer::setAPIResource(VkBuffer& buffer)
+	{
+		m_buffer = buffer;
+	}
 
-    VkBuffer& Buffer::getAPIResource()
-    {
-        return m_buffer;
-    }
+	VkBuffer& Buffer::getAPIResource()
+	{
+		return m_buffer;
+	}
 
 	void Buffer::deleteBuffer()
 	{

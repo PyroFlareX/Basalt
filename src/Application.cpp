@@ -60,32 +60,32 @@ void Application::RunLoop()
 	//jobSystem.schedule(recordbufferPrimary);
 	jobSystem.wait();
 
-    while(m_context.isOpen() && !m_states.empty())
-    {
+	while(m_context.isOpen() && !m_states.empty())
+	{
 		dt = clock.restart();
 		
 		
-        ///Main Loop, do cycle of Input, Update, Draw, Render & Swap Buffers, Handle Events
+		///Main Loop, do cycle of Input, Update, Draw, Render & Swap Buffers, Handle Events
 		
 		///Clear
 		m_context.clear();
 		m_renderer->clearQueue();
-        
+		
 		///Input
 		currentState().input();
 		
-        /// Update
+		/// Update
 		currentState().update(dt);
 		currentState().lateUpdate(&m_camera);
 		m_camera.update();
 		jobSystem.wait();
 
 
-        /// Draw
+		/// Draw
 		currentState().render(m_renderer);
 		jobSystem.wait();
 
-        /// Render
+		/// Render
 		m_renderer->render(m_camera);
 
 
@@ -96,7 +96,7 @@ void Application::RunLoop()
 		
 
 		//std::cout << dt * 1000 << " ms\n";
-        /// Handle Window Events
+		/// Handle Window Events
 		t += dt;
 		frames++;
 		if (t >= 1)
@@ -110,7 +110,7 @@ void Application::RunLoop()
 			std::cout << "CAMERA ROT XY: " << this->getCam().rot.x << " " << this->getCam().rot.y << "\n";
 		}
 		handleEvents();
-    }
+	}
 	m_context.close();
 
 	delete m_renderer;
@@ -120,12 +120,12 @@ void Application::RunLoop()
 
 void Application::popState()
 {
-    m_states.pop_back();
+	m_states.pop_back();
 }
 
 Basestate& Application::currentState()
 {
-    return *m_states.back();
+	return *m_states.back();
 }
 
 void Application::handleEvents()

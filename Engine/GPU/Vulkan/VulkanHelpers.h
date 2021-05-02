@@ -38,17 +38,17 @@ struct SwapChainSupportDetails {
 
 struct VertexInputDescription 
 {
-    std::vector<VkVertexInputBindingDescription> bindings;
-    std::vector<VkVertexInputAttributeDescription> attributes;
+	std::vector<VkVertexInputBindingDescription> bindings;
+	std::vector<VkVertexInputAttributeDescription> attributes;
 
-    VkPipelineVertexInputStateCreateFlags flags = 0;
+	VkPipelineVertexInputStateCreateFlags flags = 0;
 };
 
 struct PushConstantsStruct
 {
 //  vn::mat4 model;
 	vn::mat4 view;
-    vn::mat4 proj;
+	vn::mat4 proj;
 };
 
 struct SwapChainDetails

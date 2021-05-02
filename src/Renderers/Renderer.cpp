@@ -151,7 +151,7 @@ void Renderer::clearQueue()
 
 Renderer::~Renderer()
 {
-    //dtor
+	//dtor
 	vkDestroyRenderPass(device->getDevice(), renderpassdefault, nullptr);
 	vkDestroyCommandPool(device->getDevice(), m_pool, nullptr);
 	delete m_generalRenderer;

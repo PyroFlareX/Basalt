@@ -653,7 +653,7 @@ namespace vn::vk
 			// Secondary command buffer also use the currently active framebuffer
 			inheritanceInfo.framebuffer = swapdetails.swapChainFramebuffers[0];
 
-		    beginInfo.pInheritanceInfo = &inheritanceInfo; // Optional
+			beginInfo.pInheritanceInfo = &inheritanceInfo; // Optional
 
 			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
 				throw std::runtime_error("failed to begin recording command buffer!");

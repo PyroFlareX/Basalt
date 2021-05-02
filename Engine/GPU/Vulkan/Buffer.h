@@ -21,38 +21,38 @@ namespace vn
 
 namespace vn::vk {
 
-    struct BufferDescription
-    {
+	struct BufferDescription
+	{
 		vn::Device* dev;
 		vn::BufferUsage bufferType;
 		size_t size = 0;
 		size_t stride = 0;
 		void* bufferData = nullptr;
-    };
+	};
 
 
-    class Buffer
-    {
-    public:
-        Buffer(BufferDescription bufdesc);
+	class Buffer
+	{
+	public:
+		Buffer(BufferDescription bufdesc);
 
-        size_t getStride();
-        size_t getSize();
-        size_t getNumElements();
+		size_t getStride();
+		size_t getSize();
+		size_t getNumElements();
 
-        void uploadBuffer();
+		void uploadBuffer();
 
-        void setAPIResource(VkBuffer& buffer);
-        VkBuffer& getAPIResource();
+		void setAPIResource(VkBuffer& buffer);
+		VkBuffer& getAPIResource();
 
 		void deleteBuffer();
 
-        ~Buffer();
-    private:
-        VkBuffer m_buffer;
+		~Buffer();
+	private:
+		VkBuffer m_buffer;
 
-        BufferDescription m_desc;
+		BufferDescription m_desc;
 
-        VmaAllocation m_allocation;
-    };
+		VmaAllocation m_allocation;
+	};
 }

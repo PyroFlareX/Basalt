@@ -17,6 +17,7 @@ public:
 	~Camera() = default;
 private:
 	float lerp;
+	
 	//Mode 0 is default, 1 is Left Eye, 2 is Right Eye
 	int mode;
 

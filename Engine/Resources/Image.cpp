@@ -20,7 +20,7 @@ namespace vn
 
 	}
 
-	// Not yet implemented
+	// Create an image filled with color ``color``
 	void Image::create(unsigned int x, unsigned int y, const u8vec4& color)
 	{
 		m_size = vec2(x, y);
@@ -75,12 +75,12 @@ namespace vn
 		return m_pixels.data();
 	}
 
-	void Image::setPixel(unsigned int x, unsigned int y, const u8vec4& color)
+	void Image::setPixel(unsigned int x, unsigned int y, const u8vec4& color) noexcept
 	{
 		m_pixels[toIndex(x, y)] = color;
 	}
 
-	u8vec4 Image::getPixel(unsigned int x, unsigned int y) const
+	u8vec4 Image::getPixel(unsigned int x, unsigned int y) const noexcept
 	{
 		return m_pixels.at(toIndex(x, y));
 	}
@@ -95,7 +95,7 @@ namespace vn
 
 	}
 
-	const int Image::toIndex(const unsigned int x, const unsigned int y) const
+	const int Image::toIndex(const unsigned int x, const unsigned int y) const noexcept
 	{
 		int index = 0;
 

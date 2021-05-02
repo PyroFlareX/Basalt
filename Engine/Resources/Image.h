@@ -26,8 +26,8 @@ namespace vn
 		vec2 getSize() const;
 		const u8vec4* getPixelsPtr() const;
 
-		void setPixel(unsigned int x, unsigned int y, const u8vec4& color);
-		u8vec4 getPixel(unsigned int x, unsigned int y) const;
+		void setPixel(unsigned int x, unsigned int y, const u8vec4& color) noexcept;
+		u8vec4 getPixel(unsigned int x, unsigned int y) const noexcept;
 
 		void flipVertically();
 		void flipHorizontally();
@@ -36,7 +36,7 @@ namespace vn
 		vec2 m_size;
 		std::vector<u8vec4> m_pixels;
 
-		const int toIndex(const unsigned int x, const unsigned int y) const;
+		const int toIndex(const unsigned int x, const unsigned int y) const noexcept;
 	};
 
 }

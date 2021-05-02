@@ -71,7 +71,7 @@ void JobSystem::threadLoop()
 {
 	Job job;
 	using namespace std::chrono_literals;
-	auto d = 1ms;
+	auto d = 100ns;
 	while (running)
 	{
 		if (normalPriority.try_pop(job))
