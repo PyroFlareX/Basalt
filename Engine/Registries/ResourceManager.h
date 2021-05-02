@@ -15,11 +15,11 @@ namespace vn
             
         }
 
-        void addAsset(T&& a, const std::string& key) noexcept
+        void addAsset(T&& a, std::string&& key) noexcept
         {
             std::lock_guard<std::mutex> mutguard(m_lock);
 
-            m_assetMap.insert(std::forward<T>(a));
+            m_assetMap.insert(std::forward<std::string>(key), std::forward<T>(a));
         }
 
         const bool doesAssetExist(const std::string& key) const noexcept
@@ -43,12 +43,7 @@ namespace vn
             
         }
 
-        const T& getAsset(const std::string& key)
-        {
-            return getAsset(key);
-        }
-
-        void removeAsset(const std::string& key)
+        void removeAsset(std::string& key)
         {
             std::lock_guard<std::mutex> mutguard(m_lock);
 
@@ -61,7 +56,7 @@ namespace vn
         }
 
     private:
-        std::unordered_map<const std::string, T> m_assetMap;
+        std::unordered_map<std::string, T> m_assetMap;
         std::mutex m_lock;
     };
 }

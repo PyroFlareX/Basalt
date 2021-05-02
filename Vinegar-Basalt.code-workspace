@@ -6,6 +6,7 @@
 	],
 	"settings": {
 		"files.associations": {
+			"*.rpy": "makefile",
 			"algorithm": "cpp",
 			"array": "cpp",
 			"atomic": "cpp",
@@ -72,7 +73,14 @@
 			"xstring": "cpp",
 			"xtr1common": "cpp",
 			"xtree": "cpp",
-			"xutility": "cpp"
+			"xutility": "cpp",
+			"cstdarg": "cpp",
+			"iomanip": "cpp",
+			"locale": "cpp",
+			"xlocbuf": "cpp",
+			"xlocmes": "cpp",
+			"xlocmon": "cpp",
+			"xloctime": "cpp"
 		}
 	}
 }
