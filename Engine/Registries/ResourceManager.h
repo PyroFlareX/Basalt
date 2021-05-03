@@ -6,7 +6,7 @@
 
 namespace vn
 {
-    template <typename T>
+    template <typename T, typename keytype = std::string>
     class AssetManager
     {
     public:
@@ -15,19 +15,19 @@ namespace vn
             
         }
 
-        void addAsset(T&& a, std::string&& key) noexcept
+        void addAsset(T&& a, keytype&& key) noexcept
         {
             std::lock_guard<std::mutex> mutguard(m_lock);
 
-            m_assetMap.insert(std::forward<std::string>(key), std::forward<T>(a));
+            m_assetMap.insert(std::forward<keytype>(key), std::forward<T>(a));
         }
 
-        const bool doesAssetExist(const std::string& key) const noexcept
+        const bool doesAssetExist(keytype&& key) const noexcept
         {
             return m_assetMap.contains(key);
         }
 
-        T& getAsset(const std::string& key)
+        T& getAsset(keytype&& key)
         {
             std::lock_guard<std::mutex> mutguard(m_lock);
             if(doesAssetExist(key))
@@ -43,7 +43,7 @@ namespace vn
             
         }
 
-        void removeAsset(std::string& key)
+        void removeAsset(keytype&& key)
         {
             std::lock_guard<std::mutex> mutguard(m_lock);
 
@@ -56,7 +56,7 @@ namespace vn
         }
 
     private:
-        std::unordered_map<std::string, T> m_assetMap;
+        std::unordered_map<keytype, T> m_assetMap;
         std::mutex m_lock;
     };
 }
