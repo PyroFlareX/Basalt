@@ -24,7 +24,7 @@ class Renderer
 		GeneralRenderer* m_generalRenderer;
 		ComputeRenderer* m_computeRenderer;
 		
-		
+		void pushGPUData();
     protected:
 
     private:
@@ -36,6 +36,7 @@ class Renderer
 		//std::vector<vn::vk::RenderTargetFramebuffer> m_framebuffers;
 
 		vn::Device* device;
+		
 };
 
 #endif // RENDERER_H

@@ -2,7 +2,6 @@
 
 #include "Buffer.h"
 #include "../../Resources/Image.h"
-#include <vulkan/vulkan_core.h>
 
 namespace vn::vk
 {
@@ -10,6 +9,7 @@ namespace vn::vk
 	{
 		VkImage imgvk;
 		VkImageView imgviewvk;
+		VkSampler sampler;
 	};
 
 	class Texture
@@ -22,7 +22,7 @@ namespace vn::vk
 
 		texture_t getAPITextureInfo()
 		{
-			return texture_t{ textureImg, textureImgView };
+			return texture_t{ textureImg, textureImgView, sampler };
 		}
 
 	private:
@@ -30,6 +30,8 @@ namespace vn::vk
 		VkImageView textureImgView;
 		VmaAllocation textureAllocation;
 		VkDeviceMemory deviceMem;
+
+		VkSampler sampler;
 
 		vn::Device* p_device;
 	};

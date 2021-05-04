@@ -7,10 +7,10 @@
 namespace vn
 {
     template <typename T, typename keytype = std::string>
-    class AssetManager
+    class ResourceManager
     {
     public:
-        AssetManager()
+        ResourceManager()
         {
             
         }
@@ -50,7 +50,12 @@ namespace vn
             m_assetMap.erase(key);
         }
 
-        ~AssetManager()
+        const std::unordered_map<keytype, T>& getMap()
+        {
+            return m_assetMap;
+        }
+
+        ~ResourceManager()
         {
             
         }

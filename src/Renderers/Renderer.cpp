@@ -140,8 +140,6 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 	}
 
 	device->submitWork(m_primaryBuffers);
-
-	//clearQueue();
 }
 
 void Renderer::clearQueue()
@@ -155,4 +153,9 @@ Renderer::~Renderer()
 	vkDestroyRenderPass(device->getDevice(), renderpassdefault, nullptr);
 	vkDestroyCommandPool(device->getDevice(), m_pool, nullptr);
 	delete m_generalRenderer;
+}
+
+void Renderer::pushGPUData()
+{
+	
 }

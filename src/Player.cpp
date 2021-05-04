@@ -13,14 +13,15 @@ void Player::getInput(Input::Inputs vInput, bool VRmode)
 	if(!VRmode)
 	{
 		vn::vec3 change = glm::vec3(0.0f);
-		float speed = 3.0f;
+		float speed = 100.0f;
 
 		change.x += glm::cos(glm::radians(rot.y)) * speed * vInput.LX;
 		change.z += glm::sin(glm::radians(rot.y)) * speed * vInput.LX;
 		
 		if (vInput.up)
 		{
-			jump();
+			//jump();
+			velocity.y += 3 * speed;
 		}
 		if (vInput.down)
 		{

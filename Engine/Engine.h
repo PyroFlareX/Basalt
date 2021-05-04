@@ -10,6 +10,8 @@
 #include "JobSystem/JobSystem.h"
 #include "GPU/Context.h"
 
+#include "AssetManager/AssetManager.h"
+
 extern JobSystem jobSystem;
 
 namespace vn
