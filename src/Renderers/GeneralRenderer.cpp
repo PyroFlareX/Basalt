@@ -41,9 +41,13 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 
 	// Mesh
-	vn::Mesh m = vn::loadMeshFromObj("res/Models/sphere.obj");\
+	vn::Mesh m = vn::loadMeshFromObj("res/Models/sphere.obj");
 	auto* model = new vn::vk::Model(m, p_device);
 	vn::asset_manager.addModel(*model, "sphere");
+
+	vn::Mesh m2 = vn::loadMeshFromObj("res/Models/sponza.obj");
+	auto* model2 = new vn::vk::Model(m2, p_device);
+	vn::asset_manager.addModel(*model2, "sponza");
 
 	// Pipelines
 	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout, desclayout);
@@ -63,7 +67,6 @@ void GeneralRenderer::addInstance(vn::GameObject& entity)
 
 void GeneralRenderer::render(Camera& cam)
 {
-
 	PushConstantsStruct pushconst = {};
 	pushconst.proj = cam.getProjMatrix();
 	pushconst.view = cam.getViewMatrix();
@@ -88,14 +91,17 @@ void GeneralRenderer::render(Camera& cam)
 		vkCmdBindPipeline(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, gfx);
 
 		vkCmdBindDescriptorSets(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, playout, 0, 1, 
-								vn::asset_manager.pDescsetglobal, 0, nullptr);
+			vn::asset_manager.pDescsetglobal, 0, nullptr);
+								
 
 		vkCmdPushConstants(m_renderlist.at(i), playout,
 			VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
 
+
 		VkDeviceSize offset = 0;
 		vkCmdBindVertexBuffers(m_renderlist.at(i), 0, 1, &vn::asset_manager.getModel(std::move(m_queue.at(i).model_id)).getVertexBuffer()->getAPIResource(), &offset);
 		
+
 		vkCmdBindIndexBuffer(m_renderlist.at(i), vn::asset_manager.getModel(std::move(m_queue.at(i).model_id)).getIndexBuffer()->getAPIResource(), offset, VK_INDEX_TYPE_UINT32);
 		
 

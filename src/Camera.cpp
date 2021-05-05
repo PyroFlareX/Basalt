@@ -8,7 +8,7 @@ Camera::Camera(int Mode)	:	mode(Mode)
 	//	proj = vn::makeProjectionMatrix(80.0f, vn::vec2(1280, 720));
 	}
 	//proj = vn::makeProjectionMatrix(80.0f, vn::vec2(1280, 720));
-	proj = glm::perspective(glm::radians(80.0f), 800.0f / 600.0f, 0.001f, 1000.0f);
+	proj = glm::perspective(glm::radians(80.0f), 800.0f / 600.0f, 0.001f, 1000000.0f);
 	pos = vn::vec3(0.0f, 0.0f, 1.0f);
 	rot = vn::vec3(0.0f);
 }

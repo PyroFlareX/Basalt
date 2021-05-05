@@ -16,7 +16,7 @@ namespace vn
 			hasTransform = true;
 			mass = 1.0f;
 
-			model_id = "sphere";
+			model_id = "";
 
 			init();
 		};

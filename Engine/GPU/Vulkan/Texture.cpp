@@ -44,8 +44,7 @@ void vn::vk::Texture::loadFromImage(vn::Image& img)
 	
 	image.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	VkResult result = vkCreateImage(p_device->getDevice(), &image, nullptr, &textureImg);
-	std::cout << result << " THIS IS THE BUG BUDDY! \n";
+	VkResult result = vkCreateImage(p_device->getDevice(), &image, nullptr, &textureImg);\
 
 	VkDeviceSize offset = 0;
 	void* texture = nullptr;
@@ -80,16 +79,13 @@ void vn::vk::Texture::loadFromImage(vn::Image& img)
 	
 
 	result = vkAllocateMemory(p_device->getDevice(), &meminfo, nullptr, &deviceMem);
-	std::cout << result << " THIS IS THE BUG BUDDYAlloc! \n";
 
 
 	result = vkBindImageMemory(p_device->getDevice(), textureImg, deviceMem, 0);
-	std::cout << result << " THIS IS THE BUG BUDDYBIND! \n";
 
 	
 
 	result = vkMapMemory(p_device->getDevice(), deviceMem, offset, sizeDev, 0, &texture);
-	std::cout << result << " THIS IS THE BUG BUDDYMAP! \n";
 
 	memcpy(texture, img.getPixelsPtr(), sizeImg);
 

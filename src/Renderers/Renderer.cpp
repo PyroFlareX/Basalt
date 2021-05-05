@@ -121,10 +121,9 @@ Renderer::Renderer(vn::Device* renderingDevice)
 
 	struct test
 	{
-		float x = 1;
-		float y = 2;
-		float z = 3;
-		float w = 4;
+		vn::mat4 proj;
+		vn::mat4 view;
+		vn::mat4 model;
 	};
 
 	test* uniformbufferthing = new test;
@@ -135,8 +134,8 @@ Renderer::Renderer(vn::Device* renderingDevice)
 	vn::vk::BufferDescription uniform;
 	uniform.bufferType = vn::BufferUsage::UNIFORM_BUFFER;
 	uniform.dev = device;
-	uniform.size = 4;
-	uniform.stride = 4;
+	uniform.size = 192;
+	uniform.stride = 64;
 	uniform.bufferData = uniformbufferthing;
 
 	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(uniform));
@@ -173,6 +172,7 @@ void Renderer::render(Camera& cam)
 
 	jobSystem.schedule(generalRender);
 
+	// TODO: Add way to update the content of a buffer before pushing to GPU, purpose being MVP matrices
 	pushGPUData();
 
 	jobSystem.wait();
