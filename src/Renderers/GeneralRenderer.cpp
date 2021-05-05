@@ -1,7 +1,7 @@
 #include "GeneralRenderer.h"
 
 
-GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, VkDescriptorSetLayout desclayout) //: m_descriptorbuffer(vn::vk::BufferDescription{})
+GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, VkDescriptorSetLayout desclayout)
 {
 	p_device = mainDevice;
 	vn::vk::createCommandPool(*p_device, m_pool);
@@ -14,7 +14,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 
 	vn::vk::Texture texture(p_device);
 	texture.loadFromImage(img);
-	vn::asset_manager.addTexture(texture, "container");
+	vn::asset_manager.addTexture(texture, 0);
 
 	m_renderlist.resize(1);
 

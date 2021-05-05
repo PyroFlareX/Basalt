@@ -251,11 +251,27 @@ void Renderer::pushGPUData()
 	//Image Writing Info
 	VkDescriptorImageInfo imageinfo1{};
 
-	auto& texture = vn::asset_manager.getTexture("container");
+	/*auto& texture = vn::asset_manager.getTexture(0);
 
 	imageinfo1.imageView = texture.getAPITextureInfo().imgviewvk;
 	imageinfo1.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 	imageinfo1.sampler = texture.getAPITextureInfo().sampler;
+*/
+	auto textures = vn::asset_manager.getTextures();
+
+	std::vector<VkDescriptorImageInfo> imageinfo;
+
+	for(int i = 0; i < textures.size(); ++i)
+	{
+		VkDescriptorImageInfo imginfo;
+		imginfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+		imginfo.imageView = textures[i].imgviewvk;
+		imginfo.sampler = textures[i].sampler;
+
+		imageinfo.emplace_back(imginfo);
+	}
+
+	
 
 
 	//Writing Info
@@ -274,7 +290,7 @@ void Renderer::pushGPUData()
 	descWrite[1].dstArrayElement = 0; // Double check later
 	descWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	descWrite[1].descriptorCount = 1;
-	descWrite[1].pImageInfo = &imageinfo1;
+	descWrite[1].pImageInfo = &imageinfo.at(0);
 	
 
 	
