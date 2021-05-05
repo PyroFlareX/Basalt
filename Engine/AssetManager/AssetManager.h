@@ -43,8 +43,6 @@ namespace vn
 		{
 			std::vector<vn::vk::texture_t> textures;
 
-			//       still | why does this work lmao
-			
 			for(auto& [key, value] : m_textures.getMap())
 			{
 				textures.push_back(value.getAPITextureInfo());

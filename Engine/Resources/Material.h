@@ -7,10 +7,8 @@ namespace vn
     struct Material
     {
         /// Maps
-        //Texture
-        short texture_id = 0;
-        //Normal
-        short normal_id = 1;
+        short texture_id = 0; //Texture
+        short normal_id = 1; //Normal
         
         /// Values
         vn::vec4 diffuse; //Diffuse

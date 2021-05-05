@@ -7,6 +7,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 	vn::vk::createCommandPool(*p_device, m_pool);
 	m_renderpass = rpass;
 
+	//Create image + texture
 	if (img.loadFromFile("res/container.jpg"))
 	{
 		std::cout << "Image creation success \n";
@@ -16,6 +17,8 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 	texture.loadFromImage(img);
 	vn::asset_manager.addTexture(texture, 0);
 
+
+	//Renderlists for secondary cmd buffers
 	m_renderlist.resize(1);
 
 	VkCommandBufferAllocateInfo allocInfo{};
@@ -30,7 +33,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 	}
 
 	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT; // Optional
+	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_RENDER_PASS_CONTINUE_BIT;
 
 
 	inheritanceInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_INHERITANCE_INFO;

@@ -167,8 +167,6 @@ void Renderer::render(Camera& cam)
 			static_cast<Renderer*>(job.data[0])->m_generalRenderer->render(*static_cast<Camera*>(job.data[1]));
 		}, params);
 
-	
-	//m_generalRenderer->render(cam);
 
 	jobSystem.schedule(generalRender);
 
@@ -233,7 +231,6 @@ void Renderer::clearQueue()
 
 Renderer::~Renderer()
 {
-	//dtor
 	vkDestroyRenderPass(device->getDevice(), renderpassdefault, nullptr);
 	vkDestroyCommandPool(device->getDevice(), m_pool, nullptr);
 	delete m_generalRenderer;
@@ -241,7 +238,6 @@ Renderer::~Renderer()
 
 void Renderer::pushGPUData()
 {
-
 	//Buffer Writing Info
 	VkDescriptorBufferInfo bufferInfo1{};
 	bufferInfo1.buffer = m_descriptorBuffers.at(0)->getAPIResource();
@@ -249,14 +245,6 @@ void Renderer::pushGPUData()
 	bufferInfo1.range = 16;
 
 	//Image Writing Info
-	VkDescriptorImageInfo imageinfo1{};
-
-	/*auto& texture = vn::asset_manager.getTexture(0);
-
-	imageinfo1.imageView = texture.getAPITextureInfo().imgviewvk;
-	imageinfo1.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-	imageinfo1.sampler = texture.getAPITextureInfo().sampler;
-*/
 	auto textures = vn::asset_manager.getTextures();
 
 	std::vector<VkDescriptorImageInfo> imageinfo;
@@ -277,24 +265,22 @@ void Renderer::pushGPUData()
 	//Writing Info
 	VkWriteDescriptorSet descWrite[2] = {};
 	descWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 	descWrite[0].dstSet = m_descsetglobal;
 	descWrite[0].dstBinding = 0;
-	descWrite[0].dstArrayElement = 0; // Double check later
-	descWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	descWrite[0].descriptorCount = 1;
+	descWrite[0].dstArrayElement = 0; //Starting array element
+	descWrite[0].descriptorCount = 1; //Number to write over?
 	descWrite[0].pBufferInfo = &bufferInfo1;
 	
 	descWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 	descWrite[1].dstSet = m_descsetglobal;
 	descWrite[1].dstBinding = 1;
-	descWrite[1].dstArrayElement = 0; // Double check later
-	descWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	descWrite[1].descriptorCount = 1;
+	descWrite[1].dstArrayElement = 0;
+	descWrite[1].descriptorCount = imageinfo.size();
 	descWrite[1].pImageInfo = &imageinfo.at(0);
 	
 
-	
-	// Double check other values later
-
+	//Write Values to GPU
 	vkUpdateDescriptorSets(device->getDevice(), 2, &descWrite[0], 0, nullptr);
 }
