@@ -6,7 +6,7 @@
 class GeneralRenderer
 {
 public:
-	GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass);
+	GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, VkDescriptorSetLayout desclayout);
 
 	void addInstance(vn::GameObject& entity);
 	void render(Camera& cam);
@@ -23,11 +23,6 @@ private:
 	std::vector<vn::GameObject> m_queue;
 	vn::Image img;
 	
-	//Buffers
-	std::vector<vn::vk::Model*> m_models;
-	//vn::vk::Buffer m_descriptorbuffer;
-	std::vector<vn::vk::Buffer*> m_descriptorBuffers;
-
 	// Pipeline Stuff
 	VkPipelineLayout playout;
 	VkPipeline gfx;
@@ -35,8 +30,6 @@ private:
 	VkCommandBufferInheritanceInfo inheritanceInfo{};
 	VkRenderPass* m_renderpass;
 
-	VkDescriptorPool m_descpool;
-	VkDescriptorSet m_descsetglobal;
 
 	// Vulkan Stuff
 	VkCommandPool m_pool;

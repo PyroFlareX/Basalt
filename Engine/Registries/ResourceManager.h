@@ -15,11 +15,11 @@ namespace vn
             
         }
 
-        void addAsset(T&& a, keytype&& key) noexcept
+        void addAsset(T& a, keytype& key) noexcept
         {
             std::lock_guard<std::mutex> mutguard(m_lock);
 
-            m_assetMap.insert(std::forward<keytype>(key), std::forward<T>(a));
+            m_assetMap.emplace(key, a);
         }
 
         const bool doesAssetExist(keytype&& key) const noexcept
@@ -30,7 +30,7 @@ namespace vn
         T& getAsset(keytype&& key)
         {
             std::lock_guard<std::mutex> mutguard(m_lock);
-            if(doesAssetExist(key))
+            if(doesAssetExist(std::forward<keytype>(key)))
             {
                 return m_assetMap.at(key);
             }
@@ -38,7 +38,8 @@ namespace vn
             {
                 // error!!!
                 puts("Tried to retrieve an asset that does not exist!\n");
-                return m_assetMap["null"];
+                throw;
+                //return m_assetMap["null"];
             }
             
         }

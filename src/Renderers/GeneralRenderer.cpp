@@ -1,7 +1,7 @@
 #include "GeneralRenderer.h"
 
 
-GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //: m_descriptorbuffer(vn::vk::BufferDescription{})
+GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, VkDescriptorSetLayout desclayout) //: m_descriptorbuffer(vn::vk::BufferDescription{})
 {
 	p_device = mainDevice;
 	vn::vk::createCommandPool(*p_device, m_pool);
@@ -11,9 +11,10 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	{
 		std::cout << "Image creation success \n";
 	}
+
 	vn::vk::Texture texture(p_device);
 	texture.loadFromImage(img);
-	
+	vn::asset_manager.addTexture(texture, "container");
 
 	m_renderlist.resize(1);
 
@@ -40,146 +41,9 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass) //
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 
 	// Mesh
-	vn::Mesh m = vn::loadMeshFromObj("res/Models/sphere.obj");
-	m_models.emplace_back(new vn::vk::Model(m, p_device));
-
-	
-
-	// Descriptor Pools
-	VkDescriptorPoolCreateInfo descpoolinfo{};
-	
-	descpoolinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-	descpoolinfo.pNext = nullptr;
-	descpoolinfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
-
-	VkDescriptorPoolSize descpoolsize[2] = {};
-	descpoolsize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	descpoolsize[0].descriptorCount = 1;
-	
-	descpoolsize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	descpoolsize[1].descriptorCount = 1;
-
-	descpoolinfo.pPoolSizes = &descpoolsize[0];
-	descpoolinfo.poolSizeCount = 2;
-
-	descpoolinfo.maxSets = 100;
-
-	VkResult result = vkCreateDescriptorPool(p_device->getDevice(), &descpoolinfo, nullptr, &m_descpool);
-	std::cout << "In GeneralRenderer, result for creating descriptor pool is: " << result << std::endl;
-
-	// Descriptor Sets
-	VkDescriptorSetLayoutBinding setlayoutbinding[2] = {};
-	setlayoutbinding[0].binding = 0;
-	setlayoutbinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	setlayoutbinding[0].stageFlags = VK_SHADER_STAGE_ALL;
-	setlayoutbinding[0].descriptorCount = 1;
-
-	setlayoutbinding[1].binding = 1;
-	setlayoutbinding[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	setlayoutbinding[1].stageFlags = VK_SHADER_STAGE_ALL;
-	setlayoutbinding[1].descriptorCount = 1;
-	
-
-	VkDescriptorSetLayoutCreateInfo desclayoutinfo{};
-	desclayoutinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	desclayoutinfo.pNext = nullptr;
-	desclayoutinfo.bindingCount = 2; // 2;
-	desclayoutinfo.pBindings = &setlayoutbinding[0];
-	desclayoutinfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
-
-	VkDescriptorSetLayout desclayout;
-	
-	result = vkCreateDescriptorSetLayout(p_device->getDevice(), &desclayoutinfo, nullptr, &desclayout);
-	std::cout << "In GeneralRenderer, result for creating descriptor set layout is: " << result << std::endl;
-
-	VkDescriptorSetAllocateInfo descriptorAllocInfo{};
-	descriptorAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-	descriptorAllocInfo.descriptorPool = m_descpool;
-	descriptorAllocInfo.descriptorSetCount = 1;
-	descriptorAllocInfo.pSetLayouts = &desclayout;
-	
-	
-	
-
-	result = vkAllocateDescriptorSets(p_device->getDevice(), &descriptorAllocInfo, &m_descsetglobal);
-
-	std::cout << "In GeneralRenderer, result for allocation of descriptors is: " << result << std::endl;
-	
-	/// TODO: FINISH DESCRIPTOR SETS (DO IT BINDLESS)
-
-	struct test
-	{
-		float x = 1;
-		float y = 2;
-		float z = 3;
-		float w = 4;
-	};
-
-	test* uniformbufferthing = new test;
-
-	// Descriptor Set Buffers:
-
-	// Uniform buffer
-	vn::vk::BufferDescription uniform;
-	uniform.bufferType = vn::BufferUsage::UNIFORM_BUFFER;
-	uniform.dev = p_device;
-	uniform.size = 4;
-	uniform.stride = 4;
-	uniform.bufferData = uniformbufferthing;
-
-	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(uniform));
-
-	m_descriptorBuffers.at(0)->uploadBuffer();
-
-
-	VkDescriptorBufferInfo bufferInfo1{};
-	bufferInfo1.buffer = m_descriptorBuffers.at(0)->getAPIResource();
-	bufferInfo1.offset = 0;
-	bufferInfo1.range = 16;
-
-
-	VkDescriptorImageInfo imageinfo1{};
-
-
-	imageinfo1.imageView = texture.getAPITextureInfo().imgviewvk;
-	imageinfo1.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-
-	// Sampler
-	VkSampler sampler;
-	VkSamplerCreateInfo samplerInfo = {};
-	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-	samplerInfo.minFilter = VK_FILTER_NEAREST;
-	samplerInfo.magFilter = VK_FILTER_NEAREST;
-	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-
-	vkCreateSampler(p_device->getDevice(), &samplerInfo, nullptr, &sampler);
-	// Sampler done
-	imageinfo1.sampler = sampler;
-
-	VkWriteDescriptorSet descWrite[3] = {};
-	descWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descWrite[0].dstSet = m_descsetglobal;
-	descWrite[0].dstBinding = 0;
-	descWrite[0].dstArrayElement = 0; // Double check later
-	descWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-	descWrite[0].descriptorCount = 1;
-	descWrite[0].pBufferInfo = &bufferInfo1;
-	
-	descWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descWrite[1].dstSet = m_descsetglobal;
-	descWrite[1].dstBinding = 1;
-	descWrite[1].dstArrayElement = 0; // Double check later
-	descWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	descWrite[1].descriptorCount = 1;
-	descWrite[1].pImageInfo = &imageinfo1;
-	
-
-	
-	// Double check other values later
-
-	vkUpdateDescriptorSets(p_device->getDevice(), 2, &descWrite[0], 0, nullptr);
+	vn::Mesh m = vn::loadMeshFromObj("res/Models/sphere.obj");\
+	auto* model = new vn::vk::Model(m, p_device);
+	vn::asset_manager.addModel(*model, "sphere");
 
 	// Pipelines
 	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout, desclayout);
@@ -203,6 +67,7 @@ void GeneralRenderer::render(Camera& cam)
 	PushConstantsStruct pushconst = {};
 	pushconst.proj = cam.getProjMatrix();
 	pushconst.view = cam.getViewMatrix();
+	
 	vn::Transform t;
 	t.pos.x = 0.0f;
 	t.pos.y = 0.0f;
@@ -222,18 +87,19 @@ void GeneralRenderer::render(Camera& cam)
 
 		vkCmdBindPipeline(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, gfx);
 
-		vkCmdBindDescriptorSets(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, playout, 0, 1, &m_descsetglobal, 0, nullptr);
+		vkCmdBindDescriptorSets(m_renderlist.at(i), VK_PIPELINE_BIND_POINT_GRAPHICS, playout, 0, 1, 
+								vn::asset_manager.pDescsetglobal, 0, nullptr);
 
 		vkCmdPushConstants(m_renderlist.at(i), playout,
 			VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
 
 		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(m_renderlist.at(i), 0, 1, &m_models.at(0)->getVertexBuffer()->getAPIResource(), &offset);
+		vkCmdBindVertexBuffers(m_renderlist.at(i), 0, 1, &vn::asset_manager.getModel(std::move(m_queue.at(i).model_id)).getVertexBuffer()->getAPIResource(), &offset);
 		
-		vkCmdBindIndexBuffer(m_renderlist.at(i), m_models.at(0)->getIndexBuffer()->getAPIResource(), offset, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(m_renderlist.at(i), vn::asset_manager.getModel(std::move(m_queue.at(i).model_id)).getIndexBuffer()->getAPIResource(), offset, VK_INDEX_TYPE_UINT32);
 		
 
-		vkCmdDrawIndexed(m_renderlist.at(i), m_models.at(0)->getIndexBuffer()->getNumElements(), 1, 0, 0, 0);
+		vkCmdDrawIndexed(m_renderlist.at(i), vn::asset_manager.getModel(std::move(m_queue.at(i).model_id)).getIndexBuffer()->getNumElements(), 1, 0, 0, 0);
 
 		if (vkEndCommandBuffer(m_renderlist.at(i)) != VK_SUCCESS)
 		{
@@ -256,8 +122,8 @@ std::vector<VkCommandBuffer>& GeneralRenderer::getRenderlists()
 
 GeneralRenderer::~GeneralRenderer()
 {
-	for (auto* model : m_models)
+	/*for (auto* model : m_models)
 	{
 		delete model;
-	}
+	}*/
 }

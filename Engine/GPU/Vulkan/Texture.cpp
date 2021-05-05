@@ -5,7 +5,15 @@ vn::vk::Texture::Texture(vn::Device* device)
 	p_device = device;
 	// Create the img
 
-	
+	VkSamplerCreateInfo samplerInfo = {};
+	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+	samplerInfo.minFilter = VK_FILTER_NEAREST;
+	samplerInfo.magFilter = VK_FILTER_NEAREST;
+	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+
+	vkCreateSampler(device->getDevice(), &samplerInfo, nullptr, &sampler);
 }
 
 void vn::vk::Texture::loadFromImage(vn::Image& img)

@@ -16,7 +16,7 @@ namespace vn
 			hasTransform = true;
 			mass = 1.0f;
 
-			model_id = 0;
+			model_id = "sphere";
 
 			init();
 		};
@@ -60,10 +60,9 @@ namespace vn
 			return transform;
 		}
 
-		float				mass;
+		float mass;
 
-		int model_id = 0;
-		int texture_id = 0;
+		std::string model_id;
 
 		virtual ~GameObject() = default;
 	private:

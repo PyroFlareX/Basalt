@@ -36,6 +36,12 @@ class Renderer
 		//std::vector<vn::vk::RenderTargetFramebuffer> m_framebuffers;
 
 		vn::Device* device;
+
+		VkDescriptorPool m_descpool;
+	    VkDescriptorSet m_descsetglobal;
+
+		
+		std::vector<vn::vk::Buffer*> m_descriptorBuffers;
 		
 };
 

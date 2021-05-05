@@ -20,7 +20,7 @@ namespace vn::vk
 		// Upload the img here
 		void loadFromImage(vn::Image& img);
 
-		texture_t getAPITextureInfo()
+		texture_t getAPITextureInfo() const
 		{
 			return texture_t{ textureImg, textureImgView, sampler };
 		}

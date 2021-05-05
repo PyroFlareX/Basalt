@@ -63,7 +63,88 @@ Renderer::Renderer(vn::Device* renderingDevice)
 		throw std::runtime_error("failed to allocate command buffers!");
 	}
 
-	m_generalRenderer = new GeneralRenderer(renderingDevice, &renderpassdefault);
+
+	// Descriptor Pools
+	VkDescriptorPoolCreateInfo descpoolinfo{};
+	
+	descpoolinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+	descpoolinfo.pNext = nullptr;
+	descpoolinfo.flags = VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT;
+
+	VkDescriptorPoolSize descpoolsize[2] = {};
+	descpoolsize[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descpoolsize[0].descriptorCount = 1;
+	
+	descpoolsize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descpoolsize[1].descriptorCount = 1;
+
+	descpoolinfo.pPoolSizes = &descpoolsize[0];
+	descpoolinfo.poolSizeCount = 2;
+
+	descpoolinfo.maxSets = 100;
+
+	VkResult result = vkCreateDescriptorPool(device->getDevice(), &descpoolinfo, nullptr, &m_descpool);
+
+	// Descriptor Sets
+	VkDescriptorSetLayoutBinding setlayoutbinding[2] = {};
+	setlayoutbinding[0].binding = 0;
+	setlayoutbinding[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	setlayoutbinding[0].stageFlags = VK_SHADER_STAGE_ALL;
+	setlayoutbinding[0].descriptorCount = 1;
+
+	setlayoutbinding[1].binding = 1;
+	setlayoutbinding[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	setlayoutbinding[1].stageFlags = VK_SHADER_STAGE_ALL;
+	setlayoutbinding[1].descriptorCount = 1;
+	
+
+	VkDescriptorSetLayoutCreateInfo desclayoutinfo{};
+	desclayoutinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+	desclayoutinfo.pNext = nullptr;
+	desclayoutinfo.bindingCount = 2; // 2;
+	desclayoutinfo.pBindings = &setlayoutbinding[0];
+	desclayoutinfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
+
+	VkDescriptorSetLayout desclayout;
+	
+	result = vkCreateDescriptorSetLayout(device->getDevice(), &desclayoutinfo, nullptr, &desclayout);
+
+	VkDescriptorSetAllocateInfo descriptorAllocInfo{};
+	descriptorAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+	descriptorAllocInfo.descriptorPool = m_descpool;
+	descriptorAllocInfo.descriptorSetCount = 1;
+	descriptorAllocInfo.pSetLayouts = &desclayout;
+	
+	result = vkAllocateDescriptorSets(device->getDevice(), &descriptorAllocInfo, &m_descsetglobal);
+
+	vn::asset_manager.pDescsetglobal = &m_descsetglobal;
+
+	struct test
+	{
+		float x = 1;
+		float y = 2;
+		float z = 3;
+		float w = 4;
+	};
+
+	test* uniformbufferthing = new test;
+
+	// Descriptor Set Buffers:
+
+	// Uniform buffer
+	vn::vk::BufferDescription uniform;
+	uniform.bufferType = vn::BufferUsage::UNIFORM_BUFFER;
+	uniform.dev = device;
+	uniform.size = 4;
+	uniform.stride = 4;
+	uniform.bufferData = uniformbufferthing;
+
+	m_descriptorBuffers.emplace_back(new vn::vk::Buffer(uniform));
+
+	m_descriptorBuffers.at(0)->uploadBuffer();
+
+
+	m_generalRenderer = new GeneralRenderer(renderingDevice, &renderpassdefault, desclayout);
 }
 
 void Renderer::drawObject(vn::GameObject& entity)
@@ -91,6 +172,9 @@ void Renderer::render(Camera& cam)
 	//m_generalRenderer->render(cam);
 
 	jobSystem.schedule(generalRender);
+
+	pushGPUData();
+
 	jobSystem.wait();
 }
 
@@ -157,5 +241,44 @@ Renderer::~Renderer()
 
 void Renderer::pushGPUData()
 {
+
+	//Buffer Writing Info
+	VkDescriptorBufferInfo bufferInfo1{};
+	bufferInfo1.buffer = m_descriptorBuffers.at(0)->getAPIResource();
+	bufferInfo1.offset = 0;
+	bufferInfo1.range = 16;
+
+	//Image Writing Info
+	VkDescriptorImageInfo imageinfo1{};
+
+	auto& texture = vn::asset_manager.getTexture("container");
+
+	imageinfo1.imageView = texture.getAPITextureInfo().imgviewvk;
+	imageinfo1.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+	imageinfo1.sampler = texture.getAPITextureInfo().sampler;
+
+
+	//Writing Info
+	VkWriteDescriptorSet descWrite[2] = {};
+	descWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descWrite[0].dstSet = m_descsetglobal;
+	descWrite[0].dstBinding = 0;
+	descWrite[0].dstArrayElement = 0; // Double check later
+	descWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	descWrite[0].descriptorCount = 1;
+	descWrite[0].pBufferInfo = &bufferInfo1;
 	
+	descWrite[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+	descWrite[1].dstSet = m_descsetglobal;
+	descWrite[1].dstBinding = 1;
+	descWrite[1].dstArrayElement = 0; // Double check later
+	descWrite[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	descWrite[1].descriptorCount = 1;
+	descWrite[1].pImageInfo = &imageinfo1;
+	
+
+	
+	// Double check other values later
+
+	vkUpdateDescriptorSets(device->getDevice(), 2, &descWrite[0], 0, nullptr);
 }
