@@ -17,9 +17,40 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 	texture.loadFromImage(img);
 	vn::asset_manager.addTexture(texture, 0);
 
+	// Mesh
+	std::string sphere("sphere");
+	std::string sponza("sponza");
+	std::string conference("conference");
+	void* data[] = {p_device, &sphere, &sponza, &conference};
+	Job j = jobSystem.createJob([](Job j)
+	{
+		for(int i = 1; i <= 3; ++i)
+		{
+			std::string s(*static_cast<std::string*>(j.data[i]));
+
+			vn::Mesh m = vn::loadMeshFromObj("res/Models/" + s + ".obj");
+			auto* model = new vn::vk::Model(m, static_cast<vn::Device*>(j.data[0]));
+			vn::asset_manager.addModel(*model, std::move(s));
+		}
+
+	}, data);
+	jobSystem.schedule(j);
+/*
+	vn::Mesh m = vn::loadMeshFromObj("res/Models/sphere.obj");
+	auto* model = new vn::vk::Model(m, p_device);
+	vn::asset_manager.addModel(*model, "sphere");
+
+	vn::Mesh m2 = vn::loadMeshFromObj("res/Models/sponza.obj");
+	auto* model2 = new vn::vk::Model(m2, p_device);
+	vn::asset_manager.addModel(*model2, "sponza");
+
+	vn::Mesh m3 = vn::loadMeshFromObj("res/Models/conference.obj");
+	auto* model3 = new vn::vk::Model(m3, p_device);
+	vn::asset_manager.addModel(*model3, "conference");
+*/
 
 	//Renderlists for secondary cmd buffers
-	m_renderlist.resize(1);
+	m_renderlist.resize(100);
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -43,17 +74,10 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 
 	beginInfo.pInheritanceInfo = &inheritanceInfo;
 
-	// Mesh
-	vn::Mesh m = vn::loadMeshFromObj("res/Models/sphere.obj");
-	auto* model = new vn::vk::Model(m, p_device);
-	vn::asset_manager.addModel(*model, "sphere");
-
-	vn::Mesh m2 = vn::loadMeshFromObj("res/Models/sponza.obj");
-	auto* model2 = new vn::vk::Model(m2, p_device);
-	vn::asset_manager.addModel(*model2, "sponza");
-
 	// Pipelines
 	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout, desclayout);
+
+	jobSystem.wait(0, false);
 }
 
 void GeneralRenderer::addInstance(vn::GameObject& entity)

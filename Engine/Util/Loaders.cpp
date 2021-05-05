@@ -106,7 +106,7 @@ vn::Mesh vn::loadMeshFromObj(const std::string& filepath)
 						attributes.vertices[3 * idx.vertex_index + 2] 
 						};
 
-						if (!attributes.texcoords.empty())
+						if (!attributes.normals.empty())
 						{
 							vert.normal = vec3
 							{

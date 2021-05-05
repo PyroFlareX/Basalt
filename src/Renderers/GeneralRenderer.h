@@ -24,6 +24,7 @@ private:
 	vn::Image img;
 	
 	// Pipeline Stuff
+
 	VkPipelineLayout playout;
 	VkPipeline gfx;
 	VkCommandBufferBeginInfo beginInfo{};
@@ -32,6 +33,7 @@ private:
 
 
 	// Vulkan Stuff
+	
 	VkCommandPool m_pool;
 	std::vector<VkCommandBuffer> m_renderlist;
 	vn::Device* p_device;

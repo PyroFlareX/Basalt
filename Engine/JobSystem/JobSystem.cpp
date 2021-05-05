@@ -34,10 +34,13 @@ void JobSystem::wait(unsigned int counterTarget, bool stayOnThread)
 	while (counterTarget < m_counter.load())
 	{
 		//Do some jobs on the waiting thread
-		if (normalPriority.try_pop(job))
+		if(!stayOnThread)
 		{
-			job.job_Function(job);
-			m_counter--;
+			if(normalPriority.try_pop(job))
+			{
+				job.job_Function(job);
+				m_counter--;
+			}
 		}
 	}
 	

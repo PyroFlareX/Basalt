@@ -50,6 +50,10 @@ GameState::GameState(Application& app)	:	Basestate(app)
 	vn::GameObject gobj(t);
 	gobj.model_id = "sponza";
 	m_gameObjects.emplace_back(gobj);
+
+	vn::GameObject obj2(t);
+	obj2.model_id = "sphere";
+	m_gameObjects.emplace_back(obj2);
 }
 
 GameState::~GameState()
@@ -73,7 +77,6 @@ void GameState::update(float dt)
 {
 	void* data[] = { &dt, &m_player, nullptr, &m_gameObjects };
 	
-	//m_player.update(dt);
 
 	// Player and World updates as a Job
 	Job update = jobSystem.createJob([](Job job)
@@ -100,7 +103,7 @@ void GameState::update(float dt)
 			}
 		}, data);
 
-	// Schedule the jobs
+	/// Schedule the jobs
 	jobSystem.schedule(update);
 	//jobSystem.schedule(objUpdates);
 
