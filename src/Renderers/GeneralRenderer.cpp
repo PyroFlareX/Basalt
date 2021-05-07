@@ -22,19 +22,28 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 	std::string sponza("sponza");
 	std::string conference("conference");
 	void* data[] = {p_device, &sphere, &sponza, &conference};
-	Job j = jobSystem.createJob([](Job j)
+
+	//Num Models
+	short numModels = 3;
+	
+	for(int i = 1; i <= numModels; ++i)
 	{
-		for(int i = 1; i <= 3; ++i)
+		Job load = jobSystem.createJob([i](Job j)
 		{
-			std::string s(*static_cast<std::string*>(j.data[i]));
+			int index = i;
+			auto* r = j.data[index];
+			std::string s(*static_cast<std::string*>(r));
 
 			vn::Mesh m = vn::loadMeshFromObj("res/Models/" + s + ".obj");
 			auto* model = new vn::vk::Model(m, static_cast<vn::Device*>(j.data[0]));
 			vn::asset_manager.addModel(*model, std::move(s));
-		}
+		}, data);
+		
+		jobSystem.schedule(load);
+	}
 
-	}, data);
-	jobSystem.schedule(j);
+	// execution of jobs is guarunteed to happen before this scope ends
+	// wait is called
 /*
 	vn::Mesh m = vn::loadMeshFromObj("res/Models/sphere.obj");
 	auto* model = new vn::vk::Model(m, p_device);
@@ -77,7 +86,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 	// Pipelines
 	vn::vk::createPipeline(*p_device, gfx, *m_renderpass, playout, desclayout);
 
-	jobSystem.wait(0, false);
+	jobSystem.wait();
 }
 
 void GeneralRenderer::addInstance(vn::GameObject& entity)

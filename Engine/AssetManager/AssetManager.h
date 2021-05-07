@@ -34,7 +34,7 @@ namespace vn
 			return m_textures.getAsset(std::forward<short>(id));
 		}
 
-		int getNumTextures() noexcept
+		size_t getNumTextures() noexcept
 		{
 			return m_textures.getMap().size();
 		}

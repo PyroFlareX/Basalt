@@ -18,7 +18,11 @@ JobSystem::JobSystem()	:	normalPriority(NORMAL_PRIORITY_SIZE)
 
 Job JobSystem::createJob(JobFn job, void** data)
 {
-	return Job{ job, data, nullptr };
+	Job j;
+	j.job_Function = job;
+	j.data = data;
+	
+	return j;
 }
 
 void JobSystem::schedule(Job job)

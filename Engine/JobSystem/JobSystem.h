@@ -3,6 +3,7 @@
 #include <atomic>
 #include <vector>
 #include <thread>
+#include <functional>
 
 #include "Fiber.h"
 #include "../Types/rigtorp/MPMCQueue.h"
@@ -18,13 +19,21 @@ constexpr unsigned int LOW_PRIORITY_SIZE = 256;
 
 struct Job;
 
-using JobFn = void(*)(Job);
+//using JobFn = void(*)(Job);
+
+using JobFn = std::function<void(Job)>;
 
 struct Job
 {
-	JobFn job_Function;
-	void** data;
-	Counter* counter;
+	JobFn job_Function = JobFn(nullptr);
+	void** data = nullptr;
+	
+	Job() noexcept = default;
+	Job(Job&&) noexcept = default;
+	Job(Job const&) noexcept = default;
+	Job& operator=(Job&&) noexcept = default;
+	Job& operator=(Job const&) noexcept = default;
+	~Job() noexcept = default;
 };
 
 
