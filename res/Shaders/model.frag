@@ -14,10 +14,9 @@ layout (location = 0) in outVert outVertShader;
 
 layout (set = 0, binding = 0) uniform testbuffer
 {
-	float x;
-	float y;
-	float z;
-	float w;
+	mat4 proj;
+	mat4 view;
+	mat4 model;
 } testbufferdata;
 
 layout (set = 0, binding = 1) uniform sampler2D texturec;

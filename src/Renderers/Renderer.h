@@ -24,7 +24,7 @@ class Renderer
 		GeneralRenderer* m_generalRenderer;
 		ComputeRenderer* m_computeRenderer;
 		
-		void pushGPUData();
+		void pushGPUData(Camera& cam);
     protected:
 
     private:

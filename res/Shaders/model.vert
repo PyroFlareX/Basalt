@@ -16,15 +16,14 @@ layout (location = 0) out outVert outVertShader;
 
 layout (set = 0, binding = 0) uniform testbuffer
 {
-	float x;
-	float y;
-	float z;
-	float w;
+	mat4 proj;
+	mat4 view;
+	mat4 model;
 } testbufferdata;
 
 layout ( push_constant ) uniform constants
 {
-//    mat4 model;
+//  mat4 model;
     mat4 view;
     mat4 proj;
 } PushConstants;
@@ -41,10 +40,10 @@ vec3 colors[3] = vec3[](
 void main()
 {
 
-	outVertShader.fragPos = aPos; //vec3(PushConstants.model * vec4(aPos, 1.0));
+	outVertShader.fragPos = vec3(testbufferdata.model * vec4(aPos, 1.0));
 	outVertShader.textureCoordinates = aTexCoord;
-	outVertShader.normal = aNormal; //vec3(PushConstants.model * vec4(aNormal, 0.0));
-	gl_Position = PushConstants.proj * PushConstants.view * /*PushConstants.model */ vec4(aPos, 1.0);
+	outVertShader.normal = vec3(testbufferdata.model * vec4(aNormal, 0.0));
+	gl_Position = testbufferdata.proj * testbufferdata.view /* testbufferdata.model */ * vec4(aPos, 1.0);
 	
 	gl_Position.y = -gl_Position.y;	//HACK
 }

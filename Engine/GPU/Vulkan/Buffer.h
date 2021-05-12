@@ -24,9 +24,13 @@ namespace vn::vk {
 	struct BufferDescription
 	{
 		vn::Device* dev;
+
 		vn::BufferUsage bufferType;
+		//Number of elements
 		size_t size = 0;
+		//Number of bytes between elements
 		size_t stride = 0;
+		//Pointer to data
 		void* bufferData = nullptr;
 	};
 
@@ -42,7 +46,7 @@ namespace vn::vk {
 
 		void uploadBuffer();
 		// Uses buf desc size, copies the data in ``data`` to the buffer
-		void writeBuffer(const void* data);
+		void writeBuffer(void* data);
 
 		void setAPIResource(VkBuffer& buffer);
 		VkBuffer& getAPIResource();

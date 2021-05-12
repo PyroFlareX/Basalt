@@ -92,15 +92,6 @@ void GeneralRenderer::render(Camera& cam)
 	pushconst.proj = cam.getProjMatrix();
 	pushconst.view = cam.getViewMatrix();
 	
-	vn::Transform t;
-	t.pos.x = 0.0f;
-	t.pos.y = 0.0f;
-	t.pos.z = 0.0f;
-
-	t.rescale(t, vn::vec3(0.5f, 0.5f, 0.5f));
-
-	//pushconst.model = vn::makeModelMatrix(t);
-	
 
 	for (uint8_t i = 0; i < m_queue.size(); ++i)
 	{

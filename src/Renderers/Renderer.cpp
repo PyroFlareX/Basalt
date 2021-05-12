@@ -50,7 +50,7 @@ Renderer::Renderer(vn::Device* renderingDevice)
 
 	vn::vk::createCommandPool(*device, m_pool);
 
-	m_primaryBuffers.resize(vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS + 1);
+	m_primaryBuffers.resize(vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS);
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -134,7 +134,7 @@ Renderer::Renderer(vn::Device* renderingDevice)
 	vn::vk::BufferDescription uniform;
 	uniform.bufferType = vn::BufferUsage::UNIFORM_BUFFER;
 	uniform.dev = device;
-	uniform.size = 192;
+	uniform.size = 3;
 	uniform.stride = 64;
 	uniform.bufferData = uniformbufferthing;
 
@@ -171,7 +171,7 @@ void Renderer::render(Camera& cam)
 	jobSystem.schedule(generalRender);
 
 	// TODO: Add way to update the content of a buffer before pushing to GPU, purpose being MVP matrices
-	pushGPUData();
+	pushGPUData(cam);
 
 	jobSystem.wait();
 }
@@ -236,13 +236,33 @@ Renderer::~Renderer()
 	delete m_generalRenderer;
 }
 
-void Renderer::pushGPUData()
+void Renderer::pushGPUData(Camera& cam)
 {
 	//Buffer Writing Info
 	VkDescriptorBufferInfo bufferInfo1{};
 	bufferInfo1.buffer = m_descriptorBuffers.at(0)->getAPIResource();
 	bufferInfo1.offset = 0;
-	bufferInfo1.range = 16;
+	bufferInfo1.range = 192;
+
+	vn::Transform t;
+	t.pos.x = 0.0f;
+	t.pos.y = 0.0f;
+	t.pos.z = 0.0f;
+	//t.rescale(t, vn::vec3(0.5f, 0.5f, 0.5f));
+
+	struct MVPstruct
+	{
+		vn::mat4 proj;
+		vn::mat4 view;
+		vn::mat4 model;
+	};
+	MVPstruct MVP = { 
+		.proj	= cam.getProjMatrix(), 
+		.view	= cam.getViewMatrix(), 
+		.model	= vn::makeModelMatrix(t)
+	};
+
+	m_descriptorBuffers.at(0)->writeBuffer(&MVP);
 
 	//Image Writing Info
 	auto textures = vn::asset_manager.getTextures();
