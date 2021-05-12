@@ -239,7 +239,7 @@ Renderer::~Renderer()
 void Renderer::pushGPUData(Camera& cam)
 {
 	//Buffer Writing Info
-	VkDescriptorBufferInfo bufferInfo1{};
+	VkDescriptorBufferInfo bufferInfo1 = {};
 	bufferInfo1.buffer = m_descriptorBuffers.at(0)->getAPIResource();
 	bufferInfo1.offset = 0;
 	bufferInfo1.range = 192;
@@ -248,7 +248,8 @@ void Renderer::pushGPUData(Camera& cam)
 	t.pos.x = 0.0f;
 	t.pos.y = 0.0f;
 	t.pos.z = 0.0f;
-	//t.rescale(t, vn::vec3(0.5f, 0.5f, 0.5f));
+	t.rot = vn::vec3(0.0f);
+	t.rescale(t, vn::vec3(0.5f, 0.5f, 0.5f));
 
 	struct MVPstruct
 	{
@@ -259,7 +260,7 @@ void Renderer::pushGPUData(Camera& cam)
 	MVPstruct MVP = { 
 		.proj	= cam.getProjMatrix(), 
 		.view	= cam.getViewMatrix(), 
-		.model	= vn::makeModelMatrix(t)
+		.model	= vn::makeModelMatrix(t),
 	};
 
 	m_descriptorBuffers.at(0)->writeBuffer(&MVP);
@@ -278,9 +279,6 @@ void Renderer::pushGPUData(Camera& cam)
 
 		imageinfo.emplace_back(imginfo);
 	}
-
-	
-
 
 	//Writing Info
 	VkWriteDescriptorSet descWrite[2] = {};
