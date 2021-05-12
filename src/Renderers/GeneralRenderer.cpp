@@ -24,8 +24,9 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 	void* data[] = {p_device, &sphere, &sponza, &conference};
 
 	//Num Models
-	short numModels = 3;
+	short numModels = 2;
 	
+	//Create a job for each model to load, the job loads the model and adds it to the asset manager
 	for(int i = 1; i <= numModels; ++i)
 	{
 		Job load = jobSystem.createJob([i](Job j)
@@ -41,22 +42,6 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 		
 		jobSystem.schedule(load);
 	}
-
-	// execution of jobs is guarunteed to happen before this scope ends
-	// wait is called
-/*
-	vn::Mesh m = vn::loadMeshFromObj("res/Models/sphere.obj");
-	auto* model = new vn::vk::Model(m, p_device);
-	vn::asset_manager.addModel(*model, "sphere");
-
-	vn::Mesh m2 = vn::loadMeshFromObj("res/Models/sponza.obj");
-	auto* model2 = new vn::vk::Model(m2, p_device);
-	vn::asset_manager.addModel(*model2, "sponza");
-
-	vn::Mesh m3 = vn::loadMeshFromObj("res/Models/conference.obj");
-	auto* model3 = new vn::vk::Model(m3, p_device);
-	vn::asset_manager.addModel(*model3, "conference");
-*/
 
 	//Renderlists for secondary cmd buffers
 	m_renderlist.resize(100);

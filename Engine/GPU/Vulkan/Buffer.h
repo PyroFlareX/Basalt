@@ -41,6 +41,8 @@ namespace vn::vk {
 		size_t getNumElements();
 
 		void uploadBuffer();
+		// Uses buf desc size, copies the data in ``data`` to the buffer
+		void writeBuffer(const void* data);
 
 		void setAPIResource(VkBuffer& buffer);
 		VkBuffer& getAPIResource();

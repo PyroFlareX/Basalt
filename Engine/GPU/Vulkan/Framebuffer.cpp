@@ -90,7 +90,8 @@ namespace vn::vk
 
 		// CREATE FRAMEBUFFER
 		VkImageView attachments[] = {
-			imgView
+			imgView,
+			depthImgView
 		};
 
 		VkFramebufferCreateInfo framebufferInfo{};
@@ -109,11 +110,11 @@ namespace vn::vk
 
 	FramebufferData RenderTargetFramebuffer::getFramebufferData()
 	{
-		return FramebufferData();// { handle, imgView, m_size };
+		return FramebufferData{{handle}, imgView, m_size};
 	}
 
 	RenderTargetFramebuffer::~RenderTargetFramebuffer()
 	{
-		
+
 	}
 }

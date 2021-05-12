@@ -50,7 +50,7 @@ Renderer::Renderer(vn::Device* renderingDevice)
 
 	vn::vk::createCommandPool(*device, m_pool);
 
-	m_primaryBuffers.resize(vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS);
+	m_primaryBuffers.resize(vn::vk::NUM_SWAPCHAIN_FRAMEBUFFERS + 1);
 
 	VkCommandBufferAllocateInfo allocInfo{};
 	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;

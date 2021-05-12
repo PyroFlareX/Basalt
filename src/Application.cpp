@@ -44,13 +44,16 @@ void Application::RunLoop()
 
 	vn::vk::createFramebuffers(rpass, m_context.m_scdetails, m_device.getDevice());
 
-	vn::vk::FramebufferData framebufdata{};
-	framebufdata.handle = m_context.m_scdetails.swapChainFramebuffers;
-	framebufdata.imgView = m_context.m_scdetails.swapChainImageViews.at(0);
-	framebufdata.size = winSize;
+	vn::vk::FramebufferData framebufdata[2] = {};
+	framebufdata[0].handle = m_context.m_scdetails.swapChainFramebuffers;
+	framebufdata[0].imgView = m_context.m_scdetails.swapChainImageViews.at(0);
+	framebufdata[0].size = winSize;
 
+	vn::vk::RenderTargetFramebuffer framebuffer(m_device, rpass, winSize);
 	
-	std::cout << "framebufdata handles: [size, handle] " << framebufdata.handle.size() << " \n";// << framebufdata.handle.at(0) 
+	framebufdata[1] = framebuffer.getFramebufferData();
+	
+	std::cout << "framebufdata handles: [size, handle] " << framebufdata[0].handle.size() << " \n";// << framebufdata.handle.at(0) 
 
 //===================================================================================
 
@@ -90,7 +93,7 @@ void Application::RunLoop()
 
 
 
-		m_renderer->finish(framebufdata);
+		m_renderer->finish(framebufdata[0]);
 		jobSystem.wait();
 		m_context.update();
 		

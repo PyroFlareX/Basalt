@@ -73,8 +73,20 @@ namespace vn::vk
 		vmaUnmapMemory(m_desc.dev->getAllocator(), m_allocation);
 	}
 
+	void Buffer::writeBuffer(const void* data)
+	{
+		void* bufferdata;
+		//Maps GPU memory to CPU visible address
+		vmaMapMemory(m_desc.dev->getAllocator(), m_allocation, &bufferdata);
+
+		memcpy(bufferdata, data, getSize());
+
+		vmaUnmapMemory(m_desc.dev->getAllocator(), m_allocation);
+	}
+
 	void Buffer::setAPIResource(VkBuffer& buffer)
 	{
+		//deleteBuffer();
 		m_buffer = buffer;
 	}
 
