@@ -66,8 +66,8 @@ void foo()
 	manager.addAsset(5, "first int");
 
 	std::cout << "test: " << manager.getAsset("first int") << "\n";
-}```
-
+}
+```
 
  ## Contributing?
  I am open to contributions, but until more of the renderer is done, the project is currently in Vulkan dream land of never ending paperwork and possibilties for more wrist cramping. The style guide is camelCase, brackets are on the next line, make as many functions thread-safe or consteval/constexpr as possible. Keep templates and modern STL shenanigans and language quirks out of this please as well. Use unordered_map and vector for most heap or map uses, and use unique or shared_ptrs instead of raw pointers as well. No using volitile obviously. Keep new library additions to a minimum as well, the only new ones I will tolerate is a networking lib, audio playback, and scripting.
