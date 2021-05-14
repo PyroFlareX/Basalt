@@ -49,7 +49,7 @@ GameState::GameState(Application& app)	:	Basestate(app)
 	vn::Transform t;
 	vn::GameObject gobj(t);
 	gobj.model_id = "sponza";
-	m_gameObjects.emplace_back(gobj);
+	//m_gameObjects.emplace_back(gobj);
 
 	vn::GameObject obj2(t);
 	obj2.model_id = "sphere";

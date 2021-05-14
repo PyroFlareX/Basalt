@@ -15,7 +15,7 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 	void* data[] = {p_device, &sphere, &flatplane, &sponza, &conference};
 
 	//Num Models
-	short numModels = 2;
+	short numModels = 1;
 	
 	//Create a job for each model to load, the job loads the model and adds it to the asset manager
 	for(int i = 1; i <= numModels; ++i)
