@@ -47,6 +47,9 @@ GameState::GameState(Application& app)	:	Basestate(app)
 	//	m_world.addObject(gobj);
 	//}
 	vn::Transform t;
+
+	t.rescale(t, vn::vec3(0.3f));
+
 	vn::GameObject gobj(t);
 	gobj.model_id = "sponza";
 	//m_gameObjects.emplace_back(gobj);

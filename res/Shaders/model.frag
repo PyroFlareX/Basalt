@@ -32,6 +32,7 @@ void main()
     vec3 ambient = ambientStrength * lightColor;
 
 	vec3 normal = texture(textures[int(outVertShader.textureids.y)], outVertShader.textureCoordinates).xyz;
+	normal = (normal + 1) / 2;
 	vec3 normal2 = normalize(outVertShader.normal);
 
 	normal = normalize(normal + normal2);

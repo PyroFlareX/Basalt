@@ -9,7 +9,7 @@ Renderer::Renderer(vn::Device* renderingDevice)
 	//Create image + texture
 	//Blank white img
 	vn::Image img2;
-	img2.create(32, 32, vn::u8vec4(1.0f));
+	img2.create(32, 32, vn::u8vec4(255.0f));
 
 	vn::vk::Texture textureblank(renderingDevice);
 	textureblank.loadFromImage(img2);
@@ -17,7 +17,7 @@ Renderer::Renderer(vn::Device* renderingDevice)
 
 	//Texture
 	vn::Image img;
-	if (img.loadFromFile("res/container.jpg"))
+	if (img.loadFromFile("res/bricks.jpg"))
 	{
 		std::cout << "Image creation success \n";
 	}
@@ -28,7 +28,7 @@ Renderer::Renderer(vn::Device* renderingDevice)
 
 	//Generic normal map
 	vn::Image img3;
-	img3.loadFromFile("res/normal_map.png");
+	img3.loadFromFile("res/bricks_normal.png");
 
 	vn::vk::Texture texturenormal(renderingDevice);
 	texturenormal.loadFromImage(img3);
