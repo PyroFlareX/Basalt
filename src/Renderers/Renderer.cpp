@@ -4,6 +4,37 @@ Renderer::Renderer(vn::Device* renderingDevice)
 {
 	device = renderingDevice;
 
+	//Add textures
+
+	//Create image + texture
+	//Blank white img
+	vn::Image img2;
+	img2.create(32, 32, vn::u8vec4(1.0f));
+
+	vn::vk::Texture textureblank(renderingDevice);
+	textureblank.loadFromImage(img2);
+	vn::asset_manager.addTexture(textureblank, 0);
+
+	//Texture
+	vn::Image img;
+	if (img.loadFromFile("res/container.jpg"))
+	{
+		std::cout << "Image creation success \n";
+	}
+
+	vn::vk::Texture texture(renderingDevice);
+	texture.loadFromImage(img);
+	vn::asset_manager.addTexture(texture, 1);
+
+	//Generic normal map
+	vn::Image img3;
+	img3.loadFromFile("res/normal_map.png");
+
+	vn::vk::Texture texturenormal(renderingDevice);
+	texturenormal.loadFromImage(img3);
+	vn::asset_manager.addTexture(texturenormal, 2);
+
+
 	//Folding Scope
 	{
 		VkAttachmentDescription colorAttachment{};
@@ -76,12 +107,12 @@ Renderer::Renderer(vn::Device* renderingDevice)
 	descpoolsize[0].descriptorCount = 1;
 	
 	descpoolsize[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	descpoolsize[1].descriptorCount = 1;
+	descpoolsize[1].descriptorCount = vn::asset_manager.getNumTextures();
 
 	descpoolinfo.pPoolSizes = &descpoolsize[0];
 	descpoolinfo.poolSizeCount = 2;
 
-	descpoolinfo.maxSets = 100;
+	descpoolinfo.maxSets = 2;
 
 	VkResult result = vkCreateDescriptorPool(device->getDevice(), &descpoolinfo, nullptr, &m_descpool);
 
@@ -94,14 +125,21 @@ Renderer::Renderer(vn::Device* renderingDevice)
 
 	setlayoutbinding[1].binding = 1;
 	setlayoutbinding[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	setlayoutbinding[1].stageFlags = VK_SHADER_STAGE_ALL;
-	setlayoutbinding[1].descriptorCount = 1;
+	setlayoutbinding[1].stageFlags = VK_SHADER_STAGE_FRAGMENT_BIT;
+	setlayoutbinding[1].descriptorCount = vn::asset_manager.getNumTextures();
+
+	//For texture indexing:
+	VkDescriptorSetLayoutBindingFlagsCreateInfo layoutbindingflags = {};
+	layoutbindingflags.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+	layoutbindingflags.bindingCount = 2;
+	VkDescriptorBindingFlags flags[2] = { 0, VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT };
+	layoutbindingflags.pBindingFlags = flags;
 	
 
 	VkDescriptorSetLayoutCreateInfo desclayoutinfo{};
 	desclayoutinfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-	desclayoutinfo.pNext = nullptr;
-	desclayoutinfo.bindingCount = 2; // 2;
+	desclayoutinfo.pNext = &layoutbindingflags;
+	desclayoutinfo.bindingCount = 2;
 	desclayoutinfo.pBindings = &setlayoutbinding[0];
 	desclayoutinfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 
@@ -111,6 +149,15 @@ Renderer::Renderer(vn::Device* renderingDevice)
 
 	VkDescriptorSetAllocateInfo descriptorAllocInfo{};
 	descriptorAllocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+
+	//For descriptor indexing
+	VkDescriptorSetVariableDescriptorCountAllocateInfo variableDescAlloc = {};
+	variableDescAlloc.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO;
+	variableDescAlloc.descriptorSetCount = 1;
+	uint32_t varDescCount[] = { vn::asset_manager.getNumTextures() };
+	variableDescAlloc.pDescriptorCounts = varDescCount;
+
+	descriptorAllocInfo.pNext = &variableDescAlloc;
 	descriptorAllocInfo.descriptorPool = m_descpool;
 	descriptorAllocInfo.descriptorSetCount = 1;
 	descriptorAllocInfo.pSetLayouts = &desclayout;
@@ -170,6 +217,7 @@ void Renderer::render(Camera& cam)
 
 	jobSystem.schedule(generalRender);
 
+	// TODO: Add way to update the content of a buffer before pushing to GPU, purpose being MVP matrices
 	pushGPUData(cam);
 
 	jobSystem.wait();
@@ -295,7 +343,7 @@ void Renderer::pushGPUData(Camera& cam)
 	descWrite[1].dstBinding = 1;
 	descWrite[1].dstArrayElement = 0;
 	descWrite[1].descriptorCount = imageinfo.size();
-	descWrite[1].pImageInfo = &imageinfo.at(0);
+	descWrite[1].pImageInfo = imageinfo.data();
 	
 
 	//Write Values to GPU

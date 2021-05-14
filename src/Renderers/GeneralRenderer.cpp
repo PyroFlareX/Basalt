@@ -7,21 +7,12 @@ GeneralRenderer::GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, Vk
 	vn::vk::createCommandPool(*p_device, m_pool);
 	m_renderpass = rpass;
 
-	//Create image + texture
-	if (img.loadFromFile("res/container.jpg"))
-	{
-		std::cout << "Image creation success \n";
-	}
-
-	vn::vk::Texture texture(p_device);
-	texture.loadFromImage(img);
-	vn::asset_manager.addTexture(texture, 0);
-
 	// Mesh
 	std::string sphere("sphere");
+	std::string flatplane("flatplane");
 	std::string sponza("sponza");
 	std::string conference("conference");
-	void* data[] = {p_device, &sphere, &sponza, &conference};
+	void* data[] = {p_device, &sphere, &flatplane, &sponza, &conference};
 
 	//Num Models
 	short numModels = 2;
@@ -89,8 +80,13 @@ void GeneralRenderer::addInstance(vn::GameObject& entity)
 void GeneralRenderer::render(Camera& cam)
 {
 	PushConstantsStruct pushconst = {};
-	pushconst.proj = cam.getProjMatrix();
-	pushconst.view = cam.getViewMatrix();
+	
+	pushconst.textureids = vn::vec4(
+		1,	//first is texture
+		2,	//second is normals
+		0,	//third is ???
+		0	//forth is ???
+	);
 	
 
 	for (uint8_t i = 0; i < m_queue.size(); ++i)

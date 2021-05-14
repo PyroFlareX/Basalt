@@ -21,7 +21,6 @@ private:
 	bool firstrun = false;
 
 	std::vector<vn::GameObject> m_queue;
-	vn::Image img;
 	
 	// Pipeline Stuff
 
