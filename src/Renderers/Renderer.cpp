@@ -170,7 +170,6 @@ void Renderer::render(Camera& cam)
 
 	jobSystem.schedule(generalRender);
 
-	// TODO: Add way to update the content of a buffer before pushing to GPU, purpose being MVP matrices
 	pushGPUData(cam);
 
 	jobSystem.wait();
