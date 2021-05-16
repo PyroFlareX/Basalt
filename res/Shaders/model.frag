@@ -40,13 +40,10 @@ void main()
 	vec3 lightsrc = vec3(10.0, 10.0, 10.0);
 	vec3 lightDir = normalize(lightsrc - outVertShader.fragPos);
 
-
 	float diff = max(dot(normal, lightDir), 0.0);
 	vec3 diffuse = diff * lightColor;
 	
 	vec4 result = vec4(ambient + diffuse, 1.0);
 	
 	FragColor = texture(textures[int(outVertShader.textureids.x)], outVertShader.textureCoordinates) * result;
-
-	//FragColor = vec4(outVertShader.fragPos, 1.0) * result;
 } 
