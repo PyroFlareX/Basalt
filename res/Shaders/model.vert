@@ -8,7 +8,6 @@ struct outVert
 	vec3 fragPos;
 	vec3 normal;
 	vec2 textureCoordinates;
-	vec4 textureids;
 };
 
 layout(location = 0) in vec3 aPos;
@@ -44,7 +43,7 @@ void main()
 	outVertShader.fragPos = vec3(testbufferdata.model * vec4(aPos, 1.0));
 	outVertShader.textureCoordinates = aTexCoord;
 	outVertShader.normal = vec3(testbufferdata.model * vec4(aNormal, 0.0));
-	outVertShader.textureids = PushConstants.textureid;
+
 	gl_Position = testbufferdata.proj * testbufferdata.view * testbufferdata.model * vec4(aPos, 1.0);
 	
 	gl_Position.y = -gl_Position.y;	//HACK

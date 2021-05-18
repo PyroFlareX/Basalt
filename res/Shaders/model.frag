@@ -8,7 +8,6 @@ struct outVert
 	vec3 fragPos;
 	vec3 normal;
 	vec2 textureCoordinates;
-	vec4 textureids;
 };
 
 layout (location = 0) out vec4 FragColor;
@@ -24,6 +23,11 @@ layout (set = 0, binding = 0) uniform testbuffer
 
 layout (set = 0, binding = 1) uniform sampler2D textures[];
 
+layout ( push_constant ) uniform constants
+{
+	vec4 textureid;
+} PushConstants;
+
 
 void main()
 {
@@ -31,11 +35,11 @@ void main()
 	float ambientStrength = 0.1;
     vec3 ambient = ambientStrength * lightColor;
 
-	vec3 normal = texture(textures[int(outVertShader.textureids.y)], outVertShader.textureCoordinates).xyz;
+	vec3 normal = texture(textures[int(PushConstants.textureid.y)], outVertShader.textureCoordinates).xyz;
 	normal = (normal + 1) / 2;
 	vec3 normal2 = normalize(outVertShader.normal);
 
-	normal = normalize(normal + normal2);
+	//normal = normalize(normal + normal2);
 
 	vec3 lightsrc = vec3(10.0, 10.0, 10.0);
 	vec3 lightDir = normalize(lightsrc - outVertShader.fragPos);
@@ -45,5 +49,5 @@ void main()
 	
 	vec4 result = vec4(ambient + diffuse, 1.0);
 	
-	FragColor = texture(textures[int(outVertShader.textureids.x)], outVertShader.textureCoordinates) * result;
+	FragColor = texture(textures[int(PushConstants.textureid.x)], outVertShader.textureCoordinates) * result;
 } 

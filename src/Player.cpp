@@ -3,7 +3,7 @@
 
 Player::Player()
 {
-	pos = vn::vec3(0.0f, 0.0f, -1.0f);
+	pos = vn::vec3(0.0f, 0.0f, 0.0f);
 	rot = vn::vec3(0.0f, 0.0f, 0.0f);
 	velocity = vn::vec3(0.0f, 0.0f, 0.0f);
 }
@@ -15,9 +15,16 @@ void Player::getInput(Input::Inputs vInput, bool VRmode)
 		vn::vec3 change = glm::vec3(0.0f);
 		float speed = 5.0f;
 
+		//Movement
+		if (vInput.accel)
+		{
+			speed *= 100.0f;
+		}
+
 		change.x += glm::cos(glm::radians(rot.y)) * speed * vInput.LX;
 		change.z += glm::sin(glm::radians(rot.y)) * speed * vInput.LX;
 		
+
 		if (vInput.up)
 		{
 			//jump();
@@ -25,7 +32,7 @@ void Player::getInput(Input::Inputs vInput, bool VRmode)
 		}
 		if (vInput.down)
 		{
-			velocity.y-= 5;
+			velocity.y -= 5 * speed;
 		}
 
 		//Backwards
@@ -33,12 +40,6 @@ void Player::getInput(Input::Inputs vInput, bool VRmode)
 		{
 			change.x += -glm::cos(glm::radians(rot.y + 90)) * speed * vInput.LY;
 			change.z += -glm::sin(glm::radians(rot.y + 90)) * speed * vInput.LY;
-		}
-
-		//Movement
-		if (vInput.accel)
-		{
-			speed *= 3.0f;
 		}
 
 		//Forward

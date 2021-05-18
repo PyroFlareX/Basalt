@@ -97,8 +97,6 @@ void Application::RunLoop()
 		jobSystem.wait();
 		m_context.update();
 		
-
-		//std::cout << dt * 1000 << " ms\n";
 		/// Handle Window Events
 		t += dt;
 		frames++;
