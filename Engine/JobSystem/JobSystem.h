@@ -45,7 +45,7 @@ public:
 	//Returns a Job from a function pointer and parameters, does not add the job to the list
 	static Job createJob(JobFn job, void** data = nullptr);
 	
-	static uint8_t numThreads()
+	static uint8_t numThreads() noexcept
 	{
 		return std::thread::hardware_concurrency();
 	}
@@ -62,8 +62,6 @@ public:
 	~JobSystem();
 private:
 	std::vector<std::thread> threads;
-	//std::vector<Fiber> fibers;
-
 
 	rigtorp::MPMCQueue<Job> normalPriority;
 
