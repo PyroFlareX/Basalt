@@ -39,7 +39,7 @@ void main()
 	normal = (normal + 1) / 2;
 	vec3 normal2 = normalize(outVertShader.normal);
 
-	//normal = normalize(normal + normal2);
+	normal = normalize(normal + normal2);
 
 	vec3 lightsrc = vec3(10.0, 10.0, 10.0);
 	vec3 lightDir = normalize(lightsrc - outVertShader.fragPos);

@@ -13,6 +13,13 @@ if(NOT PLATFORM)
   endif()
 endif()
 
+# For Libraries
+find_package(Threads REQUIRED)
+find_package(Vulkan REQUIRED)
+
+include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
+conan_basic_setup()
+
 # For Sources
 file(GLOB_RECURSE header RELATIVE ${CMAKE_SOURCE_DIR} "src/*.h")
 file(GLOB_RECURSE engineheader RELATIVE ${CMAKE_SOURCE_DIR} "Engine/*.h")
@@ -23,13 +30,6 @@ file(GLOB_RECURSE enginesrc RELATIVE ${CMAKE_SOURCE_DIR} "Engine/*.cpp")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 add_executable(Basalt ${src} ${header} ${engineheader} ${enginesrc})
-
-# For Libraries
-find_package(Threads REQUIRED)
-find_package(Vulkan REQUIRED)
-
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
 
 #target_compile_options(Basalt PUBLIC -fsanitize=address -fno-omit-frame-pointer)
 #target_link_options(Basalt PUBLIC -fsanitize=address)

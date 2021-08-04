@@ -229,7 +229,7 @@ void Renderer::finish(vn::vk::FramebufferData& fbo)
 	//Second Pass
 	auto& renderLists = m_generalRenderer->getRenderlists(); // The secondary command buffers
 
-
+	//For Swapchain
 	for (size_t i = 0; i < m_primaryBuffers.size(); ++i) {
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
