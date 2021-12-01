@@ -52,20 +52,23 @@ protected:
 private:
     std::unique_ptr<Basestate>& currentState();
 
+	bs::vk::FramebufferData m_renderFramebuffer;
+
 	// Windowing Context
 	bs::Context* m_context;
-	bs::vk::FramebufferData framebufdata[2];
 	// Device Context
 	bs::Device* m_device;
-	//Camera
+	//Renderer
+	Renderer* m_renderer;
+
+	// Camera
 	Camera m_camera;
 
+	//State storage
     std::vector<std::unique_ptr<Basestate>> m_states;
-	Renderer* m_renderer;
-	
-	bool shouldClose = false;
-	
 	std::vector<std::function<void()>> m_statechanges;
+
+	bool shouldClose;
 };
 
 

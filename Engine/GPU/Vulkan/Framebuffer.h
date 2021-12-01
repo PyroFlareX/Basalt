@@ -15,22 +15,36 @@ namespace bs::vk
 	class RenderTargetFramebuffer
 	{
 	public:
-		RenderTargetFramebuffer(bs::Device device, VkRenderPass& renderPass, bs::vec2i extent);
-
-		FramebufferData getFramebufferData();
-
+		RenderTargetFramebuffer(bs::Device& device, VkRenderPass renderpass, bs::vec2i extent);
 		~RenderTargetFramebuffer();
+		//Return the handles to the framebuffer data
+		FramebufferData getFramebufferData() const;
+		//Recreate the framebuffer with the size specified
+		void recreateFramebuffer(bs::vec2i size);
+
+		VkImageView getColorImgView() const;
+		VkImageView getDepthImgView() const;
+
 	private:
-		VkFramebuffer handle;
-		VkImage img;
-		VkImageView imgView;
+		void createRenderImage();
+		void createDepthAttachment();
+		void createFramebuffer();
 
-		VkImage depthImg;
-		VkImageView depthImgView;
+		void destroyHandles();
+	
+		VkFramebuffer m_handle;
+		VkImage m_img;
+		VkImageView m_imgView;
 
-		VmaAllocation imgAllocation;
-		VmaAllocation depthImageAllocation;
+		VkImage m_depthImg;
+		VkImageView m_depthImgView;
 
-		bs::vec2 m_size;
+		VmaAllocation m_imgAllocation;
+		VmaAllocation m_depthImageAllocation;
+
+		bs::vec2i m_size;
+
+		bs::Device& m_device;
+		VkRenderPass m_renderpass;
 	};
 }

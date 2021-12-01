@@ -1,14 +1,11 @@
 #include "Texture.h"
 
-bs::vk::Texture::Texture(bs::Device* device)
+bs::vk::Texture::Texture(bs::Device* device)	:	p_device(device)
 {
-	p_device = device;
 	// Create the img
-
-	
 }
 
-void bs::vk::Texture::loadFromImage(bs::Image& img)
+void bs::vk::Texture::loadFromImage(const bs::Image& img)
 {
 	VkSamplerCreateInfo samplerInfo = {};
 	samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
@@ -17,24 +14,21 @@ void bs::vk::Texture::loadFromImage(bs::Image& img)
 	samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 	samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-
 	vkCreateSampler(p_device->getDevice(), &samplerInfo, nullptr, &sampler);
 
 	//Upload the img
-	
 	//Allocation Info
 	VmaAllocationCreateInfo imgAllocInfo = {};
 	imgAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
 	imgAllocInfo.requiredFlags = VkMemoryPropertyFlags(VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
 
 	// CREATE IMAGE
 	VkImageCreateInfo image{};
 	image.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 	image.imageType = VK_IMAGE_TYPE_2D;
 	image.format = VK_FORMAT_R8G8B8A8_SRGB;
-	image.extent.height = (int)img.getSize().y;
-	image.extent.width = (int)img.getSize().x;
+	image.extent.height = (u32)img.getSize().y;
+	image.extent.width = (u32)img.getSize().x;
 	image.extent.depth = 1;
 	image.mipLevels = 1;
 	image.arrayLayers = 1;
@@ -43,22 +37,25 @@ void bs::vk::Texture::loadFromImage(bs::Image& img)
 	image.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT;
 	image.tiling = VK_IMAGE_TILING_OPTIMAL;
 	image.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-	
 	image.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-	VkDeviceSize offset = 0;
-	void* texture = nullptr;
-	size_t sizeImg = sizeof(bs::u8vec4) * (int)img.getSize().x * (int)img.getSize().y;
-	VkDeviceSize sizeDev = sizeImg;
+	const size_t sizeImg = sizeof(bs::u8vec4) * img.getSize().x * img.getSize().y;
+
+	//Copy the address to this ptr
+	void* dataPtr = nullptr;
+	{
+		const auto* imgptr = img.getPixelsPtr();
+		memcpy(&dataPtr, &imgptr, sizeof(imgptr));
+		assert(dataPtr == imgptr);
+	}
 
 	bs::vk::BufferDescription bufdesc;
 	bufdesc.bufferType = bs::vk::TRANSFER_BUFFER;
 	bufdesc.dev = p_device;
 	bufdesc.size = sizeImg;
 	bufdesc.stride = 4;
-	bufdesc.bufferData = img.getPixelsPtr();
-	bs::vk::Buffer stagingbuffer(bufdesc);
-	stagingbuffer.uploadBuffer();
+	bufdesc.bufferData = dataPtr;
+	auto stagingbuffer = std::make_unique<bs::vk::Buffer>(bufdesc);
 
 	vmaCreateImage(p_device->getAllocator(), &image, &imgAllocInfo, &textureImg, &textureAllocation, nullptr);
 	
@@ -84,7 +81,6 @@ void bs::vk::Texture::loadFromImage(bs::Image& img)
 
 		//barrier the image into the transfer-receive layout
 		vkCmdPipelineBarrier(cmd, VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0, 0, nullptr, 0, nullptr, 1, &imageBarrier_toTransfer);
-	
 
 		//COPY
 		VkBufferImageCopy copyRegion = {};
@@ -99,8 +95,7 @@ void bs::vk::Texture::loadFromImage(bs::Image& img)
 		copyRegion.imageExtent = image.extent;
 
 		//copy the buffer into the image
-		vkCmdCopyBufferToImage(cmd, stagingbuffer.getAPIResource(), textureImg, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
-
+		vkCmdCopyBufferToImage(cmd, stagingbuffer->getAPIResource(), textureImg, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &copyRegion);
 
 		VkImageMemoryBarrier imageBarrier_toReadable = imageBarrier_toTransfer;
 
@@ -129,8 +124,16 @@ void bs::vk::Texture::loadFromImage(bs::Image& img)
 	createInfo.subresourceRange.baseArrayLayer = 0;
 	createInfo.subresourceRange.layerCount = 1;
 
-	if (vkCreateImageView(p_device->getDevice(), &createInfo, nullptr, &textureImgView) != VK_SUCCESS)
+	if(vkCreateImageView(p_device->getDevice(), &createInfo, nullptr, &textureImgView) != VK_SUCCESS)
 	{
-		throw std::runtime_error("failed to create image views!");
+		throw std::runtime_error("Failed to create image views!");
 	}
+}
+
+void bs::vk::Texture::destroy()
+{
+	vkDestroySampler(p_device->getDevice(), sampler, nullptr);
+	
+	vkDestroyImageView(p_device->getDevice(), textureImgView, nullptr);
+	vmaDestroyImage(p_device->getAllocator(), textureImg, textureAllocation);
 }

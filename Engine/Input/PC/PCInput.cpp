@@ -23,16 +23,7 @@ namespace Input
 	void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
 	{
 		auto& io = ImGui::GetIO();
-		/*if (key == GLFW_KEY_GRAVE_ACCENT && action == GLFW_PRESS) {
-			if (!input.tilda) {
-				input.tilda = true;
-				io.KeysDown['`'] = true;
-			}
-			else {
-				input.tilda = false;
-				io.KeysDown['`'] = false;
-			}
-		}*/
+		
 		if(key >= 0 && key < 512)
 		{
 			if(action == GLFW_PRESS)
@@ -52,10 +43,11 @@ namespace Input
 
 	void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 	{
-		//input.zoom = xoffset; horizontal scrollwheel which doesnt exist lmao
 		auto& io = ImGui::GetIO();
 		
 		io.MouseWheel = yoffset;
+		
+		//horizontal scrollwheel which doesnt exist lmao
 		io.MouseWheelH = xoffset;
 	}
 
@@ -63,7 +55,8 @@ namespace Input
 	{
 		//std::cout << "BUTTON:" << button << std::endl; // 0 == LMB, 1 == RMB, 2 == MMB, 3 == BACKSIDEBTN, 4 == FRNTSIDEBTN
 		//std::cout << "ACTION:" << action << std::endl; // 1 == PRESSED, 0 == RELEASED
-		//std::cout << "MODIFIER:" << modifier << std::endl; // 0 == NONE, 1 == SHIFT, 2 == CTRL
+		//std::cout << "MODIFIER:" << modifier << std::endl; // 0 == NONE, 1 == SHIFT, 2 == 
+		
 		auto& io = ImGui::GetIO();
 		
 		if (button == 0) 
@@ -244,7 +237,8 @@ namespace Input
 		return input;
 	}
 
-	void resetZoom() {
+	void resetZoom()
+	{
 		input.zoom = 0.0f;
 	}
 } 

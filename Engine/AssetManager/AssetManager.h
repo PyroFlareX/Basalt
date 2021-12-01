@@ -19,13 +19,14 @@ namespace bs
 	{
 	public:
 		AssetManager();
+		~AssetManager();
 
 		void addTexture(bs::vk::Texture& texture, short id) noexcept;
 
 		void addModel(bs::vk::Model& model, const std::string& id) noexcept;
 		void addModel(bs::vk::Model&& model, const std::string& id) noexcept;
 
-		void addBuffer(bs::vk::Buffer* buffer, const std::string& id) noexcept;
+		void addBuffer(std::shared_ptr<bs::vk::Buffer> buffer, const std::string& id) noexcept;
 
 		void addImg(bs::Image& img, const std::string& id) noexcept;
 
@@ -40,7 +41,7 @@ namespace bs
 
 		bs::vk::Model& getModel(const std::string& id);
 
-		bs::vk::Buffer* getBuffer(const std::string& id);
+		std::shared_ptr<bs::vk::Buffer> getBuffer(const std::string& id);
 
 		bs::Image& getImage(const std::string& id);
 

@@ -9,15 +9,18 @@
 class UIRenderer
 {
 public:
-	UIRenderer(bs::Device* device, VkPipeline pipeline, VkPipelineLayout piplineLayout);
+	UIRenderer(bs::Device* device, VkRenderPass& rpass, VkDescriptorSetLayout desclayout);
+	~UIRenderer();
 
 	//Add text to be rendered //screenSpacePosition is for top right
 	void addText(const std::string& text, bs::vec2i screenSpacePosition);
 
 	//Render the text into the cmd buffers
+	void ImGuiRender();
+
 	void render();
 
-	void finish(VkCommandBuffer& guiBuffer);
+	void executeCommands(VkCommandBuffer cmd);
 
 	void bakeImGui();
 private:
@@ -33,13 +36,14 @@ private:
 	std::vector<render_text> m_text;
 
 	// Pipeline Stuff
-	VkPipelineLayout playout;
-	VkPipeline gfx;
-	VkCommandBufferBeginInfo beginInfo{};
-	VkCommandBufferInheritanceInfo inheritanceInfo{};
-	VkRenderPass* m_renderpass;
+	VkPipelineLayout m_gui_layout;
+	VkPipeline m_gui_pipeline;
+	VkRenderPass& m_renderpass;
 
-
+	//For Command Buffers
+	VkCommandBufferBeginInfo m_beginInfo;
+	VkCommandBufferInheritanceInfo m_inheritanceInfo;
+	
 	// Vulkan Stuff
 	VkCommandPool m_pool;
 	std::vector<VkCommandBuffer> m_renderlist;

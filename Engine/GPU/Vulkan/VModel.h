@@ -22,42 +22,42 @@ namespace bs::vk
 			vertexBuffer.stride = sizeof(bs::Vertex);
 			vertexBuffer.bufferData = m_mesh.vertices.data();
 
+			m_vertbuffer = std::make_shared<Buffer>(vertexBuffer);
+
 			BufferDescription indexBuffer{};
 			indexBuffer.bufferType = bs::vk::BufferUsage::INDEX_BUFFER;
 			indexBuffer.dev = dev;
 			indexBuffer.size = m_mesh.indicies.size() * sizeof(unsigned int);;
 			indexBuffer.stride = sizeof(unsigned int);
 			indexBuffer.bufferData = m_mesh.indicies.data();
-			
-			m_modelbuffers.emplace_back(std::make_shared<Buffer>(vertexBuffer));
-			m_modelbuffers.emplace_back(std::make_shared<Buffer>(indexBuffer));
 
-			uploadMesh();
+			m_indexbuffer = std::make_shared<Buffer>(indexBuffer);
 		}
-		//Upload Mesh buffers to the GPU
+		/*//Upload Mesh buffers to the GPU
 		void uploadMesh()
 		{
 			for (auto& buffer : m_modelbuffers)
 			{
-				buffer.get()->uploadBuffer();
+				buffer.get()->allocateBuffer();
 			}
-		}
+		}*/
 
 		bs::vk::Buffer* getVertexBuffer()
 		{
-			
-			return m_modelbuffers.at(0).get();
+			return m_vertbuffer.get();
 		}
 
 		bs::vk::Buffer* getIndexBuffer()
 		{
-			return m_modelbuffers.at(1).get();
+			return m_indexbuffer.get();;
 		}
 
 		~Model() = default;
 
 	private:
-		std::vector<std::shared_ptr<Buffer>> m_modelbuffers;
+		std::shared_ptr<Buffer> m_vertbuffer;
+		std::shared_ptr<Buffer> m_indexbuffer;
+
 		bs::Mesh m_mesh;
 	};
 }

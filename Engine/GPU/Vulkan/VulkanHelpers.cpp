@@ -15,7 +15,7 @@ namespace bs::vk
 
 	VkInstance m_instance;
 	VkSurfaceKHR m_surface;
-	bool validationlayers = false;
+	bool validationlayers = true;
 	VkDebugUtilsMessengerEXT debugMessenger;
 
 	// SYNCHING GLOBALS
@@ -24,21 +24,21 @@ namespace bs::vk
 	std::vector<VkFence> inFlightFences;
 	std::vector<VkFence> imagesInFlight;
 
-	int viewportwidth = 1280;
-	int viewportheight = 720;
+	u32 viewportwidth = 1280;
+	u32 viewportheight = 720;
 
 
 	void createInstance(const std::string& name)
 	{
-		if (validationlayers && !checkValidationLayerSupport()) 
+		if(validationlayers && !checkValidationLayerSupport()) 
 		{
-			throw std::runtime_error("validation layers requested, but not available!");
+			throw std::runtime_error("Validation layers requested, but not available!");
 		}
 		VkApplicationInfo appInfo{};
 		appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
 		appInfo.pApplicationName = name.c_str();
 		appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-		appInfo.pEngineName = "Basalt : Vinegar";
+		appInfo.pEngineName = "Basalt";
 		appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 		appInfo.apiVersion = VK_API_VERSION_1_2;
 
@@ -51,7 +51,8 @@ namespace bs::vk
 		createInfo.ppEnabledExtensionNames = extensions.data();
 
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-		if (validationlayers) {
+		if (validationlayers) 
+		{
 			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 			createInfo.ppEnabledLayerNames = validationLayers.data();
 
@@ -61,19 +62,19 @@ namespace bs::vk
 		else 
 		{
 			createInfo.enabledLayerCount = 0;
-
 			createInfo.pNext = nullptr;
 		}
 
 		if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS) 
 		{
-			throw std::runtime_error("failed to create instance!");
+			throw std::runtime_error("Failed to create instance!");
 		}
 	}
 
 	void createSurface(GLFWwindow* window)
 	{
-		if (glfwCreateWindowSurface(m_instance, window, nullptr, &m_surface) != VK_SUCCESS) {
+		if (glfwCreateWindowSurface(m_instance, window, nullptr, &m_surface) != VK_SUCCESS)
+		{
 			throw std::runtime_error("failed to create window surface!");
 		}
 	}
@@ -185,7 +186,6 @@ namespace bs::vk
 			createInfo.enabledLayerCount = 0;
 		}
 
-
 		if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("Failed to create logical device!");
@@ -203,8 +203,9 @@ namespace bs::vk
 		VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
 		VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities, window);
 
-		uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-		if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
+		u32 imageCount = swapChainSupport.capabilities.minImageCount + 1;
+		if(swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
+		{
 			imageCount = swapChainSupport.capabilities.maxImageCount;
 		}
 		
@@ -224,12 +225,14 @@ namespace bs::vk
 		QueueFamilyIndices indices = device.getQueueFamilies();
 		uint32_t queueFamilyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 
-		if (indices.graphicsFamily != indices.presentFamily) {
+		if(indices.graphicsFamily != indices.presentFamily)
+		{
 			createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
 			createInfo.queueFamilyIndexCount = 2;
 			createInfo.pQueueFamilyIndices = queueFamilyIndices;
 		}
-		else {
+		else
+		{
 			createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		}
 
@@ -238,7 +241,8 @@ namespace bs::vk
 		createInfo.presentMode = presentMode;
 		createInfo.clipped = VK_TRUE;
 
-		if (vkCreateSwapchainKHR(device.getDevice(), &createInfo, nullptr, &swapchain) != VK_SUCCESS) {
+		if (vkCreateSwapchainKHR(device.getDevice(), &createInfo, nullptr, &swapchain) != VK_SUCCESS)
+		{
 			throw std::runtime_error("failed to create swap chain!");
 		}
 
@@ -269,8 +273,9 @@ namespace bs::vk
 			createInfo.subresourceRange.baseArrayLayer = 0;
 			createInfo.subresourceRange.layerCount = 1;
 
-			if (vkCreateImageView(device, &createInfo, nullptr, &swapdetails.swapChainImageViews[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create image views!");
+			if (vkCreateImageView(device, &createInfo, nullptr, &swapdetails.swapChainImageViews[i]) != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to create image views!");
 			}
 		}
 	}
@@ -278,13 +283,13 @@ namespace bs::vk
 	{
 		int width = 0, height = 0;
 		glfwGetFramebufferSize(window, &width, &height);
-		while (width == 0 || height == 0) {
+		while (width == 0 || height == 0) 
+		{
 			glfwGetFramebufferSize(window, &width, &height);
 			glfwWaitEvents();
 		}
 
 		vkDeviceWaitIdle(device);
-
 	}
 
 	void createRenderPass(VkDevice& device, SwapChainDetails& Swapdetails, VkRenderPass& renderPass)
@@ -325,8 +330,9 @@ namespace bs::vk
 		renderPassInfo.dependencyCount = 1;
 		renderPassInfo.pDependencies = &dependency;
 
-		if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create render pass!");
+		if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create render pass!");
 		}
 	}
 	void createGraphicsPipeline(VkRenderPass& renderPass, VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device)	
@@ -365,7 +371,6 @@ namespace bs::vk
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
-
 
 		VkExtent2D extent = { };
 		extent.height = viewportheight;
@@ -495,22 +500,27 @@ namespace bs::vk
 		inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
+		const VkExtent2D extent
+		{ 
+			.width = viewportwidth,
+			.height = viewportheight,
+		};
 
-		VkExtent2D extent = { };
-		extent.height = viewportheight;
-		extent.width = viewportwidth;
+		const VkViewport viewport
+		{
+			.x = 0.0f,
+			.y = 0.0f,
+			.width = static_cast<float>(extent.width),
+			.height = static_cast<float>(extent.height),
+			.minDepth = 0.0f,
+			.maxDepth = 1.0f,
+		};
 
-		VkViewport viewport{};
-		viewport.x = 0.0f;
-		viewport.y = 0.0f;
-		viewport.width = static_cast<float>(extent.width);
-		viewport.height = static_cast<float>(extent.height);
-		viewport.minDepth = 0.0f;
-		viewport.maxDepth = 1.0f;
-
-		VkRect2D scissor{};
-		scissor.offset = { 0, 0 };
-		scissor.extent = extent;
+		const VkRect2D scissor
+		{
+			.offset = { 0, 0 },
+			.extent = extent,
+		};
 
 		VkPipelineViewportStateCreateInfo viewportState{};
 		viewportState.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
@@ -562,12 +572,12 @@ namespace bs::vk
 		pipelineLayoutInfo.pPushConstantRanges = &constants;
 		pipelineLayoutInfo.pushConstantRangeCount = 1;
 
-		if (vkCreatePipelineLayout(device.getDevice(), &pipelineLayoutInfo, nullptr, &playout) != VK_SUCCESS) 
+		if(vkCreatePipelineLayout(device.getDevice(), &pipelineLayoutInfo, nullptr, &playout) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 
-		std::vector<VkDynamicState> dynamicStateEnables = 
+		const std::vector<VkDynamicState> dynamicStateEnables = 
 		{
 			VK_DYNAMIC_STATE_VIEWPORT,
 			VK_DYNAMIC_STATE_SCISSOR
@@ -577,6 +587,18 @@ namespace bs::vk
 		dynState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 		dynState.dynamicStateCount = static_cast<int>(dynamicStateEnables.size());
 		dynState.pDynamicStates = dynamicStateEnables.data();
+
+		//Depth
+		VkPipelineDepthStencilStateCreateInfo depthCreateInfo{};
+		depthCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depthCreateInfo.pNext = nullptr;
+		depthCreateInfo.depthTestEnable = VK_TRUE;
+		depthCreateInfo.depthWriteEnable = VK_TRUE;
+		depthCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; //enableDepthTest ? VK_COMPARE_OP_LESS_OR_EQUAL : VK_COMPARE_OP_ALWAYS;
+		depthCreateInfo.depthBoundsTestEnable = VK_FALSE;
+		depthCreateInfo.minDepthBounds = 0.0f;
+		depthCreateInfo.maxDepthBounds = 1.0f;
+		depthCreateInfo.stencilTestEnable = VK_FALSE;
 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -593,8 +615,9 @@ namespace bs::vk
 		pipelineInfo.pDynamicState = &dynState;
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+		pipelineInfo.pDepthStencilState = &depthCreateInfo;
 
-		if (vkCreateGraphicsPipelines(device.getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+		if(vkCreateGraphicsPipelines(device.getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
 		{
 			throw std::runtime_error("failed to create graphics pipeline!");
 		}
@@ -712,7 +735,7 @@ namespace bs::vk
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 
-		std::vector<VkDynamicState> dynamicStateEnables = 
+		const std::vector<VkDynamicState> dynamicStateEnables = 
 		{
 			VK_DYNAMIC_STATE_VIEWPORT,
 			VK_DYNAMIC_STATE_SCISSOR
@@ -722,6 +745,18 @@ namespace bs::vk
 		dynState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 		dynState.dynamicStateCount = static_cast<int>(dynamicStateEnables.size());
 		dynState.pDynamicStates = dynamicStateEnables.data();
+
+		//Depth
+		VkPipelineDepthStencilStateCreateInfo depthCreateInfo{};
+		depthCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depthCreateInfo.pNext = nullptr;
+		depthCreateInfo.depthTestEnable = VK_TRUE;
+		depthCreateInfo.depthWriteEnable = VK_TRUE;
+		depthCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; //enableDepthTest ? VK_COMPARE_OP_LESS_OR_EQUAL : VK_COMPARE_OP_ALWAYS;
+		depthCreateInfo.depthBoundsTestEnable = VK_FALSE;
+		depthCreateInfo.minDepthBounds = 0.0f;
+		depthCreateInfo.maxDepthBounds = 1.0f;
+		depthCreateInfo.stencilTestEnable = VK_FALSE;
 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -738,6 +773,7 @@ namespace bs::vk
 		pipelineInfo.renderPass = rpass;
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+		pipelineInfo.pDepthStencilState = &depthCreateInfo;
 
 		if (vkCreateGraphicsPipelines(device.getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
 		{
@@ -751,11 +787,11 @@ namespace bs::vk
 	void createUIPipeline(bs::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout)
 	{
 		//Shader Config
-		auto vertShaderCode = uivert; //bs::readFile("res/Shaders/uivert.spv");
-		auto fragShaderCode = uifrag; //bs::readFile("res/Shaders/uifrag.spv");
+		const auto vertShaderCode = bs::readFile("res/Shaders/uivert.spv");	//uivert;
+		const auto fragShaderCode = bs::readFile("res/Shaders/uifrag.spv");	//uifrag;
 
-		VkShaderModule vertShaderModule = createShaderModule(vertShaderCode, device.getDevice());
-		VkShaderModule fragShaderModule = createShaderModule(fragShaderCode, device.getDevice());
+		const VkShaderModule vertShaderModule = createShaderModule(vertShaderCode, device.getDevice());
+		const VkShaderModule fragShaderModule = createShaderModule(fragShaderCode, device.getDevice());
 
 		VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
 		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
@@ -774,7 +810,7 @@ namespace bs::vk
 		VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 
 		//Vertex Config
-		auto vdesc = getVertexDescriptionImGUI();
+		const auto vdesc = getVertexDescriptionImGUI();
 
 		vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInputInfo.vertexBindingDescriptionCount = static_cast<int>(vdesc.bindings.size());
@@ -865,7 +901,7 @@ namespace bs::vk
 			throw std::runtime_error("failed to create pipeline layout!");
 		}
 
-		std::vector<VkDynamicState> dynamicStateEnables = 
+		const std::vector<VkDynamicState> dynamicStateEnables = 
 		{
 			VK_DYNAMIC_STATE_VIEWPORT,
 			VK_DYNAMIC_STATE_SCISSOR
@@ -875,6 +911,18 @@ namespace bs::vk
 		dynState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 		dynState.dynamicStateCount = static_cast<int>(dynamicStateEnables.size());
 		dynState.pDynamicStates = dynamicStateEnables.data();
+
+		//Depth
+		VkPipelineDepthStencilStateCreateInfo depthCreateInfo{};
+		depthCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+		depthCreateInfo.pNext = nullptr;
+		depthCreateInfo.depthTestEnable = VK_TRUE;
+		depthCreateInfo.depthWriteEnable = VK_TRUE;
+		depthCreateInfo.depthCompareOp = VK_COMPARE_OP_LESS_OR_EQUAL; //enableDepthTest ? VK_COMPARE_OP_LESS_OR_EQUAL : VK_COMPARE_OP_ALWAYS;
+		depthCreateInfo.depthBoundsTestEnable = VK_FALSE;
+		depthCreateInfo.minDepthBounds = 0.0f;
+		depthCreateInfo.maxDepthBounds = 1.0f;
+		depthCreateInfo.stencilTestEnable = VK_FALSE;
 
 		VkGraphicsPipelineCreateInfo pipelineInfo{};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
@@ -891,6 +939,7 @@ namespace bs::vk
 		pipelineInfo.renderPass = rpass;
 		pipelineInfo.subpass = 0;
 		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+		pipelineInfo.pDepthStencilState = &depthCreateInfo;
 
 		if (vkCreateGraphicsPipelines(device.getDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
 		{
@@ -901,12 +950,13 @@ namespace bs::vk
 		vkDestroyShaderModule(device.getDevice(), vertShaderModule, nullptr);
 	}
 
-	void createFramebuffers(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkDevice device)
+	void createFramebuffers(VkRenderPass renderPass, SwapChainDetails& swapdetails, VkDevice device)
 	{
 		swapdetails.swapChainFramebuffers.resize(swapdetails.swapChainImageViews.size());
-
-		for (size_t i = 0; i < swapdetails.swapChainImageViews.size(); i++) {
-			VkImageView attachments[] = {
+		for (auto i = 0; i < swapdetails.swapChainImageViews.size(); i++) 
+		{
+			const VkImageView attachments[] = 
+			{
 				swapdetails.swapChainImageViews[i]
 			};
 
@@ -919,11 +969,41 @@ namespace bs::vk
 			framebufferInfo.height = swapdetails.swapChainExtent.height;
 			framebufferInfo.layers = 1;
 
-			if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapdetails.swapChainFramebuffers[i]) != VK_SUCCESS) {
-				throw std::runtime_error("failed to create framebuffer!");
+			if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapdetails.swapChainFramebuffers[i]) != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to create framebuffer!");
 			}
 		}
 	}
+
+	void createFramebuffersWithDepth(VkRenderPass renderPass, SwapChainDetails& swapdetails, VkDevice device, VkImageView depthImgView)
+	{
+		swapdetails.swapChainFramebuffers.resize(swapdetails.swapChainImageViews.size());
+		for (auto i = 0; i < swapdetails.swapChainImageViews.size(); i++) 
+		{
+			const VkImageView attachments[2] = 
+			{
+				swapdetails.swapChainImageViews[i],
+				depthImgView
+			};
+
+			VkFramebufferCreateInfo framebufferInfo{};
+			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+			framebufferInfo.renderPass = renderPass;
+			framebufferInfo.width = swapdetails.swapChainExtent.width;
+			framebufferInfo.height = swapdetails.swapChainExtent.height;
+			framebufferInfo.layers = 1;
+			
+			framebufferInfo.attachmentCount = 2;
+			framebufferInfo.pAttachments = &attachments[0];
+
+			if(vkCreateFramebuffer(device, &framebufferInfo, nullptr, &swapdetails.swapChainFramebuffers[i]) != VK_SUCCESS)
+			{
+				throw std::runtime_error("Failed to create framebuffer!");
+			}
+		}
+	}
+
 	void createCommandPool(bs::Device& device, VkCommandPool& commandPool)
 	{
 		QueueFamilyIndices queueFamilyIndices = device.getQueueFamilies();
@@ -932,8 +1012,9 @@ namespace bs::vk
 		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
 		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
 
-		if (vkCreateCommandPool(device.getDevice(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
-			throw std::runtime_error("failed to create command pool!");
+		if(vkCreateCommandPool(device.getDevice(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS) 
+		{
+			throw std::runtime_error("Failed to create command pool!");
 		}
 	}
 
@@ -942,12 +1023,12 @@ namespace bs::vk
 		VertexInputDescription description;
 
 		//we will have just 1 vertex buffer binding, with a per-vertex rate
-		VkVertexInputBindingDescription mainBinding = {};
-		mainBinding.binding = 0;
-		mainBinding.stride = sizeof(bs::Vertex);
-		mainBinding.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-		description.bindings.push_back(mainBinding);
+		description.bindings.emplace_back(VkVertexInputBindingDescription 
+		{
+			.binding = 0,
+			.stride = sizeof(bs::Vertex),
+			.inputRate = VK_VERTEX_INPUT_RATE_VERTEX,
+		});
 
 		//Position will be stored at Location 0
 		VkVertexInputAttributeDescription positionAttribute = {};
@@ -1025,24 +1106,26 @@ namespace bs::vk
 		std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 		vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-		int i = 0;
+		auto i = 0;
 		for (const auto& queueFamily : queueFamilies) {
-			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
+			if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) 
+			{
 				indices.graphicsFamily = i;
 			}
 
 			VkBool32 presentSupport = false;
 			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, m_surface, &presentSupport);
 
-			if (presentSupport) {
+			if (presentSupport) 
+			{
 				indices.presentFamily = i;
 			}
-
-			if (indices.isComplete()) {
+			if (indices.isComplete()) 
+			{
 				break;
 			}
 
-			i++;
+			i += 1;
 		}
 
 		return indices;
@@ -1050,13 +1133,12 @@ namespace bs::vk
 	SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device)
 	{
 		SwapChainSupportDetails details;
-
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, m_surface, &details.capabilities);
-
 		uint32_t formatCount;
 		vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, nullptr);
 
-		if (formatCount != 0) {
+		if (formatCount != 0) 
+		{
 			details.formats.resize(formatCount);
 			vkGetPhysicalDeviceSurfaceFormatsKHR(device, m_surface, &formatCount, details.formats.data());
 		}
@@ -1064,7 +1146,8 @@ namespace bs::vk
 		uint32_t presentModeCount;
 		vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, nullptr);
 
-		if (presentModeCount != 0) {
+		if (presentModeCount != 0) 
+		{
 			details.presentModes.resize(presentModeCount);
 			vkGetPhysicalDeviceSurfacePresentModesKHR(device, m_surface, &presentModeCount, details.presentModes.data());
 		}
@@ -1119,28 +1202,28 @@ namespace bs::vk
 		createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
 
 		VkShaderModule shaderModule;
-		if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) 
+		VkResult result = vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule);
+		if(result != VK_SUCCESS) 
 		{
-			throw std::runtime_error("failed to create shader module!");
+			std::cerr << "Failed to create shader module, error code: " << result << "\n";
+			throw std::runtime_error("Failed to create shader module!");
 		}
 
 		return shaderModule;
 	}
 	
-	
-	std::vector<const char*> getRequiredExtensions() {
+	std::vector<const char*> getRequiredExtensions()
+	{
 		uint32_t glfwExtensionCount = 0;
 		const char** glfwExtensions;
 		glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
 
 		std::vector<const char*> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-		if (validationlayers) 
+		if(validationlayers) 
 		{
 			extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
 		}
-
-
 		return extensions;
 	}
 
@@ -1149,8 +1232,6 @@ namespace bs::vk
 		QueueFamilyIndices indices = findQueueFamilies(device);
 
 		bool extensionsSupported = checkDeviceExtensionSupport(device);
-
-		
 
 		bool swapChainAdequate = false;
 		if (extensionsSupported) 

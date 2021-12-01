@@ -21,16 +21,20 @@ namespace bs
 {
 	class Device;
 }
-struct QueueFamilyIndices {
+
+struct QueueFamilyIndices 
+{
 	std::optional<uint32_t> graphicsFamily;
 	std::optional<uint32_t> presentFamily;
 
-	bool isComplete() {
+	bool isComplete() const
+	{
 		return graphicsFamily.has_value() && presentFamily.has_value();
 	}
 };
 
-struct SwapChainSupportDetails {
+struct SwapChainSupportDetails
+{
 	VkSurfaceCapabilitiesKHR capabilities;
 	std::vector<VkSurfaceFormatKHR> formats;
 	std::vector<VkPresentModeKHR> presentModes;
@@ -67,7 +71,6 @@ struct SwapChainDetails
 };
 
 
-
 namespace bs::vk
 {
 	//GLOBALS
@@ -75,8 +78,8 @@ namespace bs::vk
 
 	//For Window Resizing
 	
-	extern int viewportwidth;
-	extern int viewportheight;
+	extern u32 viewportwidth;
+	extern u32 viewportheight;
 
 	extern VkInstance m_instance;
 	extern VkSurfaceKHR m_surface;
@@ -104,20 +107,19 @@ namespace bs::vk
 	void recreateSwapChain(GLFWwindow* window, VkDevice device);
 
 	void createRenderPass(VkDevice& device, SwapChainDetails& Swapdetails, VkRenderPass& renderPass);
-	void createGraphicsPipeline(VkRenderPass& renderPass,/* SwapChainDetails& swapdetails, */VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device);
+	void createGraphicsPipeline(VkRenderPass& renderPass, VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device);
 
 	void createUIPipeline(bs::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout);
 
 	void createPipelineDefault(bs::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout);
 	void createPipeline(bs::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout, const std::string& vertpath, const std::string& fragpath);
 
-	void createFramebuffers(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkDevice device);
+	void createFramebuffers(VkRenderPass renderPass, SwapChainDetails& swapdetails, VkDevice device);
+	void createFramebuffersWithDepth(VkRenderPass renderPass, SwapChainDetails& swapdetails, VkDevice device, VkImageView depthImgView);
 	void createCommandPool(bs::Device& device, VkCommandPool& commandPool);
 
 	VertexInputDescription getVertexDescription();
 	VertexInputDescription getVertexDescriptionImGUI();
-
-
 
 	//Dont use
 	QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);

@@ -18,7 +18,9 @@ namespace bs::vk
 		Texture(bs::Device* device);
 
 		// Upload the img here
-		void loadFromImage(bs::Image& img);
+		void loadFromImage(const bs::Image& img);
+
+		void destroy();
 
 		texture_t getAPITextureInfo() const
 		{

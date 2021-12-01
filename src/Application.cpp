@@ -4,21 +4,20 @@
 #include "States/Menustate.h"
 
 
-Application::Application()
+Application::Application()	:	shouldClose(false)
 {
 	bs::asset_manager = new bs::AssetManager();
 
 	// Loading screen
 	m_states.emplace_back(std::make_unique<Menustate>(*this));
 	
-
 	// Needed for setup
 	m_context = new bs::Context("Voxellium");
 	m_device = new bs::Device();
 	m_context->setDeviceptr(m_device);
 	m_context->initAPI();
 
-	m_renderer = new Renderer(m_device);
+	m_renderer = new Renderer(m_device, m_context->getGenericRenderpass());
 }
 
 Application::~Application()
@@ -26,6 +25,7 @@ Application::~Application()
 	delete m_renderer;
 	delete bs::asset_manager;
 	delete m_context;
+	delete m_device;
 }
 
 Camera& Application::getCamera()
@@ -41,35 +41,29 @@ void Application::RunLoop()
 	float dt = 0;
 	int frames = 0;
 
-	bs::vec2i winSize = bs::vec2i(bs::vk::viewportwidth, bs::vk::viewportheight);
+	const bs::vec2i winSize = bs::vec2i(bs::vk::viewportwidth, bs::vk::viewportheight);
+
+	//Setting icon for the window
+	bs::Image icon;
+	icon.loadFromFile("res/papertexture2.png");
+	m_context->setIcon(icon);
 	
 //===================================================================================	
-
-	bs::vk::createFramebuffers(m_context->rpass, m_context->m_scdetails, m_device->getDevice());
-
-	//Framebuffer data, pass the vulkan stuff into the renderdata layout
-	framebufdata[0].handle = m_context->m_scdetails.swapChainFramebuffers;
-	framebufdata[0].imgView = m_context->m_scdetails.swapChainImageViews.at(0);
-	framebufdata[0].size = winSize;
-
-	//bs::vk::RenderTargetFramebuffer framebuffer(m_device, rpass, winSize);	//Originally for a render buffer to be copied to swapchain framebuffer
-	//framebufdata[1] = framebuffer.getFramebufferData();
-	
-	//std::cout << "framebufdata handles: [size, handle] " << framebufdata[0].handle.size() << " \n";
+		
+	//The handle to the swap chain image to render to
+	m_renderFramebuffer.handle = m_context->m_scdetails.swapChainFramebuffers;
+	m_renderFramebuffer.imgView = m_context->m_scdetails.swapChainImageViews.at(0);
+	m_renderFramebuffer.size = winSize;
 
 //===================================================================================
 
 	//Main Loop
 	Input::window = m_context->getContext();
-	
-	//help
 	Input::setupInput();
 
-	bs::Image icon;
-	icon.loadFromFile("res/papertexture.png");
-	m_context->setIcon(icon);
+	auto& jobSystem = bs::getJobSystem();
 
-
+	//Main loop running
 	while(m_context->isOpen() && !m_states.empty() && !shouldClose)
 	{
 		dt = static_cast<float>(clock.restart());
@@ -88,52 +82,48 @@ void Application::RunLoop()
 		/// Update
 		current.update(dt);
 
-
 		current.lateUpdate(m_camera);
 		m_camera.update();
-		jobSystem.wait();
+		jobSystem.wait(0);
 
 
 		/// Draw objects from gamestate
 		current.render(*m_renderer);
-		jobSystem.wait();
+		jobSystem.wait(0);
 
 		/// Render
 		m_renderer->render(m_camera);
 
 		/// Submitting the data to the GPU and actually drawing/updating display
-		m_renderer->finish(framebufdata[0], frames % framebufdata[0].handle.size());
-		jobSystem.wait();
+		m_renderer->finish(m_renderFramebuffer, frames % m_renderFramebuffer.handle.size());
+		jobSystem.wait(0);
 		m_context->update();
-
 		
 		/// Handle Window Events
 		t += dt;
 		frames++;
-		if (t >= 1)
+		if (t >= 1.0)
 		{
-			io.DeltaTime = dt;
-			io.Framerate = (float)frames;
-			
 			//std::cout << frames << " per sec\n";
-
+			//std::cout << dt * 1000 << " ms\n";
 			//printf("Player Pos: X:%0.3f, Y:%0.3f, Z:%0.3f\n", m_camera.pos.x, m_camera.pos.y, m_camera.pos.z);
 			//printf("Player Rot: X:%0.3f, Y:%0.3f, Z:%0.3f\n", m_camera.rot.x, m_camera.rot.y, m_camera.rot.z);
-			//std::cout << dt * 1000 << " ms\n";
+
+			io.DeltaTime = dt;
+			io.Framerate = (float)frames;
 			t = 0;
 			frames = 0;
 		}
 
-
+		//Handle the window and state events
 		handleEvents();
 	}
 	m_context->close();
 
-	jobSystem.wait();
+	jobSystem.wait(0);
 
 	m_states.clear();
 }
-
 
 void Application::popState()
 {
@@ -142,7 +132,6 @@ void Application::popState()
 		m_states.pop_back();
 	};
 	m_statechanges.emplace_back(change);
-	
 }
 
 std::unique_ptr<Basestate>& Application::currentState()
@@ -154,8 +143,8 @@ void Application::handleEvents()
 {
 	if(m_context->resized || m_context->refresh)	//Checks if the framebuffer data needs to be updated
 	{
-		framebufdata[0].size = bs::vec2i(bs::vk::viewportwidth, bs::vk::viewportheight);
-		framebufdata[0].handle = m_context->m_scdetails.swapChainFramebuffers;	//Since vulkan spec has this technically as a pointer, this has to be reupdated
+		m_renderFramebuffer.size = bs::vec2i(bs::vk::viewportwidth, bs::vk::viewportheight);
+		m_renderFramebuffer.handle = m_context->m_scdetails.swapChainFramebuffers;	//Bc the handle changed, this must be changed
 
 		m_context->refresh = false;
 	}
@@ -165,7 +154,4 @@ void Application::handleEvents()
 		change();
 	}
 	m_statechanges.clear();
-
-	//std::cout << "Frame\n";
 }
-

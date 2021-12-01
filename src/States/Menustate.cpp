@@ -19,8 +19,7 @@ void Menustate::input(float dt)
 {
 	ImGui::NewFrame();
 	vInput = Input::getInput(dt);
-	auto& io = ImGui::GetIO();
-
+	const auto& io = ImGui::GetIO();
 }
 
 void Menustate::update(float dt)
@@ -28,13 +27,14 @@ void Menustate::update(float dt)
 	static uint8_t menuIndex = 1;
 	constexpr auto windowflag = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar;
 
+	const auto& io = ImGui::GetIO();
+	ImGui::SetNextWindowSize({io.DisplaySize.x / 8, io.DisplaySize.y / 16});
+
 	if(ImGui::Begin("Main Menu", nullptr, windowflag))
 	{
-		//ImGui::Window
-
-		if(ImGui::Button("Start"))
+		if(ImGui::Button("Start", ImGui::GetContentRegionAvail()))
 		{
-			app.pushState(std::make_unique<Worldstate>(Worldstate(app)));
+			app.pushState(std::make_unique<Worldstate>(app));
 		}
 	}
 

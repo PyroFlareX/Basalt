@@ -9,85 +9,134 @@
 
 using Counter = std::atomic<unsigned int>;
 
-constexpr unsigned int NUM_FIBERS = 256;
-constexpr unsigned int NUM_FIBERS_WAITING = 256;
-
-constexpr unsigned int HIGH_PRIORITY_SIZE = 1024;
-constexpr unsigned int NORMAL_PRIORITY_SIZE = 1024;
-constexpr unsigned int LOW_PRIORITY_SIZE = 1024;
-constexpr unsigned int UNCOUNTED_SIZE = 1024;
-
 struct Job;
-
-//using JobFn = void(*)(Job);
-
 using JobFn = std::function<void(Job)>;
+
+#define JOB_STRUCT_PADDING 0
 
 struct Job
 {
-	JobFn job_Function = JobFn(nullptr);
-	void** data = nullptr;
+	Job() noexcept;
+	Job(JobFn task) noexcept;
+	Job(JobFn task, void** data) noexcept;
+	Job(JobFn task, Counter& counter) noexcept;
+	Job(JobFn task, Counter& counter, void** data) noexcept;
 	
-	Job() noexcept = default;
+#if JOB_STRUCT_PADDING
+	Job(JobFn task, void** data, const size_t array_len) noexcept;
+	Job(JobFn task, Counter& counter, void** data, const size_t array_len) noexcept;
+#endif
+	//No-throw Destructable
+	~Job() noexcept = default;
+
+	///	Members
+	//The task function, a lambda
+	JobFn job_task;
+
+	//Pointer to the Counter this job is associated with
+	Counter* counter;
+
+	//Pointer to user data, i.e. pointer to an array of pointers
+	void** user_data;
+
+#if JOB_STRUCT_PADDING
+	size_t length = 0;	//Length of the userdata pointer array
+	size_t null = 0; //Filler to get to 96 bytes (maybe cacheline idk)
+#endif
+
+	///Helper Functions
+	//Execute the job
+	inline void execute()
+	{
+		job_task(*this);
+		
+		assert(counter != nullptr);
+		*counter--;
+	}
+	//Retreive the pointer passed into the job userdata at this index
+	template<typename T>
+	T* getPointerAtIndex(const int index)
+	{
+		assert((length > index) && (user_data != nullptr));
+		return reinterpret_cast<T*>(user_data[index]);
+	}
+	//Get a reference to the item passed in this index of the userdata
+	template<typename T>
+	T& getReferenceAtIndex(const int index)
+	{
+		return *getPointerAtIndex<T>(index);
+	}
+
 	Job(Job&&) noexcept = default;
 	Job(Job const&) noexcept = default;
 	Job& operator=(Job&&) noexcept = default;
 	Job& operator=(Job const&) noexcept = default;
-	~Job() noexcept = default;
 };
 
-
-class JobSystem
+namespace bs
 {
-public:
-	JobSystem();
-
-	//Returns a Job from a function pointer and parameters, does not add the job to the list
-	static Job createJob(JobFn job, void** data = nullptr, Counter* p_counter = nullptr);
-	
-	//Get number of hardware threads
-	static uint8_t numThreads() noexcept
+	class JobSystem
 	{
-		return std::thread::hardware_concurrency();
-	}
+	public:
+		JobSystem();
+		~JobSystem();
 
-	unsigned int remainingJobs() const noexcept
-	{
-		return m_counter.load();
-	}
+		///Main Use Functions
 
-	unsigned int backgroundJobs() const noexcept
-	{
-		return m_bcounter.load();
-	}
+		//Returns a Job from a function pointer and parameters, does not add the job to the list
+		Job createJob(JobFn job, void** data = nullptr) const noexcept;
+		
+		//Schedule a job
+		void schedule(Job job);
+		void schedule(Job job, Counter& counter);
 
-	//Schedules a job
-	void schedule(Job job, bool counted = true);
+		void scheduleHighPriority(Job job);
+		void scheduleHighPriority(Job job, Counter& counter);
 
-	//Blocks execution until the job counter reaches the target
-	void wait(unsigned int counterTarget = 0, bool stayOnThread = false, Counter* p_counter = nullptr);
+		void scheduleLowPriority(Job job);
+		void scheduleLowPriority(Job job, Counter& counter);
 
-	// Returns Index of thread the function is running in, where the index is from the threads vector
-	int getThreadIndex();
+		void scheduleBackground(Job job);
 
-	~JobSystem();
-private:
-	std::vector<std::thread> threads;
+		//Blocks execution until the job counter reaches the target
+		void wait(const unsigned int target);
+		void waitBackground(const unsigned int target);
+		void waitWithCounter(const unsigned int target, const Counter& counter);
 
-	rigtorp::MPMCQueue<Job> highPriority;
-	rigtorp::MPMCQueue<Job> normalPriority;
-	rigtorp::MPMCQueue<Job> lowPriority;
-	rigtorp::MPMCQueue<Job> nonCounterJobs;
+		///Info and Utility Functions
 
+		// Returns Index of thread the function is running in, where the index is from the threads vector
+		int getThreadIndex() const;
 
-	void threadLoop();
+		//Get number of hardware threads
+		static const unsigned int numThreads() noexcept;
 
-	std::atomic<bool> running;
-	Counter m_counter;
+		//Get the remaining number of Jobs on the counter
+		unsigned int getNumRemainingJobs() const noexcept;
 
+		//Get the remaining number of Jobs on the background counter
+		unsigned int getNumBackgroundJobs() const noexcept;
 
-	Counter m_bcounter;
-};
+		constexpr static auto HIGH_PRIORITY_SIZE	=	1024;
+		constexpr static auto NORM_PRIORITY_SIZE	=	1024;
+		constexpr static auto LOW_PRIORITY_SIZE		=	1024;
+		constexpr static auto UNCOUNTED_SIZE		=	1024;
+	private:
+		//Executed by the job threads
+		void thread_loop();
 
+		std::vector<std::thread> m_threads;
 
-extern JobSystem jobSystem;
+		rigtorp::MPMCQueue<Job> highPriority;
+		rigtorp::MPMCQueue<Job> normalPriority;
+		rigtorp::MPMCQueue<Job> lowPriority;
+		rigtorp::MPMCQueue<Job> nonCounterJobs;
+
+		std::atomic<bool> m_running;
+
+		Counter m_main_counter;
+		Counter m_background_counter;
+	};
+
+	JobSystem& getJobSystem();
+}

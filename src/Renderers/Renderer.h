@@ -1,54 +1,69 @@
 #pragma once
 
-#include "../Camera.h"
 #include "GeneralRenderer.h"
 #include "UIRenderer.h"
+#include "ChunkRenderer.h"
 
-#include <memory>
-
-#include <Engine.h>
-
+class Camera;
 
 class Renderer
 {
-    public:
-        Renderer(bs::Device* device);
+public:
+	Renderer(bs::Device* device, VkRenderPass genericPass);
+	~Renderer();
 
-		void drawObject(bs::GameObject& entity);
-		//NOT DONE DO NOT USE
-		void drawText();
+	void drawObject(const bs::GameObject& entity);
+	//NOT DONE DO NOT USE
+	void drawText();
+	//Create Chunk Draw Lists
+	void recreateChunkDrawLists();
+	void passChunkMeshGenerator(const void* chunk_mesh_manager);
 
-		//Pass tell the subrenderers to generate list queues
-		void render(Camera& cam);
+	//Pass tell the subrenderers to generate list queues
+	void render(Camera& cam);
 
-		//Render to the Framebuffer
-		void finish(bs::vk::FramebufferData& fbo, int index);
+	//Render to the Framebuffer
+	void finish(bs::vk::FramebufferData& fbo, int index);
 
-		//Empty drawqueues
-		void clearQueue();
+	//Empty drawqueues
+	void clearQueue();
 
-        ~Renderer();
-
-		std::unique_ptr<GeneralRenderer>	m_generalRenderer;
-		std::unique_ptr<UIRenderer>			m_UIRenderer;
+	std::unique_ptr<GeneralRenderer>	m_generalRenderer;
+	std::unique_ptr<ChunkRenderer>		m_chunkRenderer;
+	std::unique_ptr<UIRenderer>			m_UIRenderer;
 		
-		//Push the uniform buffer and image descriptor to the gpu
-		void pushGPUData(Camera& cam);
-    protected:
+	//Push the uniform buffer and image descriptor to the gpu
+	void pushGPUData(Camera& cam);
 
-    private:
-		void initGUI();
+private:
+	void initGUI();
 
-		VkPipeline imguipipeline;
-		VkPipelineLayout guilayout;
+	//Info for descriptors; as struct
+	struct DescriptorSetInfo
+	{
+		VkDescriptorType	type;
+		u32 				bindingSlot;
+		u32					count;
+	};
 
-		VkRenderPass renderpassdefault;
-		std::vector<VkCommandBuffer> m_primaryBuffers;
-		VkCommandPool m_pool;
+	//Helper Functions for init
+	
+	void initCommandPoolAndBuffers();
+	
+	void initDescriptorPool(const std::vector<DescriptorSetInfo>& sets);
+	void initDescriptorSets(const std::vector<DescriptorSetInfo>& sets);
 
-		bs::Device* device;
+	void initDescriptorSetBuffers(const std::vector<DescriptorSetInfo>& sets);
 
-		VkDescriptorPool m_descpool;
-	    VkDescriptorSet m_descsetglobal;
-		VkDescriptorSetLayout desclayout;
+	//Vulkan Stuff
+	VkRenderPass m_renderpassdefault;
+	std::vector<VkCommandBuffer> m_primaryBuffers;
+	VkCommandPool m_pool;
+
+	bs::Device* device;
+
+	//Descriptor Handle Stuff
+	VkDescriptorPool m_descpool;
+	VkDescriptorSet m_descsetglobal;
+	VkDescriptorSetLayout desclayout;
 };

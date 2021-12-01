@@ -9,6 +9,20 @@ namespace bs
 
 	}
 
+	AssetManager::~AssetManager()
+	{
+		for(auto& [ID, texture] : m_textures.getMap())
+		{
+			texture.destroy();
+		}
+
+		for(auto& [ID, buffer] : m_buffers.getMap())
+		{
+			// std::cout << "Buffer Destroyed: " << ID << "\n";
+			buffer.reset();
+		}
+	}
+
 	void AssetManager::addTexture(bs::vk::Texture& texture, short id) noexcept
 	{
 		m_textures.addAsset(texture, id);
@@ -24,10 +38,10 @@ namespace bs
 		m_models.addAsset(std::forward<bs::vk::Model>(model), id);
 	}
 
-	void AssetManager::addBuffer(bs::vk::Buffer* buffer, const std::string& id) noexcept
+	void AssetManager::addBuffer(std::shared_ptr<bs::vk::Buffer> buffer, const std::string& id) noexcept
 	{
-		auto bufferptr = std::shared_ptr<bs::vk::Buffer>(buffer);
-		m_buffers.addAsset(bufferptr, id);
+		m_buffers.addAsset(buffer, id);
+		// std::cout << "Buffer Added: " << id << "\n";
 	}
 
 	void AssetManager::addImg(bs::Image& img, const std::string& id) noexcept
@@ -69,9 +83,9 @@ namespace bs
 		return m_models.getAsset(id);
 	}
 
-	bs::vk::Buffer* AssetManager::getBuffer(const std::string& id)
+	std::shared_ptr<bs::vk::Buffer> AssetManager::getBuffer(const std::string& id)
 	{
-		return m_buffers.getAsset(id).get();
+		return m_buffers.getAsset(id);
 	}
 
 	bs::Image& AssetManager::getImage(const std::string& id)
