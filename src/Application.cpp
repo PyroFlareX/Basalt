@@ -12,7 +12,7 @@ Application::Application()	:	shouldClose(false)
 	m_states.emplace_back(std::make_unique<Menustate>(*this));
 	
 	// Needed for setup
-	m_context = new bs::Context("Voxellium");
+	m_context = new bs::Context("Basalt");
 	m_device = new bs::Device();
 	m_context->setDeviceptr(m_device);
 	m_context->initAPI();

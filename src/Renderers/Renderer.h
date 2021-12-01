@@ -2,7 +2,6 @@
 
 #include "GeneralRenderer.h"
 #include "UIRenderer.h"
-#include "ChunkRenderer.h"
 
 class Camera;
 
@@ -13,11 +12,9 @@ public:
 	~Renderer();
 
 	void drawObject(const bs::GameObject& entity);
+
 	//NOT DONE DO NOT USE
 	void drawText();
-	//Create Chunk Draw Lists
-	void recreateChunkDrawLists();
-	void passChunkMeshGenerator(const void* chunk_mesh_manager);
 
 	//Pass tell the subrenderers to generate list queues
 	void render(Camera& cam);
@@ -29,7 +26,6 @@ public:
 	void clearQueue();
 
 	std::unique_ptr<GeneralRenderer>	m_generalRenderer;
-	std::unique_ptr<ChunkRenderer>		m_chunkRenderer;
 	std::unique_ptr<UIRenderer>			m_UIRenderer;
 		
 	//Push the uniform buffer and image descriptor to the gpu

@@ -3,8 +3,6 @@
 #include <imgui.h>
 #include <algorithm>
 
-#include "../World/Meshing/MeshingData.h"
-
 constexpr int numDescriptors = 8;
 
 Renderer::Renderer(bs::Device* renderingDevice, VkRenderPass genericPass)	: device(renderingDevice), m_renderpassdefault(genericPass)
@@ -71,13 +69,6 @@ Renderer::Renderer(bs::Device* renderingDevice, VkRenderPass genericPass)	: devi
 		.count = (u32)bs::asset_manager->getNumTextures(),
 	});
 
-	descriptorInfos.emplace_back(DescriptorSetInfo
-	{
-		.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
-		.bindingSlot = slots++,
-		.count = 1,
-	});
-
 	// Descriptor Pool
 	initDescriptorPool(descriptorInfos);
 	// Descriptor Set
@@ -88,8 +79,7 @@ Renderer::Renderer(bs::Device* renderingDevice, VkRenderPass genericPass)	: devi
 
 	//Create General Renderer
 	m_generalRenderer = std::make_unique<GeneralRenderer>(device, m_renderpassdefault, desclayout);
-	//Create the chunk renderer
-	m_chunkRenderer = std::make_unique<ChunkRenderer>(device, m_renderpassdefault, desclayout);
+
 	//Create the UI Renderer
 	m_UIRenderer = std::make_unique<UIRenderer>(device, m_renderpassdefault, desclayout);
 }
@@ -152,16 +142,6 @@ void Renderer::drawText()
 	m_UIRenderer->addText("Example Text", {500, 500});
 }
 
-void Renderer::recreateChunkDrawLists()
-{
-	m_chunkRenderer->clearCommandBuffer();
-}
-
-void Renderer::passChunkMeshGenerator(const void* chunk_mesh_manager)
-{
-	m_chunkRenderer->p_mesh_manager = (const ChunkMeshManager*)chunk_mesh_manager;
-}
-
 void Renderer::render(Camera& cam)
 {
 	// m_UIRenderer->ImGuiRender();
@@ -178,7 +158,6 @@ void Renderer::render(Camera& cam)
 
 	m_generalRenderer->render(cam);
 	m_UIRenderer->render();
-	m_chunkRenderer->buildRenderCommands();
 
 	// jobSystem.wait();
 }
@@ -242,8 +221,6 @@ void Renderer::finish(bs::vk::FramebufferData& fbo, int index)
 		 * Order: (if/when it matters, depth buffer makes this partially irrelevant)
 		 * #1: General Renderer
 		 * ...
-		 * Chunk Renderer
-		 * ...
 		 * The others
 		 * ...
 		 * #end: UI Renderer
@@ -252,8 +229,6 @@ void Renderer::finish(bs::vk::FramebufferData& fbo, int index)
 		//Execute all the cmd buffers for the general renderer
 		m_generalRenderer->executeCommands(cmd);
 
-		//Chunk Renderer
-		m_chunkRenderer->executeCommands(cmd);
 		//OTHERS
 		// ...
 
@@ -275,7 +250,6 @@ void Renderer::finish(bs::vk::FramebufferData& fbo, int index)
 void Renderer::clearQueue()
 {
 	m_generalRenderer->clearQueue();
-	m_chunkRenderer->clearCommandBuffer();
 	vkResetCommandPool(device->getDevice(), m_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 }
 
@@ -499,34 +473,6 @@ void Renderer::initDescriptorSetBuffers(const std::vector<DescriptorSetInfo>& se
 	bs::asset_manager->addBuffer(std::make_shared<bs::vk::Buffer>(uniform), "MVP");
 	auto mvp_buffer = bs::asset_manager->getBuffer("MVP");
 
-	//CHUNK TEXTURE INDEX STORAGE BUFFERS
-	//@TODO: THIS IS A TEST! Remove this when actually adding the textures
-
-	constexpr auto storageType = bs::vk::BufferUsage::STORAGE_BUFFER;
-	const auto NUM_CHUNKS = (2 * 2) * 4 * 16;
-	bs::vk::BufferDescription basicDescription
-	{
-		.dev = device,
-		.bufferType = storageType,
-		.size = NUM_CHUNKS * NUM_FACES_IN_FULL_CHUNK * sizeof(u16),	// 48 KB per chunk
-		.stride = sizeof(u16),
-	};
-
-	//Chunks Texture Indexing Storage Buffer
-	bs::asset_manager->addBuffer(std::make_shared<bs::vk::Buffer>(basicDescription), "chunk_texture_data");
-	auto face_texture_buffer = bs::asset_manager->getBuffer("chunk_texture_data");
-
-	void* bufferptr = nullptr;
-	vmaMapMemory(device->getAllocator(), face_texture_buffer->getAllocation(), &bufferptr);
-
-	u16* buffer = (u16*)bufferptr;
-	for(auto varCount = 0; varCount < face_texture_buffer->getSize() / sizeof(u16); varCount += 1)
-	{
-		buffer[varCount] = 1;
-	}
-
-	vmaUnmapMemory(device->getAllocator(), face_texture_buffer->getAllocation());
-
 
 	//NOW Update the descriptor sets
 	VkWriteDescriptorSet basicWrite;
@@ -546,13 +492,6 @@ void Renderer::initDescriptorSetBuffers(const std::vector<DescriptorSetInfo>& se
 		.range = mvp_buffer->getSize(), // 192
 	};
 
-	const VkDescriptorBufferInfo textureBufferWrite
-	{	//Chunk Texture Info
-		.buffer = face_texture_buffer->getAPIResource(),
-		.offset = 0,
-		.range = face_texture_buffer->getSize(), // NUM_FACES_IN_FULL_CHUNK * sizeof(u16),
-	};
-
 	//To write the actual descriptor set
 	VkWriteDescriptorSet writeSetsArray[numDescriptors] = {};
 
@@ -562,11 +501,5 @@ void Renderer::initDescriptorSetBuffers(const std::vector<DescriptorSetInfo>& se
 	writeSetsArray[0].descriptorCount = 1;
 	writeSetsArray[0].pBufferInfo = &MVPBufferWrite;
 
-	writeSetsArray[1] = basicWrite;
-	writeSetsArray[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-	writeSetsArray[1].dstBinding = 1;
-	writeSetsArray[1].descriptorCount = 1;
-	writeSetsArray[1].pBufferInfo = &textureBufferWrite;
-
-	vkUpdateDescriptorSets(device->getDevice(), 2, &writeSetsArray[0], 0, nullptr);
+	vkUpdateDescriptorSets(device->getDevice(), 1, &writeSetsArray[0], 0, nullptr);
 }

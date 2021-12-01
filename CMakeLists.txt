@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.6)
 
-PROJECT(voxellium)
+PROJECT(Basalt)
 
 # For Platform
 if(NOT PLATFORM)
@@ -27,12 +27,12 @@ file(GLOB_RECURSE enginesrc RELATIVE ${CMAKE_SOURCE_DIR} "Engine/*.cpp")
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
-add_executable(voxellium ${src} ${header} ${engineheader} ${enginesrc})
+add_executable(Basalt ${src} ${header} ${engineheader} ${enginesrc})
 
-target_include_directories(voxellium PUBLIC "Engine/")
+target_include_directories(Basalt PUBLIC "Engine/")
 
 
 # For Linking
-target_link_libraries(voxellium ${CONAN_LIBS} Vulkan::Vulkan Threads::Threads )
+target_link_libraries(Basalt ${CONAN_LIBS} Vulkan::Vulkan Threads::Threads )
 
-target_compile_features(voxellium PRIVATE cxx_std_20)
+target_compile_features(Basalt PRIVATE cxx_std_20)
