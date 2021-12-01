@@ -5,17 +5,18 @@
 #include "VModel.h"
 #include "Texture.h"
 
-namespace vn
+namespace bs
 {
 	class Context
 	{
 	public:
-		Context();
+		Context(const std::string& title);
+		void setIcon(Image& icon);
 
-		void clear();
-		void update();
-		void close();
-		void initAPI();
+		void clear(); //Clear screen
+		void update(); //Swap buffers
+		void close(); //Close window
+		void initAPI(); //Init api, vulkan here
 		bool isOpen();
 
 		GLFWwindow* getContext();
@@ -24,12 +25,16 @@ namespace vn
 		~Context();
 
 		SwapChainDetails m_scdetails;
-	private: // For members
-		GLFWwindow* m_window;
 
+		bool resized = false;	//For Callback / internal use
+		bool refresh = false;	//To let other stuff know to refresh its references to the render framebuffer
+		VkRenderPass rpass;
+	private:
+		void recreateSwapchain();
+
+		GLFWwindow* m_window;
 		Device* m_Device;
 
-		//SwapChainDetails m_scdetails;
 		VkSwapchainKHR m_swapchain;
 
 		// //true if rendering on image 2, false if on 1
@@ -37,8 +42,9 @@ namespace vn
 		int currentFrame = 0;
 
 		uint32_t imageIndex;
+		const std::string m_windowname;
 	};
-}
-constexpr int WIDTHA = 800;
-constexpr int HEIGHTA = 600;
 
+
+	void resizeCallback(GLFWwindow* window, int width, int height);
+}

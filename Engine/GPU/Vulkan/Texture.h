@@ -3,7 +3,7 @@
 #include "Buffer.h"
 #include "../../Resources/Image.h"
 
-namespace vn::vk
+namespace bs::vk
 {
 	struct texture_t
 	{
@@ -15,24 +15,23 @@ namespace vn::vk
 	class Texture
 	{
 	public:
-		Texture(vn::Device* device);
+		Texture(bs::Device* device);
 
 		// Upload the img here
-		void loadFromImage(vn::Image& img);
+		void loadFromImage(bs::Image& img);
 
 		texture_t getAPITextureInfo() const
 		{
 			return texture_t{ textureImg, textureImgView, sampler };
 		}
 
-	private:
+		bs::Device* getDevice() { return p_device; }
+	protected:
 		VkImage textureImg;
 		VkImageView textureImgView;
 		VmaAllocation textureAllocation;
-		VkDeviceMemory deviceMem;
-
 		VkSampler sampler;
 
-		vn::Device* p_device;
+		bs::Device* p_device;
 	};
 }

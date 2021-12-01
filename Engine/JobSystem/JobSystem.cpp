@@ -1,7 +1,7 @@
 #include "JobSystem.h"
 
 
-JobSystem::JobSystem()	:	normalPriority(NORMAL_PRIORITY_SIZE)
+JobSystem::JobSystem()	:	normalPriority(NORMAL_PRIORITY_SIZE), lowPriority(LOW_PRIORITY_SIZE), highPriority(HIGH_PRIORITY_SIZE), nonCounterJobs(UNCOUNTED_SIZE)
 {
 	unsigned int coreCount = std::thread::hardware_concurrency();
 
@@ -16,7 +16,7 @@ JobSystem::JobSystem()	:	normalPriority(NORMAL_PRIORITY_SIZE)
 	threads.shrink_to_fit();
 }
 
-Job JobSystem::createJob(JobFn job, void** data)
+Job JobSystem::createJob(JobFn job, void** data, Counter* p_counter)
 {
 	Job j;
 	j.job_Function = job;
@@ -25,13 +25,21 @@ Job JobSystem::createJob(JobFn job, void** data)
 	return j;
 }
 
-void JobSystem::schedule(Job job)
+void JobSystem::schedule(Job job, bool counted)
 {
-	m_counter++;
-	normalPriority.emplace(job);
+	if(counted)
+	{	
+		m_counter++;
+		normalPriority.emplace(job);
+	}
+	else
+	{
+		m_bcounter++;
+		nonCounterJobs.emplace(job);
+	}
 }
 
-void JobSystem::wait(unsigned int counterTarget, bool stayOnThread)
+void JobSystem::wait(unsigned int counterTarget, bool stayOnThread, Counter* p_counter)
 {
 	Job job;
 
@@ -85,6 +93,11 @@ void JobSystem::threadLoop()
 		{
 			job.job_Function(job);
 			m_counter--;
+		}
+		else if(nonCounterJobs.try_pop(job))
+		{
+			job.job_Function(job);
+			m_bcounter--;
 		}
 		else
 		{

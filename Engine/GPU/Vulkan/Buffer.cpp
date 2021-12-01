@@ -1,10 +1,9 @@
 #include "Buffer.h"
 
-namespace vn::vk
+namespace bs::vk
 {
 	Buffer::Buffer(BufferDescription bufdesc) : m_desc(bufdesc)
 	{
-
 		
 	}
 
@@ -20,73 +19,83 @@ namespace vn::vk
 
 	size_t Buffer::getSize()
 	{
-		return m_desc.size * m_desc.stride;
+		return m_desc.size;
 	}
 
 	size_t Buffer::getNumElements()
 	{
-		return m_desc.size;
+		return m_desc.size / m_desc.stride;
 	}
 
-	void Buffer::uploadBuffer()
+	void Buffer::uploadBuffer(bool write)
 	{
+		VmaAllocationCreateInfo allocInfo = {};
+		allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+
 		VkBufferCreateInfo bufferInfo{};
 		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
 		bufferInfo.size = getSize();
 
 		bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 		// To get the buffer type
-		if (m_desc.bufferType == vn::BufferUsage::VERTEX_BUFFER)
+		if (m_desc.bufferType == bs::vk::BufferUsage::VERTEX_BUFFER)
 		{
 			bufferInfo.usage = VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
 		}
-		else if (m_desc.bufferType == vn::BufferUsage::INDEX_BUFFER)
+		else if (m_desc.bufferType == bs::vk::BufferUsage::INDEX_BUFFER)
 		{
 			bufferInfo.usage = VK_BUFFER_USAGE_INDEX_BUFFER_BIT;
 		}
-		else if (m_desc.bufferType == vn::BufferUsage::UNIFORM_BUFFER)
+		else if (m_desc.bufferType == bs::vk::BufferUsage::UNIFORM_BUFFER)
 		{
 			bufferInfo.usage = VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT;
 		}
-		else if (m_desc.bufferType == vn::BufferUsage::STORAGE_BUFFER)
+		else if (m_desc.bufferType == bs::vk::BufferUsage::STORAGE_BUFFER)
 		{
 			bufferInfo.usage = VK_BUFFER_USAGE_STORAGE_BUFFER_BIT;
 		}
-		else if (m_desc.bufferType == vn::BufferUsage::INDIRECT_BUFFER)
+		else if (m_desc.bufferType == bs::vk::BufferUsage::INDIRECT_BUFFER)
 		{
 			bufferInfo.usage = VK_BUFFER_USAGE_INDIRECT_BUFFER_BIT;
+		}
+		else if (m_desc.bufferType == bs::vk::BufferUsage::TRANSFER_BUFFER)
+		{
+			bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+			allocInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
 		}
 		
 		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		
-		VmaAllocationCreateInfo allocInfo = {};
-		allocInfo.usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
-		
 		vmaCreateBuffer(m_desc.dev->getAllocator(), &bufferInfo, &allocInfo, &m_buffer, &m_allocation, nullptr);
 
-		void* bufferdata;
-		//Maps GPU memory to CPU visible address
-		vmaMapMemory(m_desc.dev->getAllocator(), m_allocation, &bufferdata);
-
-		memcpy(bufferdata, m_desc.bufferData, getSize());
-
-		vmaUnmapMemory(m_desc.dev->getAllocator(), m_allocation);
+		if(write)
+		{
+			writeBuffer(m_desc.bufferData);
+		}
 	}
 
-	void Buffer::writeBuffer(void* data)
+	void Buffer::writeBuffer(void* data, size_t size, size_t offset)
 	{
 		void* bufferdata;
+		
+		if(size == 0)
+		{
+			size = getSize();
+		}
+
 		//Maps GPU memory to CPU visible address
 		vmaMapMemory(m_desc.dev->getAllocator(), m_allocation, &bufferdata);
 
-		memcpy(bufferdata, data, getSize());
+		bufferdata = reinterpret_cast<char*>(bufferdata) + offset;
+		
+		memcpy(bufferdata, data, size);
 
 		vmaUnmapMemory(m_desc.dev->getAllocator(), m_allocation);
 	}
 
 	void Buffer::setAPIResource(VkBuffer& buffer)
 	{
-		//deleteBuffer();
+		deleteBuffer();
 		m_buffer = buffer;
 	}
 
@@ -100,4 +109,8 @@ namespace vn::vk
 		vmaDestroyBuffer(m_desc.dev->getAllocator(), m_buffer, m_allocation);
 	}
 
+	void Buffer::setMaxElements(size_t numElements)
+	{
+		m_desc.size = m_desc.stride * numElements;
+	}
 }

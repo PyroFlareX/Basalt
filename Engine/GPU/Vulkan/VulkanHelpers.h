@@ -17,7 +17,7 @@
 #include <set>
 #include <optional>
 
-namespace vn
+namespace bs
 {
 	class Device;
 }
@@ -46,8 +46,16 @@ struct VertexInputDescription
 
 struct PushConstantsStruct
 {
-	vn::vec4 textureids;
+	bs::vec4 textureids;
 };
+
+struct PushConstantsIMGUI
+{
+	bs::vec2 scale;
+	bs::vec2 translate;
+	bs::vec4 textureID;
+};
+
 
 struct SwapChainDetails
 {
@@ -60,10 +68,15 @@ struct SwapChainDetails
 
 
 
-namespace vn::vk
+namespace bs::vk
 {
 	//GLOBALS
 	extern short NUM_SWAPCHAIN_FRAMEBUFFERS;
+
+	//For Window Resizing
+	
+	extern int viewportwidth;
+	extern int viewportheight;
 
 	extern VkInstance m_instance;
 	extern VkSurfaceKHR m_surface;
@@ -79,32 +92,30 @@ namespace vn::vk
 	class RenderTargetFramebuffer;
 
 	//Creates an instance of Vulkan
-	void createInstance(std::string name);
+	void createInstance(const std::string& name);
 	//Creates a renderable surface for Vulkan
 	void createSurface(GLFWwindow* window);
 
 	void pickPhysicalDevice(VkPhysicalDevice& physicalDevice);
 	void createLogicalDevice(VkDevice& device, VkPhysicalDevice& physicalDevice, VkQueue& graphicsQueue, VkQueue& presentQueue);
 
-	void createSwapChain(VkSwapchainKHR& swapchain, vn::Device& device, SwapChainDetails& swapdetails, GLFWwindow* window);
+	void createSwapChain(VkSwapchainKHR& swapchain, bs::Device& device, SwapChainDetails& swapdetails, GLFWwindow* window);
 	void createImageViews(SwapChainDetails& swapdetails, VkDevice device);
 	void recreateSwapChain(GLFWwindow* window, VkDevice device);
 
 	void createRenderPass(VkDevice& device, SwapChainDetails& Swapdetails, VkRenderPass& renderPass);
 	void createGraphicsPipeline(VkRenderPass& renderPass,/* SwapChainDetails& swapdetails, */VkPipelineLayout& pipelineLayout, VkPipeline& graphicsPipeline, VkDevice device);
 
-	void createPipeline(vn::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout);
+	void createUIPipeline(bs::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout);
+
+	void createPipelineDefault(bs::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout);
+	void createPipeline(bs::Device& device, VkPipeline& pipeline, VkRenderPass& rpass, VkPipelineLayout& playout, VkDescriptorSetLayout& dlayout, const std::string& vertpath, const std::string& fragpath);
 
 	void createFramebuffers(VkRenderPass& renderPass, SwapChainDetails& swapdetails, VkDevice device);
-	void createCommandPool(vn::Device& device, VkCommandPool& commandPool);
-	void createCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers);
-
-	void createSecondaryCommandBuffers(VkDevice device, VkCommandPool& commandPool, SwapChainDetails& swapdetails, VkPipeline graphicsPipeline, VkRenderPass renderPass, VkCommandBuffer& commandBuffers);
-
-	void createCommandLists(VkDevice device, VkCommandPool& commandPool, RenderTargetFramebuffer& framebuffer, VkPipeline graphicsPipeline, VkRenderPass renderPass, std::vector<VkCommandBuffer>& commandBuffers, std::vector<VkCommandBuffer>& secBuffers);
-	
+	void createCommandPool(bs::Device& device, VkCommandPool& commandPool);
 
 	VertexInputDescription getVertexDescription();
+	VertexInputDescription getVertexDescriptionImGUI();
 
 
 
@@ -133,16 +144,6 @@ namespace vn::vk
 	bool checkValidationLayerSupport();
 	VkResult CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT* pCreateInfo, const VkAllocationCallbacks* pAllocator, VkDebugUtilsMessengerEXT * pDebugMessenger);
 	void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger, const VkAllocationCallbacks* pAllocator);
-
-
-	// TODO IDK HOW TO WITHOUT GLOBALS
-	void cleanup();
-
-
-	// ALSO THIS TODO
-	void cleanupSwapChain();
-
-
 
 
 	const std::vector<const char*> deviceExtensions =

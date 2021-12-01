@@ -1,28 +1,31 @@
 #pragma once
 
-#include "../Engine/Engine.h"
+#include <Types/Types.h>
 
-class Camera : public vn::Transform
+class Camera : public bs::Transform
 {
 public:
-	Camera(int Mode);
+    Camera();
+	~Camera() = default;
 
-	vn::mat4 getViewMatrix() const;
-	vn::mat4 getProjMatrix() const;
+	//Get the view matrix of the camera
+	bs::mat4 getViewMatrix() const;
+	//Get the projection matrix for the scene
+	bs::mat4 getProjMatrix() const;
 
-	void follow(vn::Transform& entity);
+	//Capture a transform to follow
+	void follow(bs::Transform& entity);
+	//Update the transform of the camera from the followed transform
 	void update();
 	
-	
-	~Camera() = default;
 private:
 	float lerp;
 	
-	//Mode 0 is default, 1 is Left Eye, 2 is Right Eye
+	//Mode 0 is default, 1 is Left Eye, 2 is Right Eye	//Or now ig for other stuff THE BOBSTER does
 	int mode;
-
-	vn::mat4 proj;
-
-	vn::Transform* p_entity;
+	//Projection matrix
+	bs::mat4 proj;
+	//Pointer to the followed entity
+	bs::Transform* entityPos;
 };
 

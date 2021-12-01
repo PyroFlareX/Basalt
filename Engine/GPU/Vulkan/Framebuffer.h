@@ -2,20 +2,20 @@
 
 #include "../../Types/Types.h"
 
-namespace vn::vk
+namespace bs::vk
 {
 	struct FramebufferData
 	{
 		std::vector<VkFramebuffer> handle;
 		VkImageView imgView;
-		vn::vec2 size;
+		bs::vec2i size;
 	};
 
 
 	class RenderTargetFramebuffer
 	{
 	public:
-		RenderTargetFramebuffer(vn::Device device, VkRenderPass& renderPass, vn::vec2 extent);
+		RenderTargetFramebuffer(bs::Device device, VkRenderPass& renderPass, bs::vec2i extent);
 
 		FramebufferData getFramebufferData();
 
@@ -31,6 +31,6 @@ namespace vn::vk
 		VmaAllocation imgAllocation;
 		VmaAllocation depthImageAllocation;
 
-		vn::vec2 m_size;
+		bs::vec2 m_size;
 	};
 }

@@ -3,14 +3,17 @@
 #include "VulkanHelpers.h"
 
 
-namespace vn
+namespace bs
 {
+
 
 	class Device
 	{
 	public:
 		Device();
+		~Device();
 
+		//Init device
 		void init();
 
 		QueueFamilyIndices getQueueFamilies();
@@ -18,18 +21,26 @@ namespace vn
 		VkDevice& getDevice();
 		VkPhysicalDevice& getPhysicalDevice() { return physDevice; }
 
+		//Submit GFX work
 		void submitWork(std::vector<VkCommandBuffer>& cmdbuffer);
+		//Submit Data/Cmd buffer to GPU
+		void submitImmediate(std::function<void(VkCommandBuffer cmd)>&& function);
+
+		//Get VMA Allocator
 		VmaAllocator& getAllocator();
 
 		VkQueue getPresentQueue();
-	private:
-		VkPhysicalDevice physDevice;
-		VkDevice device;
 
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
 
+	private:
+		VkPhysicalDevice physDevice;
+		VkDevice device;
+
 		VmaAllocator m_allocatorVMA;
+
+		VkCommandPool m_pool;
 	};
 
 }

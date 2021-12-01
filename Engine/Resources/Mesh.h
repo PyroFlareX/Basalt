@@ -4,21 +4,21 @@
 #include "../Types/Types.h"
 
 
-namespace vn
+namespace bs
 {
 	struct Vertex
 	{
-		vn::vec3 position = vn::vec3(0.0f, 0.0f, 0.0f);
-		vn::vec3 normal = vn::vec3(0.0f, 0.0f, 0.0f);
-		vn::vec2 uv = vn::vec2(0.0f, 0.0f);
+		bs::vec3 position = bs::vec3(0.0f, 0.0f, 0.0f);
+		bs::vec3 normal = bs::vec3(0.0f, 0.0f, 0.0f);
+		bs::vec2 uv = bs::vec2(0.0f, 0.0f);
 	};
 
 	struct Mesh
 	{
-		std::vector<vn::Vertex> vertices;
+		std::vector<bs::Vertex> vertices;
 		std::vector<unsigned int> indicies;
 	};
-
+	//not used in vulkan
 	struct renderInfo
 	{
 		unsigned int VAO = 0;

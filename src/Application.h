@@ -3,23 +3,24 @@
 
 #include <vector>
 #include <memory>
-#include <iostream>
 
-#include "../Engine/Engine.h"
+#include <GPU/Context.h>
+
 #include "Renderers/Renderer.h"
-#include "Camera.h"
 #include "States/Basestate.h"
-
+#include "Camera.h"
 
 class Application
 {
 public:
     Application();
+    ~Application();
 
-	//Configuration Settings
-	void setModeVR(bool haveVR) noexcept;
-
+	//Main loop
     void RunLoop();
+
+	//Get the camera
+	Camera& getCamera();
 
     //State Stuff
 
@@ -27,28 +28,44 @@ public:
 	{
 		m_states.emplace_back(std::move(state));
 	}
+	void pushBackState(std::unique_ptr<Basestate> state)
+	{
+		auto change = [&]()
+		{
+			auto* current = m_states.back().release();
+			m_states.back() = (std::move(state));
+			m_states.emplace_back(std::unique_ptr<Basestate>(current));
+		};
+		m_statechanges.emplace_back(change);
+	}
 
     void popState();
     void handleEvents();
-	Camera& getCam() 
+	
+	void requestClose()
 	{
-		return m_camera;
+		shouldClose = true;
 	}
+
 protected:
 
 private:
-    Basestate& currentState();
+    std::unique_ptr<Basestate>& currentState();
 
 	// Windowing Context
-	vn::Context m_context;
+	bs::Context* m_context;
+	bs::vk::FramebufferData framebufdata[2];
 	// Device Context
-	vn::Device m_device;
-
+	bs::Device* m_device;
+	//Camera
 	Camera m_camera;
+
     std::vector<std::unique_ptr<Basestate>> m_states;
 	Renderer* m_renderer;
-
-	bool VRmode;
+	
+	bool shouldClose = false;
+	
+	std::vector<std::function<void()>> m_statechanges;
 };
 
 

@@ -2,9 +2,9 @@
 
 
 
-namespace vn::vk
+namespace bs::vk
 {
-	RenderTargetFramebuffer::RenderTargetFramebuffer(vn::Device device, VkRenderPass& renderPass, vn::vec2 extent)
+	RenderTargetFramebuffer::RenderTargetFramebuffer(bs::Device device, VkRenderPass& renderPass, bs::vec2i extent)
 	{
 		m_size = extent;
 

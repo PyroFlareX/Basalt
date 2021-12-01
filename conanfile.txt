@@ -1,6 +1,11 @@
 [requires]
 glm/0.9.9.8
 glfw/3.3.4
+imgui/1.83
 
 [generators]
 cmake
+
+[imports]
+lib, *.lib* -> ./
+lib, *.a* -> ./

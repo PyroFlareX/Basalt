@@ -6,8 +6,12 @@
 #include "../Resources/tiny_obj_loader.h"
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
+#include <stdexcept>
+#include "../Types/Types.h"
 
-std::string vn::getFileString(const std::string & filePath)
+std::string bs::getFileString(const std::string & filePath)
 {
 	std::ifstream inFile(filePath);
 	if (!inFile.is_open())
@@ -21,7 +25,7 @@ std::string vn::getFileString(const std::string & filePath)
 	return stream.str();
 }
 
-std::vector<char> vn::readFile(const std::string & filePath)
+std::vector<char> bs::readFile(const std::string& filePath)
 {
 	std::ifstream file(filePath, std::ios::ate | std::ios::binary);
 
@@ -37,10 +41,39 @@ std::vector<char> vn::readFile(const std::string & filePath)
 
 	file.close();
 
+	/*std::ofstream f(filePath + ".h");
+	f.clear();
+	f << "static char " << "array[]" << " = {\n\t";
+	int i = 0;
+	bool start = true;
+	for(const auto c : buffer)
+	{
+		if(start)
+		{
+			start = false;
+			f << (int)c;
+			continue;
+		}
+		else
+		{
+			f << ", ";
+		}
+
+		f << (int)c;
+		i += 1;
+		if(i >= 5)
+		{
+			i = 0;
+			f << "\n\t";
+		}
+	}
+	f << std::dec << "\n};\n";
+	f.close();*/
+
 	return buffer;
 }
 
-vn::Mesh vn::loadMeshFromObj(const std::string& filepath)
+bs::Mesh bs::loadMeshFromObj(const std::string& filepath)
 	{
 		{
 			tinyobj::attrib_t attributes;
@@ -48,6 +81,7 @@ vn::Mesh vn::loadMeshFromObj(const std::string& filepath)
 			std::vector<tinyobj::material_t> materials;
 			std::string errors;
 			Mesh objMesh;
+			
 			if (!tinyobj::LoadObj(&attributes, &shapes, &materials, &errors, filepath.c_str()))
 			{
 				std::cout << errors << std::endl;
@@ -144,7 +178,7 @@ vn::Mesh vn::loadMeshFromObj(const std::string& filepath)
 					index_offset += fv;
 
 					// per-face material
-					shapes[s].mesh.material_ids[f];
+					//shapes[s].mesh.material_ids[f];
 				}
 			}
 

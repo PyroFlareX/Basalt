@@ -1,48 +1,54 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#pragma once
 
 #include "../Camera.h"
 #include "GeneralRenderer.h"
-#include "ComputeRenderer.h"
-#include "../../Engine/Engine.h"
+#include "UIRenderer.h"
+
+#include <memory>
+
+#include <Engine.h>
 
 
 class Renderer
 {
     public:
-        Renderer(vn::Device* device);
+        Renderer(bs::Device* device);
 
-		void drawObject(vn::GameObject& entity);
-		void doCompute();
+		void drawObject(bs::GameObject& entity);
+		//NOT DONE DO NOT USE
+		void drawText();
+
+		//Pass tell the subrenderers to generate list queues
 		void render(Camera& cam);
-		void finish(vn::vk::FramebufferData& fbo);
 
+		//Render to the Framebuffer
+		void finish(bs::vk::FramebufferData& fbo, int index);
+
+		//Empty drawqueues
 		void clearQueue();
 
         ~Renderer();
 
-		GeneralRenderer*	m_generalRenderer;
-		ComputeRenderer*	m_computeRenderer;
+		std::unique_ptr<GeneralRenderer>	m_generalRenderer;
+		std::unique_ptr<UIRenderer>			m_UIRenderer;
 		
+		//Push the uniform buffer and image descriptor to the gpu
 		void pushGPUData(Camera& cam);
     protected:
 
     private:
-		VkRenderPass renderpassdefault;
+		void initGUI();
 
+		VkPipeline imguipipeline;
+		VkPipelineLayout guilayout;
+
+		VkRenderPass renderpassdefault;
 		std::vector<VkCommandBuffer> m_primaryBuffers;
 		VkCommandPool m_pool;
 
-		//std::vector<vn::vk::RenderTargetFramebuffer> m_framebuffers;
-
-		vn::Device* device;
+		bs::Device* device;
 
 		VkDescriptorPool m_descpool;
 	    VkDescriptorSet m_descsetglobal;
-
-		
-		std::vector<vn::vk::Buffer*> m_descriptorBuffers;
-		
+		VkDescriptorSetLayout desclayout;
 };
-
-#endif // RENDERER_H

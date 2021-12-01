@@ -1,14 +1,14 @@
 #pragma once
 
 #include "../Camera.h"
-#include "../../Engine/Engine.h"
+#include <Engine.h>
 
 class GeneralRenderer
 {
 public:
-	GeneralRenderer(vn::Device* mainDevice, VkRenderPass* rpass, VkDescriptorSetLayout desclayout);
+	GeneralRenderer(bs::Device* mainDevice, VkRenderPass* rpass, VkDescriptorSetLayout desclayout);
 
-	void addInstance(vn::GameObject& entity);
+	void addInstance(bs::GameObject& entity);
 	void render(Camera& cam);
 
 	void clearQueue();
@@ -20,7 +20,7 @@ private:
 	//Hack bool
 	bool firstrun = false;
 
-	std::vector<vn::GameObject> m_queue;
+	std::vector<bs::GameObject> m_queue;
 	
 	// Pipeline Stuff
 
@@ -35,7 +35,7 @@ private:
 	
 	VkCommandPool m_pool;
 	std::vector<VkCommandBuffer> m_renderlist;
-	vn::Device* p_device;
+	bs::Device* p_device;
 
 };
 

@@ -1,86 +1,67 @@
 #pragma once
 
 // Main
-#include "../Registries/ResourceManager.h"
+#include <Registries/ResourceManager.h>
 
 // Types to hold
-#include "../GPU/Context.h"
-#include "../Resources/Mesh.h"
-#include "../Resources/Image.h"
-#include "../Resources/Material.h"
+#include <GPU/Context.h>
+#include <Resources/Mesh.h>
+#include <Resources/Image.h>
+#include <Resources/Material.h>
 
-namespace vn
+
+// @TODO: Possibly templatify this into 4 functions? Get, Add, GetMap, DoesExist?
+
+
+namespace bs
 {
 	class AssetManager
 	{
 	public:
-		AssetManager()
-		{
+		AssetManager();
 
-		}
+		void addTexture(bs::vk::Texture& texture, short id) noexcept;
 
-		void addTexture(vn::vk::Texture& texture, short&& id) noexcept
-		{
-			m_textures.addAsset(texture, id);
-		}
+		void addModel(bs::vk::Model& model, const std::string& id) noexcept;
+		void addModel(bs::vk::Model&& model, const std::string& id) noexcept;
 
-		void addModel(vn::vk::Model& model, std::string&& id) noexcept
-		{
-			m_models.addAsset(model, id);
-		}
+		void addBuffer(bs::vk::Buffer* buffer, const std::string& id) noexcept;
 
-		const vn::vk::Texture& getTexture(short&& id)
-		{
-			return m_textures.getAsset(std::forward<short>(id));
-		}
+		void addImg(bs::Image& img, const std::string& id) noexcept;
 
-		size_t getNumTextures() noexcept
-		{
-			return m_textures.getMap().size();
-		}
+		const bs::vk::Texture& getTexture(short id) const;
+
+		bs::vk::Texture& getTextureMutable(short id);
+
+		size_t getNumTextures() noexcept;
 		
-		std::vector<vn::vk::texture_t> getTextures()
-		{
-			std::vector<vn::vk::texture_t> textures;
+		//List of textures for pushing data to the gpu
+		const std::vector<bs::vk::texture_t>& getTextures();
 
-			for(auto& [key, value] : m_textures.getMap())
-			{
-				textures.push_back(value.getAPITextureInfo());
-			}
-			
-			/// OR ALTERNATIVE IMPL:
-			/*
-			for(auto& [key, value] : m_textures.getMap())
-			{
-				textures[key] = value.getAPITextureInfo();
-			}
-			*/
+		bs::vk::Model& getModel(const std::string& id);
 
-			return textures;
-		}
+		bs::vk::Buffer* getBuffer(const std::string& id);
 
-		vn::vk::Model& getModel(std::string&& id)
-		{
-			return m_models.getAsset(std::forward<std::string>(id));
-		}
+		bs::Image& getImage(const std::string& id);
 
-		~AssetManager()
-		{
+		
+		//Store globally necessary pointers
+		VkDescriptorSet*	pDescsetglobal;
+		
+		bool				loaded = false;
+		bool				loadedarray[8] = { false, false, false, false, false, false, false, false };
 
-		}
-
-		VkDescriptorSet* pDescsetglobal;
 	private:
 
-		ResourceManager<vn::Image> m_images;
-		ResourceManager<vn::Mesh> m_meshes;
+		ResourceManager<bs::Image> m_images;
+		ResourceManager<bs::Mesh> m_meshes;
 
-		ResourceManager<vn::vk::Texture, short> m_textures;
-		ResourceManager<vn::vk::Model> m_models;
-		ResourceManager<vn::Material> m_materials;
+		ResourceMap<bs::vk::Texture> m_textures;	//Ordered Map
+		ResourceManager<bs::vk::Model> m_models;
+		ResourceManager<bs::Material> m_materials;
+		ResourceManager<std::shared_ptr<bs::vk::Buffer>> m_buffers;
 
-		
 	};
 
-	extern AssetManager asset_manager;
+	extern AssetManager* asset_manager;
 }

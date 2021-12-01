@@ -3,10 +3,13 @@
 #include "../../Resources/Mesh.h"
 
 #include "Device.h"
-#include <stdexcept>
 
-namespace vn
+#include <stdexcept>
+#include <memory>
+
+namespace bs::vk 
 {
+	//Type of buffer
 	enum BufferUsage
 	{
 		VERTEX_BUFFER,
@@ -14,19 +17,19 @@ namespace vn
 		UNIFORM_BUFFER,
 		STORAGE_BUFFER,
 		INDIRECT_BUFFER,
+		TRANSFER_BUFFER,
 
 		BUFFER_TYPE_COUNT
 	};
-}
 
-namespace vn::vk {
-
+	//Describes the layout of the buffer
 	struct BufferDescription
 	{
-		vn::Device* dev;
-
-		vn::BufferUsage bufferType;
-		//Number of elements
+		//Device that the buffer is on
+		bs::Device* dev;
+		//Buffer Type
+		BufferUsage bufferType;
+		//Number of bytes
 		size_t size = 0;
 		//Number of bytes between elements
 		size_t stride = 0;
@@ -34,24 +37,31 @@ namespace vn::vk {
 		void* bufferData = nullptr;
 	};
 
-
+	//Wrapper for Vulkan Buffers
 	class Buffer
 	{
 	public:
 		Buffer(BufferDescription bufdesc);
 
-		size_t getStride();
-		size_t getSize();
-		size_t getNumElements();
+		size_t getStride();	//For size of subtype
+		size_t getSize(); //In bytes
+		size_t getNumElements();	//Number of indices
 
-		void uploadBuffer();
+		//Upload Buffer to allocated space in vulkan memory
+		void uploadBuffer(bool write = true);
 		// Uses buf desc size, copies the data in ``data`` to the buffer
-		void writeBuffer(void* data);
+		void writeBuffer(void* data, size_t size = 0, size_t offset = 0);
 
+		//Obvious
 		void setAPIResource(VkBuffer& buffer);
+		//Get buffer
 		VkBuffer& getAPIResource();
 
+		//Deallocate buffer
 		void deleteBuffer();
+
+		//Change description values | Does not reallocate buffer
+		void setMaxElements(size_t numElements);
 
 		~Buffer();
 	private:

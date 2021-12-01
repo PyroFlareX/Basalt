@@ -2,7 +2,7 @@
 
 #include "../Types/Types.h"
 
-namespace vn
+namespace bs
 {
     struct Material
     {
@@ -11,9 +11,9 @@ namespace vn
         short normal_id = 1; //Normal
         
         /// Values
-        vn::vec4 diffuse; //Diffuse
-        vn::vec4 ambient; //Ambient
-        vn::vec4 specular; //Specular
+        bs::vec4 diffuse; //Diffuse
+        bs::vec4 ambient; //Ambient
+        bs::vec4 specular; //Specular
 
 
     };
