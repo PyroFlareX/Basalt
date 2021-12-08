@@ -1,18 +1,15 @@
-#include "Context.h"
+#include "ContextBase.h"
 
-#ifdef BASE_CONTEXT
+#include <GLFW/glfw3.h>
 #include <imgui.h>
 
 namespace bs
 {
-	ContextBase::ContextBase(const std::string& title, bs::vec2i size)	:	m_windowname(title), m_size(size)
+	ContextBase::ContextBase(const std::string& title, const bs::vec2i& size)	:	m_window_name(title), m_size(size)
 	{
 		glfwInit();
 
-		// glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-
-		m_window = glfwCreateWindow(m_size.x, m_size.y, m_windowname.c_str(), nullptr, nullptr);
-		glfwSetWindowUserPointer(m_window, this);
+		m_window = nullptr;
 	}
 
 	ContextBase::~ContextBase()
@@ -55,10 +52,11 @@ namespace bs
 
 	GLFWwindow* ContextBase::getContext()
 	{
+		assert(getContext != nullptr);
 		return m_window;
 	}
 	
-	void ContextBase::setIcon(Image& icon)
+	void ContextBase::setIcon(const Image& icon)
 	{
 		const GLFWimage img
 		{
@@ -67,18 +65,23 @@ namespace bs
 			.pixels = (unsigned char*)icon.getPixelsPtr()
 		};
 
-		glfwSetWindowIcon(getContext(), 1, &img);	
+		glfwSetWindowIcon(getContext(), 1, &img);
 	}
 	
 	void ContextBase::setTitleName(const std::string& title)
 	{
-		m_windowname = title;
-		glfwSetWindowTitle(m_window, m_windowname.c_str());
+		m_window_name = title;
+		glfwSetWindowTitle(m_window, m_window_name.c_str());
 	}
 	
 	const std::string& ContextBase::getWindowTitle() const
 	{
-		return m_windowname;
+		return m_window_name;
+	}
+
+	const bs::vec2i& ContextBase::getWindowSize() const
+	{
+		return m_size;
 	}
 
 	bool ContextBase::needsRefresh() const
@@ -93,12 +96,12 @@ namespace bs
 
 	void ContextBase::initImGui()
 	{
-		//Start IMGUI init
+		//Start ImGui init
 		IMGUI_CHECKVERSION();
 		auto* ctximgui = ImGui::CreateContext();
 		ImGui::SetCurrentContext(ctximgui);
 
-		ImGuiIO& io = ImGui::GetIO();
+		auto& io = ImGui::GetIO();
 
 		io.DisplaySize = ImVec2(static_cast<float>(m_size.x), static_cast<float>(m_size.y));
 		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
@@ -117,5 +120,3 @@ namespace bs
 		ImGui::StyleColorsDark();
 	}
 }
-
-#endif

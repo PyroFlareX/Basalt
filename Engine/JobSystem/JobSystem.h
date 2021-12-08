@@ -80,11 +80,6 @@ namespace bs
 	public:
 		JobSystem();
 		~JobSystem();
-
-		///Main Use Functions
-
-		//Returns a Job from a function pointer and parameters, does not add the job to the list
-		Job createJob(JobFn job, void** data = nullptr) const noexcept;
 		
 		//Schedule a job
 		void schedule(Job job);

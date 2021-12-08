@@ -12,12 +12,16 @@ Application::Application()	:	shouldClose(false)
 	m_states.emplace_back(std::make_unique<Menustate>(*this));
 	
 	// Needed for setup
-	m_context = new bs::Context("Basalt");
+	auto* api_context = new bs::VulkanContext("Basalt", bs::vec2i{1280, 720});
+	m_context = api_context;
+
 	m_device = new bs::Device();
-	m_context->setDeviceptr(m_device);
+	api_context->setDevicePtr(m_device);
 	m_context->initAPI();
 
-	m_renderer = new Renderer(m_device, m_context->getGenericRenderpass());
+	m_context->setSwapchainStuff(&m_renderFramebuffer);
+
+	m_renderer = new Renderer(m_device, api_context->getGenericRenderpass());
 }
 
 Application::~Application()
@@ -41,7 +45,7 @@ void Application::RunLoop()
 	float dt = 0;
 	int frames = 0;
 
-	const bs::vec2i winSize = bs::vec2i(bs::vk::viewportwidth, bs::vk::viewportheight);
+	const bs::vec2i winSize = m_context->getWindowSize();
 
 	//Setting icon for the window
 	bs::Image icon;
@@ -51,8 +55,8 @@ void Application::RunLoop()
 //===================================================================================	
 		
 	//The handle to the swap chain image to render to
-	m_renderFramebuffer.handle = m_context->m_scdetails.swapChainFramebuffers;
-	m_renderFramebuffer.imgView = m_context->m_scdetails.swapChainImageViews.at(0);
+	// m_renderFramebuffer.handle = m_context->m_scdetails.swapChainFramebuffers;
+	// m_renderFramebuffer.imgView = m_context->m_scdetails.swapChainImageViews.at(0);
 	m_renderFramebuffer.size = winSize;
 
 //===================================================================================
@@ -85,7 +89,6 @@ void Application::RunLoop()
 		current.lateUpdate(m_camera);
 		m_camera.update();
 		jobSystem.wait(0);
-
 
 		/// Draw objects from gamestate
 		current.render(*m_renderer);
@@ -141,12 +144,14 @@ std::unique_ptr<Basestate>& Application::currentState()
 
 void Application::handleEvents()
 {
-	if(m_context->resized || m_context->refresh)	//Checks if the framebuffer data needs to be updated
+	if(m_context->needsRefresh())	//Checks if the framebuffer data needs to be updated
 	{
-		m_renderFramebuffer.size = bs::vec2i(bs::vk::viewportwidth, bs::vk::viewportheight);
-		m_renderFramebuffer.handle = m_context->m_scdetails.swapChainFramebuffers;	//Bc the handle changed, this must be changed
+		//Bc the handle changed, this must be changed
+		//Update the handles	
 
-		m_context->refresh = false;
+		m_context->setSwapchainStuff(&m_renderFramebuffer);
+
+		m_context->setRefreshCompleted();
 	}
 
 	for(const auto change : m_statechanges)

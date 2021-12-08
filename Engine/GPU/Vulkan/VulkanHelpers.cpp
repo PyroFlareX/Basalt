@@ -1,11 +1,15 @@
 #include "VulkanHelpers.h"
 
+//Engine type resources
 #include "../../Util/Loaders.h"
+#include "../../Resources/Mesh.h"
+
+//Graphics stuff
 #include "Device.h"
 #include "Framebuffer.h"
 
+//UI / Shaders
 #include <imgui.h>
-
 #include "shaderBinaries.h"
 
 namespace bs::vk
@@ -28,7 +32,7 @@ namespace bs::vk
 	u32 viewportheight = 720;
 
 
-	void createInstance(const std::string& name)
+	VkInstance createInstance(const std::string& name)
 	{
 		if(validationlayers && !checkValidationLayerSupport()) 
 		{
@@ -47,13 +51,13 @@ namespace bs::vk
 		createInfo.pApplicationInfo = &appInfo;
 
 		auto extensions = getRequiredExtensions();
-		createInfo.enabledExtensionCount = static_cast<uint32_t>(extensions.size());
+		createInfo.enabledExtensionCount = static_cast<u32>(extensions.size());
 		createInfo.ppEnabledExtensionNames = extensions.data();
 
 		VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
 		if (validationlayers) 
 		{
-			createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
+			createInfo.enabledLayerCount = static_cast<u32>(validationLayers.size());
 			createInfo.ppEnabledLayerNames = validationLayers.data();
 
 			populateDebugMessengerCreateInfo(debugCreateInfo);
@@ -65,17 +69,21 @@ namespace bs::vk
 			createInfo.pNext = nullptr;
 		}
 
-		if (vkCreateInstance(&createInfo, nullptr, &m_instance) != VK_SUCCESS) 
+		VkInstance instance;
+		if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("Failed to create instance!");
 		}
+
+		m_instance = instance; //@TODO: Think about undoing this?
+		return instance;
 	}
 
 	void createSurface(GLFWwindow* window)
 	{
 		if (glfwCreateWindowSurface(m_instance, window, nullptr, &m_surface) != VK_SUCCESS)
 		{
-			throw std::runtime_error("failed to create window surface!");
+			throw std::runtime_error("Failed to create window surface!");
 		}
 	}
 

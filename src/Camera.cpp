@@ -2,9 +2,8 @@
 
 #include <Engine.h>
 
-Camera::Camera()
+Camera::Camera()	:	lerp(2.5f)
 {
-	lerp = 2.5f;
 	proj = glm::perspective(glm::radians(80.0f), (float)bs::vk::viewportwidth / (float)bs::vk::viewportheight, 0.001f, 1000000.0f);
 	pos = bs::vec3(0.0f, 0.0f, 1.0f);
 	rot = bs::vec3(0.0f);
@@ -53,13 +52,15 @@ void Camera::update()
 {
 	pos = entityPos->pos;
 	rot = entityPos->rot;
-	if (rot.x > 90.0f) { rot.x = 89.9f; }
-	if (rot.x < -90.0f) { rot.x = -89.9f; }
+
+	rot.x = std::clamp(rot.x, -89.9f, 89.9f);
 
 	if (rot.y > 180.0f) { rot.y = -180.0f; }
 	if (rot.y < -180.0f) { rot.y = 180.0f; }
 
 	entityPos->rot = rot;
+
+	proj = glm::perspective(glm::radians(80.0f), (float)bs::vk::viewportwidth / (float)bs::vk::viewportheight, 0.001f, 1000000.0f);
 }
 
 

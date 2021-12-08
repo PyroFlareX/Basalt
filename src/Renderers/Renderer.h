@@ -12,9 +12,9 @@ public:
 	~Renderer();
 
 	void drawObject(const bs::GameObject& entity);
-
 	//NOT DONE DO NOT USE
 	void drawText();
+	
 
 	//Pass tell the subrenderers to generate list queues
 	void render(Camera& cam);

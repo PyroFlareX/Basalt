@@ -69,6 +69,13 @@ Renderer::Renderer(bs::Device* renderingDevice, VkRenderPass genericPass)	: devi
 		.count = (u32)bs::asset_manager->getNumTextures(),
 	});
 
+	// descriptorInfos.emplace_back(DescriptorSetInfo
+	// {
+	// 	.type = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,
+	// 	.bindingSlot = slots++,
+	// 	.count = 1,
+	// });
+
 	// Descriptor Pool
 	initDescriptorPool(descriptorInfos);
 	// Descriptor Set
@@ -79,7 +86,7 @@ Renderer::Renderer(bs::Device* renderingDevice, VkRenderPass genericPass)	: devi
 
 	//Create General Renderer
 	m_generalRenderer = std::make_unique<GeneralRenderer>(device, m_renderpassdefault, desclayout);
-
+	
 	//Create the UI Renderer
 	m_UIRenderer = std::make_unique<UIRenderer>(device, m_renderpassdefault, desclayout);
 }
@@ -141,6 +148,7 @@ void Renderer::drawText()
 {
 	m_UIRenderer->addText("Example Text", {500, 500});
 }
+
 
 void Renderer::render(Camera& cam)
 {
@@ -221,6 +229,7 @@ void Renderer::finish(bs::vk::FramebufferData& fbo, int index)
 		 * Order: (if/when it matters, depth buffer makes this partially irrelevant)
 		 * #1: General Renderer
 		 * ...
+		 * ...
 		 * The others
 		 * ...
 		 * #end: UI Renderer
@@ -250,6 +259,7 @@ void Renderer::finish(bs::vk::FramebufferData& fbo, int index)
 void Renderer::clearQueue()
 {
 	m_generalRenderer->clearQueue();
+	
 	vkResetCommandPool(device->getDevice(), m_pool, VK_COMMAND_POOL_RESET_RELEASE_RESOURCES_BIT);
 }
 
@@ -492,6 +502,7 @@ void Renderer::initDescriptorSetBuffers(const std::vector<DescriptorSetInfo>& se
 		.range = mvp_buffer->getSize(), // 192
 	};
 
+
 	//To write the actual descriptor set
 	VkWriteDescriptorSet writeSetsArray[numDescriptors] = {};
 
@@ -500,6 +511,12 @@ void Renderer::initDescriptorSetBuffers(const std::vector<DescriptorSetInfo>& se
 	writeSetsArray[0].dstBinding = 0;
 	writeSetsArray[0].descriptorCount = 1;
 	writeSetsArray[0].pBufferInfo = &MVPBufferWrite;
+
+	// writeSetsArray[1] = basicWrite;
+	// writeSetsArray[1].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	// writeSetsArray[1].dstBinding = 1;
+	// writeSetsArray[1].descriptorCount = 1;
+	// writeSetsArray[1].pBufferInfo = &textureBufferWrite;
 
 	vkUpdateDescriptorSets(device->getDevice(), 1, &writeSetsArray[0], 0, nullptr);
 }

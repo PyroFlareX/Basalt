@@ -19,14 +19,13 @@ namespace bs
 		m_threads.shrink_to_fit();
 	}
 
-	Job JobSystem::createJob(JobFn task, void** data) const noexcept
-	{
-		return Job(task, *const_cast<Counter*>(&m_main_counter), data);
-	}
-
 	void JobSystem::schedule(Job job)
 	{
-		job.counter = &m_main_counter;
+		if(job.counter == nullptr)
+		{
+			job.counter = &m_main_counter;
+		}
+
 		*job.counter++;
 		normalPriority.emplace(job);
 	}
@@ -40,7 +39,11 @@ namespace bs
 
 	void JobSystem::scheduleHighPriority(Job job)
 	{
-		job.counter = &m_main_counter;
+		if(job.counter == nullptr)
+		{
+			job.counter = &m_main_counter;
+		}
+		
 		*job.counter++;
 		highPriority.emplace(job);
 	}
@@ -54,7 +57,11 @@ namespace bs
 
 	void JobSystem::scheduleLowPriority(Job job)
 	{
-		job.counter = &m_main_counter;
+		if(job.counter == nullptr)
+		{
+			job.counter = &m_main_counter;
+		}
+		
 		*job.counter++;
 		lowPriority.emplace(job);
 	}
@@ -68,7 +75,11 @@ namespace bs
 
 	void JobSystem::scheduleBackground(Job job)
 	{
-		job.counter = &m_background_counter;
+		if(job.counter == nullptr)
+		{
+			job.counter = &m_background_counter;
+		}
+		
 		*job.counter++;
 		nonCounterJobs.emplace(job);
 	}
@@ -95,19 +106,23 @@ namespace bs
 				Job job;
 				if(highPriority.try_pop(job))
 				{
-					job.execute();
+					job.job_task(job);
+					job.counter--;
 				}
 				else if(normalPriority.try_pop(job))
 				{
-					job.execute();
+					job.job_task(job);
+					job.counter--;
 				}
 				else if(lowPriority.try_pop(job))
 				{
-					job.execute();
+					job.job_task(job);
+					job.counter--;
 				}
 				else if(nonCounterJobs.try_pop(job))
 				{
-					job.execute();
+					job.job_task(job);
+					job.counter--;
 				}
 			}
 		}
@@ -157,22 +172,25 @@ namespace bs
 		while(m_running)
 		{
 			Job job;
-
 			if(highPriority.try_pop(job))
 			{
-				job.execute();
+				job.job_task(job);
+				job.counter--;
 			}
 			else if(normalPriority.try_pop(job))
 			{
-				job.execute();
+				job.job_task(job);
+				job.counter--;
 			}
 			else if(lowPriority.try_pop(job))
 			{
-				job.execute();
+				job.job_task(job);
+				job.counter--;
 			}
 			else if(nonCounterJobs.try_pop(job))
 			{
-				job.execute();
+				job.job_task(job);
+				job.counter--;
 			}
 			else
 			{

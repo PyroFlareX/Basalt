@@ -4,7 +4,7 @@
 #include <vector>
 #include <memory>
 
-#include <GPU/Context.h>
+#include <GPU/GPU.h>
 
 #include "Renderers/Renderer.h"
 #include "States/Basestate.h"
@@ -24,17 +24,26 @@ public:
 
     //State Stuff
 
+	//Push a state to the back of the queue
 	void pushState(std::unique_ptr<Basestate> state)
 	{
 		m_states.emplace_back(std::move(state));
 	}
+
+	//Safe add
 	void pushBackState(std::unique_ptr<Basestate> state)
 	{
 		auto change = [&]()
 		{
-			auto* current = m_states.back().release();
-			m_states.back() = (std::move(state));
-			m_states.emplace_back(std::unique_ptr<Basestate>(current));
+			m_states.emplace_back(std::move(state));
+			//Swap the back two
+			if(m_states.size() >= 2)
+			{
+				auto& secondToLast = m_states.at(m_states.size() - 2);
+				auto& last = m_states.back();
+
+				secondToLast.swap(last);
+			}
 		};
 		m_statechanges.emplace_back(change);
 	}
@@ -55,7 +64,7 @@ private:
 	bs::vk::FramebufferData m_renderFramebuffer;
 
 	// Windowing Context
-	bs::Context* m_context;
+	bs::ContextBase* m_context;
 	// Device Context
 	bs::Device* m_device;
 	//Renderer

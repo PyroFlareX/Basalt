@@ -1,11 +1,6 @@
 #pragma once
 
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-
-#include "VMA/vk_mem_alloc.h"
-
-#include "../../Resources/Mesh.h"
+#include "../../Types/Types.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -16,6 +11,11 @@
 #include <cstdint>
 #include <set>
 #include <optional>
+
+#define GLFW_INCLUDE_VULKAN
+#include <GLFW/glfw3.h>
+
+#include "VMA/vk_mem_alloc.h"
 
 namespace bs
 {
@@ -95,7 +95,7 @@ namespace bs::vk
 	class RenderTargetFramebuffer;
 
 	//Creates an instance of Vulkan
-	void createInstance(const std::string& name);
+	VkInstance createInstance(const std::string& name);
 	//Creates a renderable surface for Vulkan
 	void createSurface(GLFWwindow* window);
 

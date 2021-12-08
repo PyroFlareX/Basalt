@@ -4,7 +4,7 @@
 #include <Registries/ResourceManager.h>
 
 // Types to hold
-#include <GPU/Context.h>
+#include <GPU/GPU.h>
 #include <Resources/Mesh.h>
 #include <Resources/Image.h>
 #include <Resources/Material.h>

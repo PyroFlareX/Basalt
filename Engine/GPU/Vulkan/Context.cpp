@@ -7,85 +7,72 @@
 
 namespace bs
 {
-	Context::Context(const std::string& title)	: currentFrame(0), m_size(1280, 720), m_windowname(title)
+	VulkanContext::VulkanContext(const std::string& title, const bs::vec2i& window_resolution)	:	ContextBase(title, window_resolution), currentFrame(0)
 	{
-		glfwInit();
-
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-		m_window = glfwCreateWindow(bs::vk::viewportwidth, bs::vk::viewportheight, m_windowname.c_str(), nullptr, nullptr);
+		m_window = glfwCreateWindow( m_size.x, m_size.y, m_window_name.c_str(), nullptr, nullptr);
 		glfwSetWindowUserPointer(m_window, this);
 	}
 
-	Context::~Context()
+	VulkanContext::~VulkanContext()
 	{
 		//Local objects destruction
 		//Destroy Depth Image
-		vmaDestroyImage(m_device->getAllocator(), m_depthImg, m_depthImageAllocation);
-		vkDestroyImageView(m_device->getDevice(), m_depthImgView, nullptr);
+		vmaDestroyImage(p_device->getAllocator(), m_depthImg, m_depthImageAllocation);
+		vkDestroyImageView(p_device->getDevice(), m_depthImgView, nullptr);
 		//Destroy Render Pass
-		vkDestroyRenderPass(m_device->getDevice(), m_renderpass, nullptr);
+		vkDestroyRenderPass(p_device->getDevice(), m_renderpass, nullptr);
 
 		///Beginning full destruction
 
 		//Destroy Sync Primitives
 		for (auto& fence : bs::vk::inFlightFences)
 		{
-			vkDestroyFence(m_device->getDevice(), fence, nullptr);
+			vkDestroyFence(p_device->getDevice(), fence, nullptr);
 		}
 		for (auto& semaphore : bs::vk::renderFinishedSemaphores) 
 		{
-			vkDestroySemaphore(m_device->getDevice(), semaphore, nullptr);
+			vkDestroySemaphore(p_device->getDevice(), semaphore, nullptr);
 		}
 		for (auto& semaphore : bs::vk::imageAvailableSemaphores) 
 		{
-			vkDestroySemaphore(m_device->getDevice(), semaphore, nullptr);
+			vkDestroySemaphore(p_device->getDevice(), semaphore, nullptr);
 		}
 
 		//Destroy swapchain framebuffers & image views
 		for (int i = 0; i < m_scdetails.swapChainFramebuffers.size(); ++i) 
 		{
-			vkDestroyFramebuffer(m_device->getDevice(), m_scdetails.swapChainFramebuffers[i], nullptr);
+			vkDestroyFramebuffer(p_device->getDevice(), m_scdetails.swapChainFramebuffers[i], nullptr);
 		}
 
 		for (int i = 0; i < m_scdetails.swapChainImageViews.size(); ++i)
 		{
-			vkDestroyImageView(m_device->getDevice(), m_scdetails.swapChainImageViews[i], nullptr);
+			vkDestroyImageView(p_device->getDevice(), m_scdetails.swapChainImageViews[i], nullptr);
 		}
 		//Destroy swapchain and render surface
-		vkDestroySwapchainKHR(m_device->getDevice(), m_swapchain, nullptr);
+		vkDestroySwapchainKHR(p_device->getDevice(), m_swapchain, nullptr);
 		vkDestroySurfaceKHR(bs::vk::m_instance, bs::vk::m_surface, nullptr);
 
-		m_device->destroy();
-
+		p_device->destroy();
+		
+		//glfwDestroyWindow(m_window);
+		//glfwTerminate();
+		
 		vkDestroyInstance(bs::vk::m_instance, nullptr);
-		glfwDestroyWindow(m_window);
-		glfwTerminate();
 	}
 
-	void Context::setIcon(Image& icon)
+	void VulkanContext::clear()
 	{
-		//Make the Window Icon Something
-		const GLFWimage img
-		{
-			.width = icon.getSize().x,
-			.height = icon.getSize().y,
-			.pixels = (unsigned char*)icon.getPixelsPtr()
-		};
+		ContextBase::clear();
 
-		glfwSetWindowIcon(getContext(), 1, &img);	
-	}
-
-	void Context::clear()
-	{
-		glfwPollEvents();
 		// Acquire the INDEX into the swapchain for the next image
-		VkResult result = vkAcquireNextImageKHR(m_device->getDevice(), m_swapchain, UINT64_MAX, bs::vk::imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
+		VkResult result = vkAcquireNextImageKHR(p_device->getDevice(), m_swapchain, UINT64_MAX, bs::vk::imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 
 		if(result == VK_ERROR_OUT_OF_DATE_KHR) 
 		{
 			recreateSwapchain();
-			refresh = true;
+			m_needsRefresh = true;
 		} 
 		else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
@@ -93,8 +80,9 @@ namespace bs
 		}
 	}
 
-	void Context::update()
+	void VulkanContext::update()
 	{
+		ContextBase::update();
 		// Waits to present until the "render finished" semaphore (signal) is "signaled" (when the render is done, the semaphore is triggered by)
 		VkSemaphore signalSemaphore = bs::vk::renderFinishedSemaphores[currentFrame];
 
@@ -117,12 +105,12 @@ namespace bs
 		};
 
 		// Submit Image that just finished rendering to the presentation surface
-		const VkResult result = vkQueuePresentKHR(m_device->getPresentQueue(), &presentInfo);
+		const VkResult result = vkQueuePresentKHR(p_device->getPresentQueue(), &presentInfo);
 
 		if(result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR) 
 		{
 			recreateSwapchain();
-			refresh = true;
+			m_needsRefresh = true;
 		} 
 		else if(result != VK_SUCCESS) 
 		{
@@ -133,16 +121,18 @@ namespace bs
 		currentFrame = (currentFrame + 1) % bs::vk::NUM_SWAPCHAIN_FRAMEBUFFERS;
 	}
 
-	void Context::close()
+	void VulkanContext::close()
 	{
-		
+		ContextBase::close();
 	}
 
-	void Context::initAPI()
+	void VulkanContext::initAPI()
 	{
+		ContextBase::initAPI();
+
 		bs::vk::createInstance("Bathsalts");
 		bs::vk::createSurface(m_window);
-		m_device->init();
+		p_device->init();
 
 		createContextRenderpass();
 		createSwapchain();
@@ -162,48 +152,28 @@ namespace bs
 			.flags = VK_FENCE_CREATE_SIGNALED_BIT
 		};
 
-		for(auto i = 0; i < bs::vk::NUM_SWAPCHAIN_FRAMEBUFFERS; i++) 
+		for(auto i = 0; i < bs::vk::NUM_SWAPCHAIN_FRAMEBUFFERS; ++i) 
 		{
-			if(vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &bs::vk::imageAvailableSemaphores[i]) != VK_SUCCESS ||
-				vkCreateSemaphore(m_device->getDevice(), &semaphoreInfo, nullptr, &bs::vk::renderFinishedSemaphores[i]) != VK_SUCCESS ||
-				vkCreateFence(m_device->getDevice(), &fenceInfo, nullptr, &bs::vk::inFlightFences[i]) != VK_SUCCESS)
+			if(	vkCreateSemaphore(p_device->getDevice(), &semaphoreInfo, nullptr, &bs::vk::imageAvailableSemaphores[i]) != VK_SUCCESS ||
+				vkCreateSemaphore(p_device->getDevice(), &semaphoreInfo, nullptr, &bs::vk::renderFinishedSemaphores[i]) != VK_SUCCESS ||
+				vkCreateFence(p_device->getDevice(), &fenceInfo, nullptr, &bs::vk::inFlightFences[i]) != VK_SUCCESS)
 			{
 				throw std::runtime_error("Failed to create synchronization objects for a frame!");
 			}
 		}
-
-		initGui();
 	}
 
-	bool Context::isOpen() const
+	void VulkanContext::setDevicePtr(Device* device_ptr)
 	{
-		// return (glfwWindowShouldClose(m_window) != GLFW_TRUE);
-		if(glfwWindowShouldClose(m_window))
-		{
-			return false;
-		}
-		else
-		{
-			return true;
-		}
+		p_device = device_ptr;
 	}
 
-	GLFWwindow* Context::getContext()
-	{
-		return m_window;
-	}
-
-	void Context::setDeviceptr(Device* p_device)
-	{
-		m_device = p_device;
-	}
-
-	VkRenderPass Context::getGenericRenderpass() const
+	VkRenderPass VulkanContext::getGenericRenderpass() const
 	{
 		return m_renderpass;
 	}
 
-	void Context::initGui()
+	void VulkanContext::initImGui()
 	{
 		//Start IMGUI init
 		IMGUI_CHECKVERSION();
@@ -229,21 +199,21 @@ namespace bs
 		ImGui::StyleColorsDark();
 	}
 
-	void Context::createSwapchain()
+	void VulkanContext::createSwapchain()
 	{
 		//Create Swapchain
-		bs::vk::createSwapChain(m_swapchain, *m_device, m_scdetails, m_window);
+		bs::vk::createSwapChain(m_swapchain, *p_device, m_scdetails, m_window);
 
 		//Create imageviews
-		bs::vk::createImageViews(m_scdetails, m_device->getDevice());
+		bs::vk::createImageViews(m_scdetails, p_device->getDevice());
 
 		createDepthbuffer();
 
 		//Create framebuffer
-		bs::vk::createFramebuffersWithDepth(getGenericRenderpass(), m_scdetails, m_device->getDevice(), m_depthImgView);
+		bs::vk::createFramebuffersWithDepth(getGenericRenderpass(), m_scdetails, p_device->getDevice(), m_depthImgView);
 	}
 		
-	void Context::createContextRenderpass()
+	void VulkanContext::createContextRenderpass()
 	{
 		//Attachment to draw colors
 		constexpr VkAttachmentDescription colorAttachment
@@ -315,7 +285,7 @@ namespace bs
 		renderPassInfo.pDependencies = &dependency;
 
 		VkRenderPass renderpass;
-		if (vkCreateRenderPass(m_device->getDevice(), &renderPassInfo, nullptr, &renderpass) != VK_SUCCESS) 
+		if (vkCreateRenderPass(p_device->getDevice(), &renderPassInfo, nullptr, &renderpass) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("Failed to create render pass!");
 		}
@@ -323,53 +293,51 @@ namespace bs
 		m_renderpass = renderpass;
 	}
 
-	void Context::recreateSwapchain()
+	void VulkanContext::recreateSwapchain()
 	{
-		int width = 0, height = 0;
-		glfwGetFramebufferSize(m_window, &width, &height);
-		while (width == 0 || height == 0) 
+		bs::vec2i size{0, 0};
+		glfwGetFramebufferSize(m_window, &size.x, &size.y);
+		while (size.x == 0 || size.y == 0) 
 		{
-			glfwGetFramebufferSize(m_window, &width, &height);
+			glfwGetFramebufferSize(m_window, &size.x, &size.y);
 			glfwWaitEvents();
 		}
 		
-		bs::vk::viewportwidth = width;
-		bs::vk::viewportheight = height;
-		m_size.x = width;
-		m_size.y = height;
+		bs::vk::viewportwidth = size.x;
+		bs::vk::viewportheight = size.y;
+		m_size = size;
+		ImGui::GetIO().DisplaySize = { static_cast<float>(m_size.x), static_cast<float>(m_size.y) };
 
-		vkDeviceWaitIdle(m_device->getDevice());
+		vkDeviceWaitIdle(p_device->getDevice());
 
 		//Cleanup swapchain + stuff
 		for(auto i = 0; i < m_scdetails.swapChainFramebuffers.size(); ++i) 
 		{
-			vkDestroyFramebuffer(m_device->getDevice(), m_scdetails.swapChainFramebuffers[i], nullptr);
+			vkDestroyFramebuffer(p_device->getDevice(), m_scdetails.swapChainFramebuffers[i], nullptr);
 		}
 
 		for(auto i = 0; i < m_scdetails.swapChainImageViews.size(); ++i)
 		{
-			vkDestroyImageView(m_device->getDevice(), m_scdetails.swapChainImageViews[i], nullptr);
+			vkDestroyImageView(p_device->getDevice(), m_scdetails.swapChainImageViews[i], nullptr);
 		}
 
 		//Clean depth buffer
-		vmaDestroyImage(m_device->getAllocator(), m_depthImg, m_depthImageAllocation);
-		vkDestroyImageView(m_device->getDevice(), m_depthImgView, nullptr);
+		vmaDestroyImage(p_device->getAllocator(), m_depthImg, m_depthImageAllocation);
+		vkDestroyImageView(p_device->getDevice(), m_depthImgView, nullptr);
 		
-		vkDestroySwapchainKHR(m_device->getDevice(), m_swapchain, nullptr);
+		vkDestroySwapchainKHR(p_device->getDevice(), m_swapchain, nullptr);
 
 		//Recreate swapchain + stuff
-		bs::vk::createSwapChain(m_swapchain, *m_device, m_scdetails, m_window);
-		bs::vk::createImageViews(m_scdetails, m_device->getDevice());
+		bs::vk::createSwapChain(m_swapchain, *p_device, m_scdetails, m_window);
+		bs::vk::createImageViews(m_scdetails, p_device->getDevice());
 		createDepthbuffer();
 
-		bs::vk::createFramebuffersWithDepth(getGenericRenderpass(), m_scdetails, m_device->getDevice(), m_depthImgView);
+		bs::vk::createFramebuffersWithDepth(getGenericRenderpass(), m_scdetails, p_device->getDevice(), m_depthImgView);
 
-		resized = false;
-		
-		ImGui::GetIO().DisplaySize = ImVec2(static_cast<float>(bs::vk::viewportwidth), static_cast<float>(bs::vk::viewportheight));
+		m_wasResized = false;
 	}
 
-	void Context::createDepthbuffer()
+	void VulkanContext::createDepthbuffer()
 	{
 		VmaAllocationCreateInfo imgAllocInfo = {};
 		imgAllocInfo.usage = VMA_MEMORY_USAGE_GPU_ONLY;
@@ -389,7 +357,7 @@ namespace bs
 		// We will sample directly from the depth attachment
 		depthImage.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 
-		vmaCreateImage(m_device->getAllocator(), &depthImage, &imgAllocInfo, &m_depthImg, &m_depthImageAllocation, nullptr);
+		vmaCreateImage(p_device->getAllocator(), &depthImage, &imgAllocInfo, &m_depthImg, &m_depthImageAllocation, nullptr);
 
 		// CREATE DEPTH VIEW
 		VkImageViewCreateInfo depthViewInfo{};
@@ -407,7 +375,7 @@ namespace bs
 		depthViewInfo.subresourceRange.baseArrayLayer = 0;
 		depthViewInfo.subresourceRange.layerCount = 1;
 
-		if(vkCreateImageView(m_device->getDevice(), &depthViewInfo, nullptr, &m_depthImgView) != VK_SUCCESS)
+		if(vkCreateImageView(p_device->getDevice(), &depthViewInfo, nullptr, &m_depthImgView) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create depth image views!");
 		}
@@ -415,7 +383,7 @@ namespace bs
 
 	void resizeCallback(GLFWwindow* window, int width, int height)
 	{
-		auto context = reinterpret_cast<Context*>(glfwGetWindowUserPointer(window));
-		context->resized = true;
+		auto context = static_cast<VulkanContext*>(glfwGetWindowUserPointer(window));
+		context->m_wasResized = true;
 	}
 }

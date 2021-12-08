@@ -15,7 +15,7 @@
 #include "Input/Input.h"
 
 #include "JobSystem/JobSystem.h"
-#include "GPU/Context.h"
+#include "GPU/GPU.h"
 
 #include <AssetManager/AssetManager.h>
 

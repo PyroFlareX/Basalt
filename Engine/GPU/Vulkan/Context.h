@@ -1,19 +1,24 @@
 #pragma once
 
+#include "../ContextBase.h"
+
+//Include all the Vulkan stuff
 #include "Device.h"
 #include "Framebuffer.h"
 #include "VModel.h"
 #include "Texture.h"
 
+
 namespace bs
 {
-	class Context
+	class VulkanContext	:	public ContextBase
 	{
 	public:
-		Context(const std::string& title);
-		~Context();
+		VulkanContext(const std::string& title, const bs::vec2i& window_resolution);
+		~VulkanContext();
 		
-		void setIcon(Image& icon);
+		//Init API, it is vulkan for this
+		void initAPI();
 
 		//Clear screen
 		void clear();
@@ -21,49 +26,48 @@ namespace bs
 		void update();
 		//Close window 
 		void close();
-		//Init api, vulkan here
-		void initAPI();
 
-		//Checks if the window is open
-		bool isOpen() const;
+		//Temp
+		// @TODO: Make something along the lines of "createWindowFromDevice" or something
+		void setDevicePtr(Device* device_ptr) override;
 
-		GLFWwindow* getContext();
-
-		void setDeviceptr(Device* p_device);
+		//Temp but semi permanant
+		void setSwapchainStuff(void* ptr) override
+		{
+			auto& framebuf = *reinterpret_cast<vk::FramebufferData*>(ptr);
+		
+			framebuf.handle =	m_scdetails.swapChainFramebuffers;
+			framebuf.imgView =	m_scdetails.swapChainImageViews.at(0);
+			framebuf.size = 	getWindowSize();
+		}
 
 		VkRenderPass getGenericRenderpass() const;
 
-		SwapChainDetails m_scdetails;
-
-		bool resized = false;	//For Callback / internal use
-		bool refresh = false;	//To let other stuff know to refresh its references to the render framebuffer
 	private:
-		///Internal Convenience functions
+		//Inits ImGui
+		void initImGui();
 
-		//Inits imgui
-		void initGui();
-
+		//Initializes the swapchain
 		void createSwapchain();
-		
-		void createContextRenderpass();
-		
-		void recreateSwapchain();
+		//Initializes the depthbuffer
 		void createDepthbuffer();
 
-		///Window Vars
-		//Window Handle
-		GLFWwindow* m_window;
-		//Device ptr
-		Device* m_device;
-		//Window title
-		const std::string m_windowname;
-		//Dimensions
-		bs::vec2i m_size;
+		//Destroys and creates the swapchain
+		void recreateSwapchain();
+		
+		//Create the basic generic renderpass
+		// @TODO: Think about and maybe try to implement the new DYNAMIC_RENDERING extension
+		void createContextRenderpass();
 
-		///Vulkan Private Stuff
+		//Pointer to the device
+		Device* p_device;
 
 		//Swapchain things
 		VkSwapchainKHR m_swapchain;
+
+		//Details
+		SwapChainDetails m_scdetails;
+
 		//For depth stuff
 		VkImage m_depthImg;
 		VkImageView m_depthImgView;
@@ -71,15 +75,14 @@ namespace bs
 		//Renderpass
 		VkRenderPass m_renderpass;
 
-		///Other Members
-
 		//For the current index of frame in swapchain or something
-		int currentFrame;
+		u32 currentFrame;
 
 		//For Vulkan getting image index
-		uint32_t imageIndex;
-	};
+		u32 imageIndex;
 
+		friend void resizeCallback(GLFWwindow*, int, int);
+	};
 
 	void resizeCallback(GLFWwindow* window, int width, int height);
 }

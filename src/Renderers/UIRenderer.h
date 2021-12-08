@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 #include <Types/Types.h>
-#include <GPU/Context.h>
+#include <GPU/GPU.h>
 
 
 class UIRenderer
