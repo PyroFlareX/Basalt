@@ -75,7 +75,7 @@ namespace bs::vk
 			throw std::runtime_error("Failed to create instance!");
 		}
 
-		m_instance = instance; //@TODO: Think about undoing this?
+		m_instance = instance;
 		return instance;
 	}
 

@@ -1,5 +1,4 @@
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#pragma once
 
 #include <vector>
 #include <memory>
@@ -55,9 +54,6 @@ public:
 	{
 		shouldClose = true;
 	}
-
-protected:
-
 private:
     std::unique_ptr<Basestate>& currentState();
 
@@ -80,5 +76,3 @@ private:
 	bool shouldClose;
 };
 
-
-#endif // APPLICATION_H

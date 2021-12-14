@@ -36,17 +36,14 @@ namespace bs
 		{
 			auto& framebuf = *reinterpret_cast<vk::FramebufferData*>(ptr);
 		
-			framebuf.handle =	m_scdetails.swapChainFramebuffers;
-			framebuf.imgView =	m_scdetails.swapChainImageViews.at(0);
-			framebuf.size = 	getWindowSize();
+			framebuf.handle		=	m_scdetails.swapChainFramebuffers;
+			framebuf.imgView	=	m_scdetails.swapChainImageViews.at(0);
+			framebuf.size		= 	getWindowSize();
 		}
 
 		VkRenderPass getGenericRenderpass() const;
 
 	private:
-		//Inits ImGui
-		void initImGui();
-
 		//Initializes the swapchain
 		void createSwapchain();
 		//Initializes the depthbuffer

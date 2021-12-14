@@ -1,5 +1,4 @@
-#ifndef Menustate_H
-#define Menustate_H
+#pragma once
 
 #include "../Application.h"
 
@@ -24,5 +23,3 @@ private:
 
 	bs::Transform m_camtransform;
 };
-
-#endif // Menustate_H

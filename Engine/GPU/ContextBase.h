@@ -55,18 +55,14 @@ namespace bs
 		virtual void setSwapchainStuff(void* ptr) = 0;
 		
 	protected:
-		//Optional override, but not necessary
 		//@TODO: consider having a style configurator or smth
-		virtual void initImGui();
+		void initImGui();
+
+		//Update the size of the window
+		void setSize(const bs::vec2i& size);
 
 		//The API handle
 		GLFWwindow* m_window;
-
-		//The name of the window titlebar
-		std::string m_window_name;
-
-		//Size
-		bs::vec2i m_size;
 
 		//Triggered when a refresh of refs is needed externally
 		bool m_needsRefresh;
@@ -74,8 +70,10 @@ namespace bs
 		bool m_wasResized;
 
 	private:
-		//@TODO: Move some stuff into here
+		//The name of the window titlebar
+		std::string m_window_name;
 
-
+		//Size
+		bs::vec2i m_size;
 	};
 }

@@ -48,6 +48,10 @@ namespace bs
 	void ContextBase::initAPI()
 	{
 		initImGui();
+
+		//Init ImGui Style:
+		
+		ImGui::StyleColorsDark();
 	}
 
 	GLFWwindow* ContextBase::getContext()
@@ -115,8 +119,10 @@ namespace bs
 		io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
 		io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
 		io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
+	}
 
-		//Setup style
-		ImGui::StyleColorsDark();
+	void ContextBase::setSize(const bs::vec2i& size)
+	{
+		m_size = size;
 	}
 }

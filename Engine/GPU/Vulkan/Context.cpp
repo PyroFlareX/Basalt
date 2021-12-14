@@ -11,7 +11,7 @@ namespace bs
 	{
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 
-		m_window = glfwCreateWindow( m_size.x, m_size.y, m_window_name.c_str(), nullptr, nullptr);
+		m_window = glfwCreateWindow( getWindowSize().x, getWindowSize().y, getWindowTitle().c_str(), nullptr, nullptr);
 		glfwSetWindowUserPointer(m_window, this);
 	}
 
@@ -56,8 +56,6 @@ namespace bs
 
 		p_device->destroy();
 		
-		//glfwDestroyWindow(m_window);
-		//glfwTerminate();
 		
 		vkDestroyInstance(bs::vk::m_instance, nullptr);
 	}
@@ -173,32 +171,6 @@ namespace bs
 		return m_renderpass;
 	}
 
-	void VulkanContext::initImGui()
-	{
-		//Start IMGUI init
-		IMGUI_CHECKVERSION();
-		auto* ctximgui = ImGui::CreateContext();
-		ImGui::SetCurrentContext(ctximgui);
-
-		ImGuiIO& io = ImGui::GetIO();
-
-		io.DisplaySize = ImVec2(static_cast<float>(bs::vk::viewportwidth), static_cast<float>(bs::vk::viewportheight));
-		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-		
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		
-		io.KeyMap[ImGuiKey_Space] = GLFW_KEY_SPACE;
-		io.KeyMap[ImGuiKey_Backspace] = GLFW_KEY_BACKSPACE;
-		io.KeyMap[ImGuiKey_RightArrow] = GLFW_KEY_RIGHT;
-		io.KeyMap[ImGuiKey_LeftArrow] = GLFW_KEY_LEFT;
-		io.KeyMap[ImGuiKey_UpArrow] = GLFW_KEY_UP;
-		io.KeyMap[ImGuiKey_DownArrow] = GLFW_KEY_DOWN;
-		io.KeyMap[ImGuiKey_Enter] = GLFW_KEY_ENTER;
-
-		//Setup style
-		ImGui::StyleColorsDark();
-	}
-
 	void VulkanContext::createSwapchain()
 	{
 		//Create Swapchain
@@ -305,8 +277,8 @@ namespace bs
 		
 		bs::vk::viewportwidth = size.x;
 		bs::vk::viewportheight = size.y;
-		m_size = size;
-		ImGui::GetIO().DisplaySize = { static_cast<float>(m_size.x), static_cast<float>(m_size.y) };
+		ImGui::GetIO().DisplaySize = { static_cast<float>(size.x), static_cast<float>(size.y) };
+		setSize(size);
 
 		vkDeviceWaitIdle(p_device->getDevice());
 
