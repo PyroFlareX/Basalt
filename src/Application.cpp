@@ -1,8 +1,7 @@
 #include "Application.h"
 
-#include "Camera.h"
+#include "Renderers/Renderer.h"
 #include "States/Menustate.h"
-
 
 Application::Application()	:	shouldClose(false)
 {
@@ -12,7 +11,7 @@ Application::Application()	:	shouldClose(false)
 	m_states.emplace_back(std::make_unique<Menustate>(*this));
 	
 	// Needed for setup
-	auto* api_context = new bs::VulkanContext("Basalt", bs::vec2i{1280, 720});
+	auto* api_context = new bs::VulkanContext("Voxellium", bs::vec2i{1280, 720});
 	m_context = api_context;
 
 	m_device = new bs::Device();
@@ -128,6 +127,26 @@ void Application::RunLoop()
 	m_states.clear();
 }
 
+void Application::pushState(std::unique_ptr<Basestate> state)
+{
+	m_states.emplace_back(std::move(state));
+}
+
+void Application::pushBackState(std::unique_ptr<Basestate> state)
+{
+	m_statechanges.emplace_back([&]()
+	{
+		m_states.emplace_back(std::move(state));
+		//Swap the back two
+		if(m_states.size() >= 2)
+		{
+			auto& secondToLast = m_states.at(m_states.size() - 2);
+			auto& last = m_states.back();
+			secondToLast.swap(last);
+		}
+	});
+}
+
 void Application::popState()
 {
 	auto change = [&]()
@@ -159,4 +178,9 @@ void Application::handleEvents()
 		change();
 	}
 	m_statechanges.clear();
+}
+
+void Application::requestClose()
+{
+	shouldClose = true;
 }

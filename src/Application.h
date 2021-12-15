@@ -5,7 +5,6 @@
 
 #include <GPU/GPU.h>
 
-#include "Renderers/Renderer.h"
 #include "States/Basestate.h"
 #include "Camera.h"
 
@@ -24,36 +23,20 @@ public:
     //State Stuff
 
 	//Push a state to the back of the queue
-	void pushState(std::unique_ptr<Basestate> state)
-	{
-		m_states.emplace_back(std::move(state));
-	}
+	void pushState(std::unique_ptr<Basestate> state);
 
 	//Safe add
-	void pushBackState(std::unique_ptr<Basestate> state)
-	{
-		auto change = [&]()
-		{
-			m_states.emplace_back(std::move(state));
-			//Swap the back two
-			if(m_states.size() >= 2)
-			{
-				auto& secondToLast = m_states.at(m_states.size() - 2);
-				auto& last = m_states.back();
+	void pushBackState(std::unique_ptr<Basestate> state);
 
-				secondToLast.swap(last);
-			}
-		};
-		m_statechanges.emplace_back(change);
-	}
-
+	//Pop the state at the back
     void popState();
+
+	//Handle any window or other engine events, and does whatever needs to be fixed
     void handleEvents();
-	
-	void requestClose()
-	{
-		shouldClose = true;
-	}
+
+	//Ask for the application to be closed
+	void requestClose();
+
 private:
     std::unique_ptr<Basestate>& currentState();
 
@@ -75,4 +58,3 @@ private:
 
 	bool shouldClose;
 };
-
