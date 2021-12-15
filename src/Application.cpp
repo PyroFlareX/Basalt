@@ -8,7 +8,7 @@ Application::Application()	:	shouldClose(false)
 	bs::asset_manager = new bs::AssetManager();
 
 	// Loading screen
-	m_states.emplace_back(std::make_unique<Menustate>(*this));
+	m_states.emplace(std::make_unique<Menustate>(*this));
 	
 	// Needed for setup
 	auto* api_context = new bs::VulkanContext("Voxellium", bs::vec2i{1280, 720});
@@ -46,7 +46,7 @@ void Application::RunLoop()
 
 	const bs::vec2i winSize = m_context->getWindowSize();
 
-	//Setting icon for the window
+	//Set Window Icon
 	bs::Image icon;
 	icon.loadFromFile("res/papertexture2.png");
 	m_context->setIcon(icon);
@@ -65,13 +65,17 @@ void Application::RunLoop()
 	Input::setupInput();
 
 	auto& jobSystem = bs::getJobSystem();
+	auto& io = ImGui::GetIO();
+
+	GameState currentGamestate(nullptr);
 
 	//Main loop running
 	while(m_context->isOpen() && !m_states.empty() && !shouldClose)
 	{
 		dt = static_cast<float>(clock.restart());
-		auto& io = ImGui::GetIO();
-		auto& current = *currentState().get();
+		//Move current state into different pointer, then move back when finished
+		auto currentGamestate = getCurrentState();
+		auto& current = *currentGamestate;
 
 		///Main Loop, do cycle of Input, Update, Draw, Render & Swap Buffers, Handle Events
 		
@@ -117,6 +121,9 @@ void Application::RunLoop()
 			frames = 0;
 		}
 
+		returnState(std::move(currentGamestate));
+		assert(currentGamestate == nullptr);
+
 		//Handle the window and state events
 		handleEvents();
 	}
@@ -124,41 +131,10 @@ void Application::RunLoop()
 
 	jobSystem.wait(0);
 
-	m_states.clear();
-}
-
-void Application::pushState(std::unique_ptr<Basestate> state)
-{
-	m_states.emplace_back(std::move(state));
-}
-
-void Application::pushBackState(std::unique_ptr<Basestate> state)
-{
-	m_statechanges.emplace_back([&]()
+	while(!m_states.empty())
 	{
-		m_states.emplace_back(std::move(state));
-		//Swap the back two
-		if(m_states.size() >= 2)
-		{
-			auto& secondToLast = m_states.at(m_states.size() - 2);
-			auto& last = m_states.back();
-			secondToLast.swap(last);
-		}
-	});
-}
-
-void Application::popState()
-{
-	auto change = [&]()
-	{
-		m_states.pop_back();
-	};
-	m_statechanges.emplace_back(change);
-}
-
-std::unique_ptr<Basestate>& Application::currentState()
-{
-	return m_states.back();
+		m_states.pop();
+	}
 }
 
 void Application::handleEvents()
@@ -172,15 +148,41 @@ void Application::handleEvents()
 
 		m_context->setRefreshCompleted();
 	}
-
-	for(const auto change : m_statechanges)
-	{
-		change();
-	}
-	m_statechanges.clear();
 }
 
 void Application::requestClose()
 {
 	shouldClose = true;
+}
+
+void Application::pushState(GameState state)
+{
+	m_states.emplace(std::move(state));
+}
+
+void Application::popState()
+{
+	m_states.pop();
+}
+
+Application::GameState& Application::currentState()
+{
+	return m_states.top();
+}
+
+Application::GameState Application::getCurrentState()
+{
+	auto s = std::move(m_states.top()); // Move current state out of the stack
+	m_states.pop();	//Pop the end of the stack because it was moved from
+
+	return s;
+}
+
+void Application::returnState(GameState state)
+{
+	//Don't return if state closes itself
+	if(state->isActive())
+	{
+		m_states.emplace(std::move(state));
+	}
 }

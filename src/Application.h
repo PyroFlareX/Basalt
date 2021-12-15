@@ -8,11 +8,15 @@
 #include "States/Basestate.h"
 #include "Camera.h"
 
+#include <stack>
+
 class Application
 {
 public:
     Application();
     ~Application();
+
+	using GameState = std::unique_ptr<Basestate>;
 
 	//Main loop
     void RunLoop();
@@ -20,30 +24,35 @@ public:
 	//Get the camera
 	Camera& getCamera();
 
-    //State Stuff
+	//Handles any window or engine events, and does whatever needs to be fixed
+    void handleEvents();
+	//Ask for the application to be closed
+	void requestClose();
 
+	///State Stuff
 	//Push a state to the back of the queue
-	void pushState(std::unique_ptr<Basestate> state);
-
-	//Safe add
-	void pushBackState(std::unique_ptr<Basestate> state);
+	void pushState(GameState state);
 
 	//Pop the state at the back
     void popState();
 
-	//Handle any window or other engine events, and does whatever needs to be fixed
-    void handleEvents();
-
-	//Ask for the application to be closed
-	void requestClose();
-
+	//Get a reference to the top state; useful for having two states active at once
+    GameState& currentState();
 private:
-    std::unique_ptr<Basestate>& currentState();
 
-	bs::vk::FramebufferData m_renderFramebuffer;
+	//Get unique ownership of the current state
+	GameState getCurrentState();
+	//Add the current state back into the stack
+	void returnState(GameState state);
 
+	//State storage
+    std::stack<GameState> m_states;
+
+	///Other engine data
 	// Windowing Context
 	bs::ContextBase* m_context;
+	bs::vk::FramebufferData m_renderFramebuffer;
+
 	// Device Context
 	bs::Device* m_device;
 	//Renderer
@@ -51,10 +60,6 @@ private:
 
 	// Camera
 	Camera m_camera;
-
-	//State storage
-    std::vector<std::unique_ptr<Basestate>> m_states;
-	std::vector<std::function<void()>> m_statechanges;
 
 	bool shouldClose;
 };
