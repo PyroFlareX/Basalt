@@ -1,6 +1,5 @@
 #include "Menustate.h"
 
-
 Menustate::Menustate(Application& app) : Basestate(app)
 {
 	m_camtransform.pos = {0.0f, 0.0f, 0.0f};

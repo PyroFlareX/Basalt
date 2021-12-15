@@ -1,9 +1,8 @@
 #pragma once
 
-#include "../Renderers/Renderer.h"
-
 class Application;
 class Camera;
+class Renderer;
 
 class Basestate
 {
@@ -17,19 +16,11 @@ public:
 
 	virtual void render(Renderer& renderer) = 0;
 
-	bool isActive() const
-	{
-		return m_active;
-	}
-
+	constexpr bool isActive() const	{	return m_active;	}
 protected:
 	Application& app;
 
-	void setInactive()
-	{
-		m_active = true;
-	}
-
+	void setInactive()	{	m_active = true;	}
 private:
 	bool m_active;
 };

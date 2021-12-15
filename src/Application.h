@@ -1,14 +1,12 @@
 #pragma once
 
-#include <vector>
 #include <memory>
+#include <stack>
 
 #include <GPU/GPU.h>
 
 #include "States/Basestate.h"
 #include "Camera.h"
-
-#include <stack>
 
 class Application
 {

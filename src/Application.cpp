@@ -21,6 +21,10 @@ Application::Application()	:	shouldClose(false)
 	m_context->setSwapchainStuff(&m_renderFramebuffer);
 
 	m_renderer = new Renderer(m_device, api_context->getGenericRenderpass());
+
+	//Set up input
+	Input::window = m_context->getContext();
+	Input::setupInput();
 }
 
 Application::~Application()
@@ -61,13 +65,8 @@ void Application::RunLoop()
 //===================================================================================
 
 	//Main Loop
-	Input::window = m_context->getContext();
-	Input::setupInput();
-
 	auto& jobSystem = bs::getJobSystem();
 	auto& io = ImGui::GetIO();
-
-	GameState currentGamestate(nullptr);
 
 	//Main loop running
 	while(m_context->isOpen() && !m_states.empty() && !shouldClose)
