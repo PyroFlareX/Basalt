@@ -11,7 +11,6 @@ namespace bs::vk
 		bs::vec2i size;
 	};
 
-
 	class RenderTargetFramebuffer
 	{
 	public:

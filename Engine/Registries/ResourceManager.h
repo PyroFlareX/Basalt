@@ -11,10 +11,11 @@ namespace bs
 	template <typename T, typename keytype = std::string>
 	class ResourceManager
 	{	
-		using MapType = std::unordered_map<keytype, T>;
 	public:
 		ResourceManager() = default;
 		~ResourceManager() = default;
+
+		using MapType = std::unordered_map<keytype, T>;
 
 		void addAsset(const T& a, const keytype& key) noexcept
 		{
@@ -124,10 +125,11 @@ namespace bs
 	template <typename T, typename keytype = short>
 	class ResourceMap
 	{
-		using MapType = std::map<keytype, T>;
 	public:
 		ResourceMap() = default;
 		~ResourceMap() = default;
+
+		using MapType = std::map<keytype, T>;
 
 		void addAsset(T& a, keytype& key) noexcept
 		{

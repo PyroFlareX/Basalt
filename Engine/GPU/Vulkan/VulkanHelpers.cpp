@@ -1,5 +1,12 @@
 #include "VulkanHelpers.h"
 
+#include <functional>
+#include <cstdlib>
+#include <algorithm> //std::min & max
+#include <set>
+#include <iostream>
+#include <stdexcept>
+
 //Engine type resources
 #include "../../Util/Loaders.h"
 #include "../../Resources/Mesh.h"

@@ -8,28 +8,30 @@ namespace bs::vk
 	class Model
 	{
 	public:
-		Model(const bs::Mesh& mesh, bs::Device* dev)	:	m_mesh(mesh)
+		Model(const bs::Mesh& mesh, bs::Device* dev)
 		{
-			addData(m_mesh, dev);
+			addData(mesh, dev);
 		}
+		~Model() = default;
+
 		//Buffer the mesh
-		void addData(bs::Mesh& mesh, bs::Device* dev)
+		void addData(const bs::Mesh& mesh, bs::Device* dev)
 		{
 			BufferDescription vertexBuffer{};
 			vertexBuffer.bufferType = bs::vk::BufferUsage::VERTEX_BUFFER;
 			vertexBuffer.dev = dev;
-			vertexBuffer.size = m_mesh.vertices.size() * sizeof(bs::Vertex);
+			vertexBuffer.size = mesh.vertices.size() * sizeof(bs::Vertex);
 			vertexBuffer.stride = sizeof(bs::Vertex);
-			vertexBuffer.bufferData = m_mesh.vertices.data();
+			vertexBuffer.bufferData = mesh.vertices.data();
 
 			m_vertbuffer = std::make_shared<Buffer>(vertexBuffer);
 
 			BufferDescription indexBuffer{};
 			indexBuffer.bufferType = bs::vk::BufferUsage::INDEX_BUFFER;
 			indexBuffer.dev = dev;
-			indexBuffer.size = m_mesh.indicies.size() * sizeof(unsigned int);;
-			indexBuffer.stride = sizeof(unsigned int);
-			indexBuffer.bufferData = m_mesh.indicies.data();
+			indexBuffer.size = mesh.indicies.size() * sizeof(u32);;
+			indexBuffer.stride = sizeof(u32);
+			indexBuffer.bufferData = mesh.indicies.data();
 
 			m_indexbuffer = std::make_shared<Buffer>(indexBuffer);
 		}
@@ -51,13 +53,8 @@ namespace bs::vk
 		{
 			return m_indexbuffer.get();;
 		}
-
-		~Model() = default;
-
 	private:
 		std::shared_ptr<Buffer> m_vertbuffer;
 		std::shared_ptr<Buffer> m_indexbuffer;
-
-		bs::Mesh m_mesh;
 	};
 }

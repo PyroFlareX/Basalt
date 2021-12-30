@@ -59,7 +59,7 @@ namespace bs
 		return m_textures.getAsset(std::forward<short>(id));
 	}
 
-	size_t AssetManager::getNumTextures() noexcept
+	size_t AssetManager::getNumTextures() const noexcept
 	{
 		return m_textures.getMap().size();
 	}

@@ -40,6 +40,7 @@ namespace bs::vk
 	{
 	public:
 		Buffer(const BufferDescription bufdesc);
+		Buffer(bs::Device& device, const BufferUsage buffer_type, const u64 buffer_size, VmaMemoryUsage usage = VMA_MEMORY_USAGE_CPU_TO_GPU);
 		~Buffer();
 
 		//For size of subtype
@@ -69,7 +70,24 @@ namespace bs::vk
 		void deleteBuffer();
 	private:
 		VkBuffer m_buffer;
-		BufferDescription m_desc;
 		VmaAllocation m_allocation;
+
+		
+		BufferDescription m_desc;
+
+		//Device that the buffer is on
+		bs::Device* dev;
+
+		//Buffer Type
+		BufferUsage bufferType;
+
+		//Number of bytes
+		u64 size = 0;
+
+		//Number of bytes between elements
+		u64 stride = 0;
+
+		//BUFFER Alloc USAGE
+		VmaMemoryUsage usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
 	};
 }

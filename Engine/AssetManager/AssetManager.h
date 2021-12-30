@@ -34,7 +34,7 @@ namespace bs
 
 		bs::vk::Texture& getTextureMutable(short id);
 
-		size_t getNumTextures() noexcept;
+		size_t getNumTextures() const noexcept;
 		
 		//List of textures for pushing data to the gpu
 		const std::vector<bs::vk::texture_t>& getTextures();

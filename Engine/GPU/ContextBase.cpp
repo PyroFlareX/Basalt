@@ -50,7 +50,6 @@ namespace bs
 		initImGui();
 
 		//Init ImGui Style:
-		
 		ImGui::StyleColorsDark();
 	}
 

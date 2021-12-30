@@ -3,6 +3,7 @@
 #include "VulkanHelpers.h"
 
 #include <mutex>
+#include <functional>
 
 namespace bs
 {
@@ -18,7 +19,6 @@ namespace bs
 		void destroy();
 
 		VkDevice& getDevice();
-
 		VkDevice getDevice() const;
 		VkPhysicalDevice getPhysicalDevice() const;
 
@@ -76,5 +76,4 @@ namespace bs
 		//Flag to show if the device was destroyed already
 		bool destroyed;
 	};
-
 }

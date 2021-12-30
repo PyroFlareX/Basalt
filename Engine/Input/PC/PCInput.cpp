@@ -233,7 +233,6 @@ namespace Input
 			glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		}
 
-		
 		return input;
 	}
 

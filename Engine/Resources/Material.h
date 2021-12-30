@@ -7,14 +7,14 @@ namespace bs
     struct Material
     {
         /// Maps
-        short texture_id = 0; //Texture
-        short normal_id = 1; //Normal
+        u16 texture_id = 0; //Texture
+        u16 normal_id = 1;  //Normal
+        u16 tex_id_1 = 0;   //extra id
+        u16 tex_id_2 = 0;   //extra id
         
-        /// Values
-        bs::vec4 diffuse; //Diffuse
-        bs::vec4 ambient; //Ambient
-        bs::vec4 specular; //Specular
-
-
+        /// Lighting
+        vec4 diffuse; //Diffuse
+        vec4 ambient; //Ambient
+        vec4 specular; //Specular
     };
 }

@@ -2,14 +2,7 @@
 
 #include "../../Types/Types.h"
 
-#include <iostream>
-#include <stdexcept>
-#include <functional>
-#include <cstdlib>
-#include <algorithm> //std::min & max
 #include <vector>
-#include <cstdint>
-#include <set>
 #include <optional>
 
 #define GLFW_INCLUDE_VULKAN
@@ -24,10 +17,10 @@ namespace bs
 
 struct QueueFamilyIndices 
 {
-	std::optional<uint32_t> graphicsFamily;
-	std::optional<uint32_t> presentFamily;
+	std::optional<u32> graphicsFamily;
+	std::optional<u32> presentFamily;
 
-	bool isComplete() const
+	inline bool isComplete() const noexcept
 	{
 		return graphicsFamily.has_value() && presentFamily.has_value();
 	}

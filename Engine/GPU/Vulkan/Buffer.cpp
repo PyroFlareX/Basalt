@@ -68,6 +68,12 @@ namespace bs::vk
 		}
 	}
 
+	Buffer::Buffer(bs::Device& device, const BufferUsage buffer_type, const u64 buffer_size, VmaMemoryUsage usage = VMA_MEMORY_USAGE_CPU_TO_GPU)
+	{
+		// @TODO: Implement this buffer API addition constructor thing whatever
+		throw std::runtime_error("Not yet implemented!\n");
+	}
+
 	Buffer::~Buffer()
 	{
 		deleteBuffer();

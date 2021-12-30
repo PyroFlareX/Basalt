@@ -22,12 +22,12 @@ namespace bs::vk
 
 		void destroy();
 
-		texture_t getAPITextureInfo() const
+		texture_t getAPITextureInfo() const noexcept
 		{
 			return texture_t{ textureImg, textureImgView, sampler };
 		}
 
-		bs::Device* getDevice() { return p_device; }
+		bs::Device* getDevice() const noexcept { return p_device; }
 	protected:
 		VkImage textureImg;
 		VkImageView textureImgView;
