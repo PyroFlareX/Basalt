@@ -16,6 +16,9 @@ public:
 
 	virtual void render(Renderer& renderer) = 0;
 
+	virtual void onStateChange() = 0;
+	virtual void loadStateAssets() = 0;
+
 	constexpr bool isActive() const	{	return m_active;	}
 protected:
 	Application& app;
