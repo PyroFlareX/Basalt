@@ -1,5 +1,9 @@
 #include "Device.h"
 
+#include <iostream>
+#include <string>
+#include <set>
+
 namespace bs
 {
 	Device::Device() : destroyed(false), m_resourceCleanupQueue({})
@@ -8,6 +12,7 @@ namespace bs
 		{
 			VK_KHR_SWAPCHAIN_EXTENSION_NAME,
 			// VK_SHADER_INT_16
+			// VK_KHR_16BIT_STORAGE_EXTENSION_NAME
 		};
 
 		optionalDeviceExtensions = 
@@ -24,7 +29,8 @@ namespace bs
 	void Device::init()
 	{
 		int max_score = -1;
-		const auto device_list = getPhysicalDevices();
+		auto device_list = getPhysicalDevices(requiredDeviceExtensions, optionalDeviceExtensions);
+
 		for(const auto& device : device_list)
 		{
 			if(max_score < device.second)
@@ -54,9 +60,9 @@ namespace bs
 			return;
 		}
 
-		for(const auto& resources : m_resourceCleanupQueue)
+		for(const auto& cleanup : m_resourceCleanupQueue)
 		{
-			resources();
+			cleanup();
 		}
 
 		vmaDestroyAllocator(getAllocator());
@@ -212,7 +218,8 @@ namespace bs
 		m_resourceCleanupQueue.emplace_back(function);
 	}
 
-	int Device::getScore(VkPhysicalDevice device) const
+	int Device::getScore(VkPhysicalDevice device, const std::vector<const char*>& requiredDeviceExtensions, 
+							const std::vector<const char*>& optionalDeviceExtensions)
 	{
 		const QueueFamilyIndices indices = vk::findQueueFamilies(device);
 		if(!indices.isComplete())
@@ -294,7 +301,9 @@ namespace bs
 		return score;
 	}
 
-	std::vector<std::pair<VkPhysicalDevice, int>> Device::getPhysicalDevices() const
+	std::vector<std::pair<VkPhysicalDevice, int>> Device::getPhysicalDevices(
+				const std::vector<const char*>& requiredDeviceExtensions, 
+				const std::vector<const char*>& optionalDeviceExtensions)
 	{
 		//Get device count
 		u32 deviceCount = 0;
@@ -316,7 +325,7 @@ namespace bs
 
 		for(const auto& device : devices) 
 		{
-			const auto deviceScore = getScore(device);
+			const auto deviceScore = getScore(device, requiredDeviceExtensions, optionalDeviceExtensions);
 			if(deviceScore < 0)
 			{
 				continue;
@@ -338,16 +347,21 @@ namespace bs
 		QueueFamilyIndices indices = vk::findQueueFamilies(physDevice);
 
 		std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
-		std::set<uint32_t> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+		std::set<u32> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
+		queueCreateInfos.reserve(uniqueQueueFamilies.size());
 
 		float queuePriority = 1.0f;
-		for (uint32_t queueFamily : uniqueQueueFamilies) 
+		for (const auto queueFamily : uniqueQueueFamilies) 
 		{
-			VkDeviceQueueCreateInfo queueCreateInfo{};
-			queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-			queueCreateInfo.queueFamilyIndex = queueFamily;
-			queueCreateInfo.queueCount = 1;
-			queueCreateInfo.pQueuePriorities = &queuePriority;
+			VkDeviceQueueCreateInfo queueCreateInfo
+			{
+				.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+				.pNext = nullptr,
+				.flags = 0,
+				.queueFamilyIndex = queueFamily,
+				.queueCount = 1,
+				.pQueuePriorities = &queuePriority,
+			};
 			queueCreateInfos.push_back(queueCreateInfo);
 		}
 

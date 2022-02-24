@@ -3,6 +3,8 @@
 #include "Device.h"
 #include "../../Util/Loaders.h"
 
+#include <iostream>
+
 const static auto shaderName = "main";
 
 namespace bs::vk

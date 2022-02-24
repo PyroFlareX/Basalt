@@ -82,7 +82,7 @@ namespace bs
 	{
 		ContextBase::update();
 		// Waits to present until the "render finished" semaphore (signal) is "signaled" (when the render is done, the semaphore is triggered by)
-		VkSemaphore signalSemaphore = bs::vk::renderFinishedSemaphores[currentFrame];
+		VkSemaphore& signalSemaphore = bs::vk::renderFinishedSemaphores[currentFrame];
 
 		const VkPresentInfoKHR presentInfo
 		{
@@ -128,7 +128,7 @@ namespace bs
 	{
 		ContextBase::initAPI();
 
-		bs::vk::createInstance("Bathsalts");
+		bs::vk::createInstance("Basalt");
 		bs::vk::createSurface(m_window);
 		p_device->init();
 

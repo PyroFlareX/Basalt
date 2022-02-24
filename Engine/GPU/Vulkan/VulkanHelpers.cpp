@@ -1023,9 +1023,13 @@ namespace bs::vk
 	{
 		QueueFamilyIndices queueFamilyIndices = device.getQueueFamilies();
 
-		VkCommandPoolCreateInfo poolInfo{};
-		poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-		poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
+		const VkCommandPoolCreateInfo poolInfo
+		{
+			.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+			.pNext = nullptr,
+			.flags = 0,
+			.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value(),
+		};
 
 		if(vkCreateCommandPool(device.getDevice(), &poolInfo, nullptr, &commandPool) != VK_SUCCESS) 
 		{

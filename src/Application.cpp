@@ -11,7 +11,7 @@ Application::Application()	:	shouldClose(false)
 	m_states.emplace(std::make_unique<Menustate>(*this));
 	
 	// Needed for setup
-	auto* api_context = new bs::VulkanContext("Voxellium", bs::vec2i{1280, 720});
+	auto* api_context = new bs::VulkanContext("Basalt", bs::vec2i{1280, 720});
 	m_context = api_context;
 
 	m_device = new bs::Device();

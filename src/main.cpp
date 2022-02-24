@@ -1,20 +1,25 @@
 #include <stdexcept>
+#include <iostream>
 #include "Application.h"
 
 int main() 
 {
 	Application app;
 
-	try {
+	try 
+	{
 		app.RunLoop();
 	}
-	catch (const std::exception& e) {
+	catch (const std::exception& e) 
+	{
 		std::cerr << e.what() << std::endl;
-		system("pause");
 		return 1;
 	}
-
-	//std::cout << "End program\n";
+	catch (...)
+	{
+		std::cerr << "There was an uncaught exception thrown!\n";
+		return 1;
+	}
 
 	return 0;
 }

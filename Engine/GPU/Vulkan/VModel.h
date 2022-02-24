@@ -7,6 +7,8 @@ namespace bs::vk
 	// This is a renderable 3D mesh
 	class Model
 	{
+		std::shared_ptr<Buffer> m_vertbuffer;
+		std::shared_ptr<Buffer> m_indexbuffer;
 	public:
 		Model(const bs::Mesh& mesh, bs::Device* dev)
 		{
@@ -20,41 +22,30 @@ namespace bs::vk
 			BufferDescription vertexBuffer{};
 			vertexBuffer.bufferType = bs::vk::BufferUsage::VERTEX_BUFFER;
 			vertexBuffer.dev = dev;
-			vertexBuffer.size = mesh.vertices.size() * sizeof(bs::Vertex);
-			vertexBuffer.stride = sizeof(bs::Vertex);
-			vertexBuffer.bufferData = mesh.vertices.data();
+			vertexBuffer.size = mesh.vertices.size() * sizeof(mesh.vertices[0]);
+			vertexBuffer.stride = sizeof(mesh.vertices[0]);
+			vertexBuffer.bufferData = const_cast<void*>((void*)mesh.vertices.data());
 
 			m_vertbuffer = std::make_shared<Buffer>(vertexBuffer);
 
 			BufferDescription indexBuffer{};
-			indexBuffer.bufferType = bs::vk::BufferUsage::INDEX_BUFFER;
+			indexBuffer.bufferType = BufferUsage::INDEX_BUFFER;
 			indexBuffer.dev = dev;
-			indexBuffer.size = mesh.indicies.size() * sizeof(u32);;
-			indexBuffer.stride = sizeof(u32);
-			indexBuffer.bufferData = mesh.indicies.data();
+			indexBuffer.size = mesh.indicies.size() * sizeof(mesh.indicies[0]);
+			indexBuffer.stride = sizeof(mesh.indicies[0]);
+			indexBuffer.bufferData = const_cast<void*>((void*)mesh.indicies.data());
 
 			m_indexbuffer = std::make_shared<Buffer>(indexBuffer);
 		}
-		/*//Upload Mesh buffers to the GPU
-		void uploadMesh()
-		{
-			for (auto& buffer : m_modelbuffers)
-			{
-				buffer.get()->allocateBuffer();
-			}
-		}*/
 
-		bs::vk::Buffer* getVertexBuffer()
+		Buffer* getVertexBuffer() const
 		{
 			return m_vertbuffer.get();
 		}
 
-		bs::vk::Buffer* getIndexBuffer()
+		Buffer* getIndexBuffer() const
 		{
 			return m_indexbuffer.get();;
 		}
-	private:
-		std::shared_ptr<Buffer> m_vertbuffer;
-		std::shared_ptr<Buffer> m_indexbuffer;
 	};
 }

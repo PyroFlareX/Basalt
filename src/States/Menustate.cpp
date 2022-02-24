@@ -59,7 +59,6 @@ void Menustate::lateUpdate(Camera& cam)
 	cam.follow(m_camtransform);
 }
 
-//called in Application.cpp loop
 void Menustate::render(Renderer& renderer)
 {		
 	for (auto& obj : m_gameObjects)
@@ -69,3 +68,12 @@ void Menustate::render(Renderer& renderer)
 	}
 }
 
+void Menustate::onStateChange()
+{
+
+}
+
+void Menustate::loadStateAssets()
+{
+
+}

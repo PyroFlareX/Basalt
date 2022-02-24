@@ -42,9 +42,12 @@ namespace bs
 		void addCleanupCall(std::function<void()>&& function);
 
 	private:
-		int getScore(VkPhysicalDevice device) const;
+		static int getScore(VkPhysicalDevice device, const std::vector<const char*>& requiredDeviceExtensions, 
+								const std::vector<const char*>& optionalDeviceExtensions);
 
-		std::vector<std::pair<VkPhysicalDevice, int>> getPhysicalDevices() const;
+		static std::vector<std::pair<VkPhysicalDevice, int>> getPhysicalDevices(
+				const std::vector<const char*>& requiredDeviceExtensions, 
+				const std::vector<const char*>& optionalDeviceExtensions);
 
 		void createDevice();
 
