@@ -2,6 +2,9 @@
 glm/0.9.9.8
 glfw/3.3.4
 imgui/1.83
+#spirv-cross/cci.20211113
+#glslang/11.7.0
+#openvr/1.16.8
 
 [generators]
 cmake
