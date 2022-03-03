@@ -1,5 +1,7 @@
 #include "Texture.h"
 
+#include "Device.h"
+
 namespace bs::vk
 {
 	Texture::Texture(bs::Device* device)	:	p_device(device)
@@ -8,6 +10,7 @@ namespace bs::vk
 		m_textureImg = VK_NULL_HANDLE;
 		m_textureImgView = VK_NULL_HANDLE;
 		m_sampler = VK_NULL_HANDLE;
+		m_textureAllocation = VK_NULL_HANDLE;
 	}
 
 	Texture::Texture(bs::Device* device, const bs::Image& img)	:	p_device(device)
@@ -16,8 +19,48 @@ namespace bs::vk
 		m_textureImg = VK_NULL_HANDLE;
 		m_textureImgView = VK_NULL_HANDLE;
 		m_sampler = VK_NULL_HANDLE;
+		m_textureAllocation = VK_NULL_HANDLE;
 
 		loadFromImage(img);
+	}
+
+	Texture::Texture(Texture&& rval) :	p_device(rval.p_device), m_textureImg(rval.m_textureImg),
+		m_textureImgView(rval.m_textureImgView), m_textureAllocation(rval.m_textureAllocation),
+		m_sampler(rval.m_sampler)
+	{
+		rval.p_device = nullptr;
+		
+		rval.m_textureImg = VK_NULL_HANDLE;
+		rval.m_textureImgView = VK_NULL_HANDLE;
+		rval.m_sampler = VK_NULL_HANDLE;
+		rval.m_textureAllocation = VK_NULL_HANDLE;
+	}
+
+	Texture& Texture::operator=(Texture&& rhs)
+	{
+		if(this == &rhs)
+		{	//Self Assignmnet guard
+			return *this;
+		}
+		this->destroy();
+		this->p_device = rhs.p_device;
+		this->m_textureImg = rhs.m_textureImg;
+		this->m_textureImgView = rhs.m_textureImgView;
+		this->m_sampler = rhs.m_sampler;
+		this->m_textureAllocation = rhs.m_textureAllocation;
+
+		rhs.p_device = nullptr;
+		rhs.m_textureImg = VK_NULL_HANDLE;
+		rhs.m_textureImgView = VK_NULL_HANDLE;
+		rhs.m_sampler = VK_NULL_HANDLE;
+		rhs.m_textureAllocation = VK_NULL_HANDLE;
+
+		return *this;
+	}
+
+	Texture::~Texture()
+	{
+		destroy();
 	}
 
 	void Texture::loadFromImage(const bs::Image& img)
@@ -56,26 +99,14 @@ namespace bs::vk
 
 		const size_t sizeImg = sizeof(bs::u8vec4) * img.getSize().x * img.getSize().y;
 
-		//Copy the address to this ptr
-		void* dataPtr = nullptr;
-		{
-			const auto* imgptr = img.getPixelsPtr();
-			memcpy(&dataPtr, &imgptr, sizeof(imgptr));
-			assert(dataPtr == imgptr);
-		}
-
-		bs::vk::BufferDescription bufdesc;
-		bufdesc.bufferType = bs::vk::TRANSFER_BUFFER;
-		bufdesc.dev = p_device;
-		bufdesc.size = sizeImg;
-		bufdesc.stride = 4;
-		bufdesc.bufferData = dataPtr;
-		auto stagingbuffer = std::make_unique<bs::vk::Buffer>(bufdesc);
+		auto stagingbuffer = std::make_shared<bs::vk::Buffer>(p_device, bs::vk::TRANSFER_BUFFER, sizeImg, sizeof(bs::u8vec4), img.getPixelsPtr());
 
 		vmaCreateImage(p_device->getAllocator(), &image, &imgAllocInfo, &m_textureImg, &m_textureAllocation, nullptr);
 		
-		p_device->submitImmediate([&](VkCommandBuffer cmd) 
+		auto textureImg = m_textureImg;	//Just a workaround
+		p_device->submitImmediate([stagingbuffer, image, textureImg](VkCommandBuffer cmd) 
 		{
+			auto m_textureImg = textureImg;	//Just a workaround
 			VkImageSubresourceRange range;
 			range.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 			range.baseMipLevel = 0;
@@ -148,9 +179,14 @@ namespace bs::vk
 	void Texture::destroy()
 	{
 		vkDestroySampler(p_device->getDevice(), m_sampler, nullptr);
+		m_textureImgView = VK_NULL_HANDLE;
 		
 		vkDestroyImageView(p_device->getDevice(), m_textureImgView, nullptr);
+		m_sampler = VK_NULL_HANDLE;
+
 		vmaDestroyImage(p_device->getAllocator(), m_textureImg, m_textureAllocation);
+		m_textureImg = VK_NULL_HANDLE;
+		m_textureAllocation = VK_NULL_HANDLE;
 	}
 
 	bs::Device* Texture::getDevice() const noexcept

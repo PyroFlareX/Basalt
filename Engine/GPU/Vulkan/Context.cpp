@@ -4,6 +4,8 @@
 #include "VulkanHelpers.h"
 #include <GLFW/glfw3.h>
 
+#include <iostream>
+#include <stdexcept>
 
 namespace bs
 {
@@ -60,9 +62,9 @@ namespace bs
 		vkDestroyInstance(bs::vk::m_instance, nullptr);
 	}
 
-	void VulkanContext::clear()
+	void VulkanContext::beginFrame()
 	{
-		ContextBase::clear();
+		ContextBase::beginFrame();
 
 		// Acquire the INDEX into the swapchain for the next image
 		VkResult result = vkAcquireNextImageKHR(p_device->getDevice(), m_swapchain, UINT64_MAX, bs::vk::imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
@@ -78,9 +80,9 @@ namespace bs
 		}
 	}
 
-	void VulkanContext::update()
+	void VulkanContext::present()
 	{
-		ContextBase::update();
+		ContextBase::present();
 		// Waits to present until the "render finished" semaphore (signal) is "signaled" (when the render is done, the semaphore is triggered by)
 		VkSemaphore& signalSemaphore = bs::vk::renderFinishedSemaphores[currentFrame];
 
@@ -128,9 +130,17 @@ namespace bs
 	{
 		ContextBase::initAPI();
 
-		bs::vk::createInstance("Basalt");
+		bs::vk::createInstance(this->getWindowTitle());
 		bs::vk::createSurface(m_window);
-		p_device->init();
+		
+		try
+		{
+			p_device->init();
+		}
+		catch(const std::exception& e)
+		{
+			std::cerr << e.what() << '\n';
+		}
 
 		createContextRenderpass();
 		createSwapchain();
@@ -141,7 +151,12 @@ namespace bs
 		bs::vk::inFlightFences.resize(bs::vk::NUM_SWAPCHAIN_FRAMEBUFFERS);
 		bs::vk::imagesInFlight.resize(m_scdetails.swapChainImages.size(), VK_NULL_HANDLE);
 
-		constexpr VkSemaphoreCreateInfo semaphoreInfo{ .sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO };
+		constexpr VkSemaphoreCreateInfo semaphoreInfo
+		{ 
+			.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO,
+			.pNext = nullptr,
+			.flags = 0,
+		};
 
 		constexpr VkFenceCreateInfo fenceInfo
 		{

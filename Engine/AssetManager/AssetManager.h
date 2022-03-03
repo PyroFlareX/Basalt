@@ -21,28 +21,25 @@ namespace bs
 		AssetManager();
 		~AssetManager();
 
-		void addTexture(bs::vk::Texture& texture, short id) noexcept;
-
-		void addModel(bs::vk::Model& model, const std::string& id) noexcept;
-		void addModel(bs::vk::Model&& model, const std::string& id) noexcept;
-
-		void addBuffer(std::shared_ptr<bs::vk::Buffer> buffer, const std::string& id) noexcept;
-
-		void addImg(bs::Image& img, const std::string& id) noexcept;
-
+		//Textures stuff
+		void addTexture(std::shared_ptr<bs::vk::Texture> texture, short id) noexcept;
 		const bs::vk::Texture& getTexture(short id) const;
-
 		bs::vk::Texture& getTextureMutable(short id);
-
 		size_t getNumTextures() const noexcept;
-		
 		//List of textures for pushing data to the gpu
 		const std::vector<bs::vk::texture_t>& getTextures();
 
+		//Models stuff
+		void addModel(bs::vk::Model& model, const std::string& id) noexcept;
+		void addModel(bs::vk::Model&& model, const std::string& id) noexcept;
 		bs::vk::Model& getModel(const std::string& id);
 
+		//Buffers stuff
+		void addBuffer(std::shared_ptr<bs::vk::Buffer> buffer, const std::string& id) noexcept;
 		std::shared_ptr<bs::vk::Buffer> getBuffer(const std::string& id);
 
+		//Img Stuff
+		void addImg(bs::Image& img, const std::string& id) noexcept;
 		bs::Image& getImage(const std::string& id);
 
 		
@@ -57,7 +54,7 @@ namespace bs
 		ResourceManager<bs::Image> m_images;
 		ResourceManager<bs::Mesh> m_meshes;
 
-		ResourceMap<bs::vk::Texture> m_textures;	//Ordered Map
+		ResourceMap<std::shared_ptr<bs::vk::Texture>> m_textures;	//Ordered Map
 		ResourceManager<bs::vk::Model> m_models;
 		ResourceManager<bs::Material> m_materials;
 		ResourceManager<std::shared_ptr<bs::vk::Buffer>> m_buffers;

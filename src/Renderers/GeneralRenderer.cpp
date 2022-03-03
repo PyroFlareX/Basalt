@@ -138,15 +138,17 @@ void GeneralRenderer::render(Camera& cam)
 			0	//forth is ???
 		};
 		
-		vkCmdPushConstants(cmd_buf, m_pipelineLayout,
-			VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, sizeof(PushConstantsStruct), &pushconst);
+		vkCmdPushConstants(cmd_buf, m_pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 
+							0, sizeof(PushConstantsStruct), &pushconst);
+
+		bs::vk::Model& model = bs::asset_manager->getModel(std::move(m_queue.at(i).model_id));
 
 		VkDeviceSize offset = 0;
-		vkCmdBindVertexBuffers(cmd_buf, 0, 1, &bs::asset_manager->getModel(std::move(m_queue.at(i).model_id)).getVertexBuffer()->getAPIResource(), &offset);
+		vkCmdBindVertexBuffers(cmd_buf, 0, 1, &model.getVertexBuffer()->getAPIResource(), &offset);
 		
-		vkCmdBindIndexBuffer(cmd_buf, bs::asset_manager->getModel(std::move(m_queue.at(i).model_id)).getIndexBuffer()->getAPIResource(), offset, VK_INDEX_TYPE_UINT32);
+		vkCmdBindIndexBuffer(cmd_buf, model.getIndexBuffer()->getAPIResource(), offset, VK_INDEX_TYPE_UINT32);
 
-		vkCmdDrawIndexed(cmd_buf, bs::asset_manager->getModel(std::move(m_queue.at(i).model_id)).getIndexBuffer()->getNumElements(), 1, 0, 0, 0);
+		vkCmdDrawIndexed(cmd_buf, model.getIndexBuffer()->getNumElements(), 1, 0, 0, 0);
 
 		if(vkEndCommandBuffer(cmd_buf) != VK_SUCCESS)
 		{

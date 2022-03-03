@@ -51,6 +51,18 @@ namespace bs
 		vmaCreateAllocator(&allocatorInfo, &m_allocatorVMA);
 
 		bs::vk::createCommandPool(*this, m_pool);
+
+		constexpr VkFenceCreateInfo fenceInfo
+		{
+			.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO,
+			.pNext = nullptr,
+			.flags = VK_FENCE_CREATE_SIGNALED_BIT,
+		};
+		VkResult result = vkCreateFence(device, &fenceInfo, nullptr, &m_uploadFence);
+		if(result != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create synchronization fence for uploads!");
+		}
 	}
 
 	void Device::destroy()
@@ -156,9 +168,15 @@ namespace bs
 		i = (i + 1) % bs::vk::NUM_SWAPCHAIN_FRAMEBUFFERS;
 	}
 	//NO GFX STUFF BC BREAKS AND SYNCH AND PAIN AND CRASHED DRIVERS
-	void Device::submitImmediate(std::function<void(VkCommandBuffer cmd)>&& function)
+	void Device::submitImmediate(std::function<void(VkCommandBuffer cmd)>&& submitCmd)
 	{
-		VkCommandBuffer cmdbuffer;
+		constexpr VkCommandBufferBeginInfo beginInfo
+		{
+			.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
+			.pNext = nullptr,
+			.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
+			.pInheritanceInfo = nullptr,
+		};
 
 		const VkCommandBufferAllocateInfo allocInfo
 		{
@@ -168,23 +186,20 @@ namespace bs
 			.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
 			.commandBufferCount = 1,
 		};
+		
+		VkCommandBuffer cmdbuffer;
 
-		if (vkAllocateCommandBuffers(device, &allocInfo, &cmdbuffer) != VK_SUCCESS) 
+		//Lock access to the cmd buffer and the queue
+		std::lock_guard<std::mutex> g_guard(m_device_lock);
+
+		if(vkAllocateCommandBuffers(device, &allocInfo, &cmdbuffer) != VK_SUCCESS) 
 		{
 			throw std::runtime_error("Failed to allocate command buffers!");
 		}
 
-		constexpr VkCommandBufferBeginInfo beginInfo
-		{
-			.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO,
-			.pNext = nullptr,
-			.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT,
-			.pInheritanceInfo = nullptr,
-		};
-
 		vkBeginCommandBuffer(cmdbuffer, &beginInfo);
 
-		function(cmdbuffer);
+		submitCmd(cmdbuffer);
 
 		vkEndCommandBuffer(cmdbuffer);
 
@@ -203,12 +218,21 @@ namespace bs
 			.signalSemaphoreCount = 0,
 			.pSignalSemaphores = nullptr,
 		};
+		
+		// vkQueueWaitIdle(graphicsQueue);
+
+		//Order is reset-submit-wait because the buffers for transferring are in the lifetime of
+		//		the lambda passed
+		vkResetFences(device, 1, &m_uploadFence);
+
+		vkQueueSubmit(graphicsQueue, 1, &submitInfo, m_uploadFence);
+
+		vkWaitForFences(device, 1, &m_uploadFence, VK_TRUE, UINT64_MAX);
+
+		// vkQueueWaitIdle(graphicsQueue);
 
 
-		vkQueueWaitIdle(graphicsQueue);
-		vkQueueSubmit(graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(graphicsQueue);
-
+		//vkFreeCommandBuffers(device, m_pool, 1, &cmdbuffer);
 		vkResetCommandPool(device, m_pool, 0);
 	}
 

@@ -1,13 +1,14 @@
 #pragma once
 
-#include "../../Resources/Mesh.h"
+#include "VulkanHelpers.h"
 
-#include "Device.h"
+#include "../../Types/BaseInheritables.h"
+#include "../../Resources/Mesh.h"
 
 namespace bs::vk 
 {
 	//Type of buffer
-	typedef enum BufferUsage
+	enum BufferUsage
 	{
 		VERTEX_BUFFER = 1 << 0,
 		INDEX_BUFFER = 1 << 1,
@@ -15,7 +16,7 @@ namespace bs::vk
 		STORAGE_BUFFER = 1 << 3,
 		INDIRECT_BUFFER = 1 << 4,
 		TRANSFER_BUFFER = 1 << 5
-	} BufferUsage;
+	};
 
 	//Describes the layout of the buffer
 	struct BufferDescription
@@ -40,7 +41,7 @@ namespace bs::vk
 	{
 	public:
 		Buffer(const BufferDescription bufdesc);
-		Buffer(bs::Device& device, const BufferUsage buffer_type, const u64 buffer_size, VmaMemoryUsage usage = VMA_MEMORY_USAGE_CPU_TO_GPU);
+		Buffer(bs::Device* dev, const BufferUsage buf, const u64 size, const u64 stride = 1, const void* data = nullptr, VmaMemoryUsage usage = VMA_MEMORY_USAGE_CPU_TO_GPU);
 		~Buffer();
 
 		//For size of subtype
@@ -72,22 +73,22 @@ namespace bs::vk
 		VkBuffer m_buffer;
 		VmaAllocation m_allocation;
 
-		
-		BufferDescription m_desc;
-
 		//Device that the buffer is on
-		bs::Device* dev;
+		bs::Device* p_device;
 
 		//Buffer Type
 		BufferUsage bufferType;
 
 		//Number of bytes
-		u64 size = 0;
+		u64 size;
 
 		//Number of bytes between elements
-		u64 stride = 0;
+		u64 stride;
+
+		//Pointer
+		void* bufferData;
 
 		//BUFFER Alloc USAGE
-		VmaMemoryUsage usage = VMA_MEMORY_USAGE_CPU_TO_GPU;
+		VmaMemoryUsage usage;
 	};
 }

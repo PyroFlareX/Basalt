@@ -3,22 +3,23 @@
 #include <imgui.h>
 #include <algorithm>
 
-constexpr int numDescriptors = 8;
+constexpr auto numDescriptors = 8;
+
+constexpr auto fontTextureID = 0;
 
 Renderer::Renderer(bs::Device* renderingDevice, VkRenderPass genericPass)	: device(renderingDevice), m_renderpassdefault(genericPass)
 {
 	//Add textures
 	//Create image + texture
-	bs::vk::Texture font(device);
+	auto font = std::make_shared<bs::vk::Texture>(device);
 	//Adds empty texture, gets updated later, index 0 is the font texture
-	bs::asset_manager->addTexture(font, 0);	
+	bs::asset_manager->addTexture(font, fontTextureID);	
 	
 	//Blank white img
 	const bs::Image imgblank({32, 32}, bs::u8vec4(255));
 
 	// Duping img
-	bs::vk::Texture texture(device);
-	texture.loadFromImage(imgblank);
+	auto texture = std::make_shared<bs::vk::Texture>(device, imgblank);
 	//Adding black white image for texture index 1
 	bs::asset_manager->addTexture(texture, 1);
 
@@ -40,8 +41,8 @@ Renderer::Renderer(bs::Device* renderingDevice, VkRenderPass genericPass)	: devi
 			}
 		}
 	}
-	bs::vk::Texture textureblank(device);
-	textureblank.loadFromImage(notFoundImg);
+	
+	auto textureblank = std::make_shared<bs::vk::Texture>(device, notFoundImg);
 	//Adding a diagonal purple texture for index 2
 	bs::asset_manager->addTexture(textureblank, 2);
 
@@ -101,42 +102,29 @@ Renderer::~Renderer()
 
 void Renderer::initGUI()
 {
-	//Init IMGUI
-	ImGuiIO& io = ImGui::GetIO();
-	//IMGUI STUFF
-	{
-		bs::vk::BufferDescription vbufdesc = {};
-		vbufdesc.bufferType = bs::vk::VERTEX_BUFFER;
-		vbufdesc.dev = device;
-		vbufdesc.stride = sizeof(ImDrawVert);
-		vbufdesc.size = 500;
-		
-		bs::vk::BufferDescription ibufdesc = {};
-		ibufdesc.bufferType = bs::vk::INDEX_BUFFER;
-		ibufdesc.dev = device;
-		ibufdesc.stride = sizeof(ImDrawIdx);
-		ibufdesc.size = 500;
+	//Create the ImGui Vertex Buffer
+	auto guiVert = std::make_shared<bs::vk::Buffer>(device, bs::vk::VERTEX_BUFFER, 500, sizeof(ImDrawVert));
+	bs::asset_manager->addBuffer(guiVert, "GUIvert");
 
-		////Create the ImGui Vertex Buffer
-		bs::asset_manager->addBuffer(std::make_shared<bs::vk::Buffer>(vbufdesc), "GUIvert");
-
-		//Create the ImGui Index Buffer
-		bs::asset_manager->addBuffer(std::make_shared<bs::vk::Buffer>(ibufdesc), "GUIindex");
-	}
-
+	//Create the ImGui Index Buffer
+	auto guiIndex = std::make_shared<bs::vk::Buffer>(device, bs::vk::INDEX_BUFFER, 500, sizeof(ImDrawIdx));
+	bs::asset_manager->addBuffer(guiIndex, "GUIindex");
+	
 	//IMGUI FONT STUFF
-	{
-		bs::Image imgfont;
-		unsigned char* fontData;
-		bs::vec2i fontsize;
-		io.Fonts->AddFontDefault();
-		io.Fonts->GetTexDataAsRGBA32(&fontData, &fontsize.x, &fontsize.y);
-		imgfont.create(fontsize.x, fontsize.y, (bs::u8vec4*)fontData);
-		
-		bs::vk::Texture& font = bs::asset_manager->getTextureMutable(0);
-		font.loadFromImage(imgfont);
-		bs::asset_manager->addImg(imgfont, "font");
-	}
+	ImGuiIO& io = ImGui::GetIO();
+
+	u8* fontData;
+	bs::vec2i fontsize;
+
+	//Add font
+	io.Fonts->AddFontDefault();
+	io.Fonts->GetTexDataAsRGBA32(&fontData, &fontsize.x, &fontsize.y);
+
+	//Font Image Data
+	const bs::Image imgfont(fontsize, (bs::u8vec4*)fontData);
+	//Font to the texture
+	io.Fonts->SetTexID(bs::cast(fontTextureID));
+	bs::asset_manager->getTextureMutable(fontTextureID).loadFromImage(imgfont);
 }
 
 void Renderer::drawObject(const bs::GameObject& entity)
@@ -148,7 +136,6 @@ void Renderer::drawText()
 {
 	m_UIRenderer->addText("Example Text", {500, 500});
 }
-
 
 void Renderer::render(Camera& cam)
 {
@@ -474,15 +461,15 @@ void Renderer::initDescriptorSetBuffers(const std::vector<DescriptorSetInfo>& se
 	// Descriptor Set Buffers:
 
 	// Uniform buffer
-	bs::vk::BufferDescription uniform;
+	/*bs::vk::BufferDescription uniform;
 	uniform.bufferType = bs::vk::BufferUsage::UNIFORM_BUFFER;
 	uniform.dev = device;
 	uniform.size = sizeof(MVP);
 	uniform.stride = sizeof(bs::mat4);
-	uniform.bufferData = &uniformbufferthing;
-	bs::asset_manager->addBuffer(std::make_shared<bs::vk::Buffer>(uniform), "MVP");
+	uniform.bufferData = &uniformbufferthing;*/
+	bs::asset_manager->addBuffer(std::make_shared<bs::vk::Buffer>(device, bs::vk::BufferUsage::UNIFORM_BUFFER, 
+									sizeof(MVP), sizeof(bs::mat4), &uniformbufferthing), "MVP");
 	auto mvp_buffer = bs::asset_manager->getBuffer("MVP");
-
 
 	//NOW Update the descriptor sets
 	VkWriteDescriptorSet basicWrite;

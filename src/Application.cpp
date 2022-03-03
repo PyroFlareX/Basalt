@@ -79,7 +79,7 @@ void Application::RunLoop()
 		///Main Loop, do cycle of Input, Update, Draw, Render & Swap Buffers, Handle Events
 		
 		/// Clear
-		m_context->clear();
+		m_context->beginFrame();
 		m_renderer->clearQueue();
 		
 		/// Input
@@ -102,7 +102,7 @@ void Application::RunLoop()
 		/// Submitting the data to the GPU and actually drawing/updating display
 		m_renderer->finish(m_renderFramebuffer, frames % m_renderFramebuffer.handle.size());
 		jobSystem.wait(0);
-		m_context->update();
+		m_context->present();
 		
 		/// Handle Window Events
 		t += dt;

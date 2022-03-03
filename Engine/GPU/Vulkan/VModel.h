@@ -45,7 +45,7 @@ namespace bs::vk
 
 		Buffer* getIndexBuffer() const
 		{
-			return m_indexbuffer.get();;
+			return m_indexbuffer.get();
 		}
 	};
 }

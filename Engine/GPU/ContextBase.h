@@ -19,9 +19,9 @@ namespace bs
 		virtual void initAPI();
 
 		//Clear screen
-		virtual void clear();
+		virtual void beginFrame();
 		//Swap buffers
-		virtual void update();
+		virtual void present();
 		//Close the window
 		virtual void close();
 

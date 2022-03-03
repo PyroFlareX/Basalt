@@ -1,9 +1,11 @@
 #pragma once
 
-#include "VulkanHelpers.h"
-
 #include <mutex>
 #include <functional>
+
+#include "VulkanHelpers.h"
+#include "Texture.h"
+#include "Buffer.h"
 
 namespace bs
 {
@@ -33,10 +35,14 @@ namespace bs
 		QueueFamilyIndices getQueueFamilies() const;
 		SwapChainSupportDetails getSwapchainDetails() const;
 
+		//Creation Commands
+		vk::Buffer createBuffer();
+		vk::Texture createTexture();
+
 		//Submit GFX work
 		void submitWork(std::vector<VkCommandBuffer>& cmdbuffer);
 		//Submit Data/Cmd buffer to GPU
-		void submitImmediate(std::function<void(VkCommandBuffer cmd)>&& function);
+		void submitImmediate(std::function<void(VkCommandBuffer cmd)>&& submitCmd);
 
 		//Resource Destruction stuff, only use for lazy cleanup, manual/RAII is preferred
 		void addCleanupCall(std::function<void()>&& function);
@@ -61,6 +67,9 @@ namespace bs
 
 		//Command Pool for submission and any other commands needed
 		VkCommandPool m_pool;
+
+		//Fence for waiting on upload cmds
+		VkFence m_uploadFence;
 
 		//Queues
 		VkQueue graphicsQueue;

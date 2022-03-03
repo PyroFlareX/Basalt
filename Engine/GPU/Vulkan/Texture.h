@@ -1,7 +1,9 @@
 #pragma once
 
-#include "Buffer.h"
+#include "VulkanHelpers.h"
 #include "../../Resources/Image.h"
+
+#include "../../Types/BaseInheritables.h"
 
 namespace bs::vk
 {
@@ -12,12 +14,17 @@ namespace bs::vk
 		VkSampler sampler;
 	};
 
-	class Texture
+	class Texture	:	public bs::NonCopyable
 	{
 	public:
 		//@TODO: change these to weak ptrs
 		Texture(bs::Device* device);
 		Texture(bs::Device* device, const bs::Image& img);
+
+		Texture(Texture&& rval);
+		Texture& operator=(Texture&& rhs);		
+
+		virtual ~Texture();
 
 		// Upload the img here
 		void loadFromImage(const bs::Image& img);

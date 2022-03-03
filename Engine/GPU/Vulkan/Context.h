@@ -6,7 +6,6 @@
 #include "Device.h"
 #include "Framebuffer.h"
 #include "VModel.h"
-#include "Texture.h"
 
 
 namespace bs
@@ -21,9 +20,9 @@ namespace bs
 		void initAPI();
 
 		//Clear screen
-		void clear();
-		//Swap buffers
-		void update();
+		void beginFrame();
+		//Present Image to swapchain
+		void present();
 		//Close window 
 		void close();
 

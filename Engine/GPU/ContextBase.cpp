@@ -18,12 +18,12 @@ namespace bs
 		glfwTerminate();
 	}
 
-	void ContextBase::clear()
+	void ContextBase::beginFrame()
 	{
 		glfwPollEvents();
 	}
 	
-	void ContextBase::update()
+	void ContextBase::present()
 	{
 
 	}
