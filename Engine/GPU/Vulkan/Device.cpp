@@ -148,20 +148,12 @@ namespace bs
 			.pSignalSemaphores = signalSemaphores,
 		};
 
-		vkResetFences(device, 1, &bs::vk::inFlightFences[i]);
 		
 		const VkResult result = vkQueueSubmit(graphicsQueue, 1, &submitInfo, bs::vk::inFlightFences[i]);
 		if (result != VK_SUCCESS) 
 		{
 			std::cout << "Queue Submission error: " << result << "\n";
 			throw std::runtime_error("Failed to submit draw command buffer!");
-		}
-		
-		vkQueueWaitIdle(graphicsQueue);
-		
-		if(bs::vk::inFlightFences[i] != VK_NULL_HANDLE) 
-		{
-			vkWaitForFences(device, 1, &bs::vk::inFlightFences[i], VK_TRUE, 500000000);
 		}
 
 		// goes from 0 to the buffer count for the swapchain buffers
@@ -219,20 +211,12 @@ namespace bs
 			.pSignalSemaphores = nullptr,
 		};
 		
-		// vkQueueWaitIdle(graphicsQueue);
-
 		//Order is reset-submit-wait because the buffers for transferring are in the lifetime of
 		//		the lambda passed
 		vkResetFences(device, 1, &m_uploadFence);
-
 		vkQueueSubmit(graphicsQueue, 1, &submitInfo, m_uploadFence);
-
 		vkWaitForFences(device, 1, &m_uploadFence, VK_TRUE, UINT64_MAX);
 
-		// vkQueueWaitIdle(graphicsQueue);
-
-
-		//vkFreeCommandBuffers(device, m_pool, 1, &cmdbuffer);
 		vkResetCommandPool(device, m_pool, 0);
 	}
 

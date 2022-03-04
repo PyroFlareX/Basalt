@@ -274,30 +274,70 @@ void Renderer::pushGPUData(Camera& cam)
 	//Collect textures
 	const auto& textures = bs::asset_manager->getTextures();
 	std::vector<VkDescriptorImageInfo> imageinfo;
+	static std::vector<VkDescriptorImageInfo> prev_infos;
 	imageinfo.reserve(textures.size());
 
 	for(auto i = 0; i < textures.size(); ++i)
 	{
-		VkDescriptorImageInfo imginfo;
-		imginfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-		imginfo.imageView = textures[i].imgviewvk;
-		imginfo.sampler = textures[i].sampler;
-		imageinfo.emplace_back(imginfo);
+		imageinfo.emplace_back(VkDescriptorImageInfo{ 
+			.sampler =  textures[i].sampler,
+			.imageView = textures[i].imgviewvk,
+			.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		});
 	}
 	
-	//Writing Info
-	VkWriteDescriptorSet descWrite[numDescriptors] = {};
+	/**
+	 * @brief 
+	 * Algorithm for updating ONLY the existing textures
+	 * 
+	 * Hold array element and count
+	 * Skip the empty ones [they have VK_NULL_HANDLE]
+	 * OR just use the "blank texture"
+	 */
 
-	descWrite[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-	descWrite[0].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-	descWrite[0].dstSet = m_descsetglobal;
-	descWrite[0].dstBinding = numDescriptors - 1;
-	descWrite[0].dstArrayElement = 0;
-	descWrite[0].descriptorCount = imageinfo.size();
-	descWrite[0].pImageInfo = imageinfo.data();
+	std::vector<VkWriteDescriptorSet> textureWrites;
+	textureWrites.reserve(imageinfo.size());
+	for(auto i = 0; i < imageinfo.size(); ++i)
+	{
+		VkWriteDescriptorSet write;
+		write.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+		write.pNext = nullptr;
+		write.descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		write.dstSet = m_descsetglobal;
+		write.dstBinding = numDescriptors - 1;
+		write.descriptorCount = 1;
+
+		//The element to write to
+		write.dstArrayElement = i;
+
+		//If the image for the index is not there, assign the "blank image" instead
+		if(imageinfo[i].imageView != VK_NULL_HANDLE)
+		{	
+			//Ptr to the image info (array)
+			write.pImageInfo = &imageinfo[i];
+		}
+		else
+		{
+			//An assertion to ensure that the default texure is valid and exists
+			assert(imageinfo.at(1).imageView != VK_NULL_HANDLE);
+			write.pImageInfo = &(imageinfo.at(1));
+		}
+
+		if(i < prev_infos.size())
+		{
+			if(prev_infos[i].imageView == imageinfo[i].imageView)
+			{
+				continue;
+			}
+		}
+
+		textureWrites.emplace_back(write);
+	}
+
+	prev_infos = imageinfo;
 
 	//Update the descriptor to the current texture handles
-	vkUpdateDescriptorSets(device->getDevice(), 1, &descWrite[0], 0, nullptr);
+	vkUpdateDescriptorSets(device->getDevice(), textureWrites.size(), textureWrites.data(), 0, nullptr);
 }
 
 void Renderer::initCommandPoolAndBuffers()

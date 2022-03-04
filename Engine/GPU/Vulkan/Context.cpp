@@ -66,6 +66,10 @@ namespace bs
 	{
 		ContextBase::beginFrame();
 
+		//For frames in flight, wait for previous to have finished
+		vkWaitForFences(p_device->getDevice(), 1, &bs::vk::inFlightFences[currentFrame], VK_TRUE, 500000000);
+		vkResetFences(p_device->getDevice(), 1, &bs::vk::inFlightFences[currentFrame]);
+
 		// Acquire the INDEX into the swapchain for the next image
 		VkResult result = vkAcquireNextImageKHR(p_device->getDevice(), m_swapchain, UINT64_MAX, bs::vk::imageAvailableSemaphores[currentFrame], VK_NULL_HANDLE, &imageIndex);
 

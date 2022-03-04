@@ -87,5 +87,7 @@ namespace bs
 
 		//Flag to show if the device was destroyed already
 		bool destroyed;
+		//other thing
+		u64 frame = 0;
 	};
 }
