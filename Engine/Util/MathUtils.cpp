@@ -3,81 +3,44 @@
 #include <cmath>
 #include <limits>
 
+#include <glm/gtx/euler_angles.hpp>	//Read this again, builds matrices from euler angles
+constexpr bool USE_MATRIX_ANGLE_EULER = false; //for old way, put 'true'
+
 namespace bs
 {
-	//This is borrowed from HackySTL
-	constexpr float midpoint(float a, float b)
+	vec3 fromEulerDegreesToDirection(const vec3 eulerAngle)
 	{
-		constexpr auto _low_limit = std::numeric_limits<float>::min() * 2;
-        constexpr auto _high_limit = std::numeric_limits<float>::max() / 2;
-        const auto _abs_a = abs(a);
-        const auto _abs_b = abs(b);
+		mat4 matrix = mat4(1.0f);	//Identity Matrix
+		constexpr vec4 dir(0.0f, 0.0f, 1.0f, 0.0f); //unit vector pointing forward (z+)
+		
+		//No rotation is just forward
+		const vec3 angles(glm::radians(eulerAngle));
 
-        if (_abs_a <= _high_limit && _abs_b <= _high_limit)
-        {
-            return (a + b) / 2;
-        }
-        else if (_abs_a < _low_limit)
-        {
-            return a + b / 2;
-        }
-    	else if (_abs_b < _low_limit)
-        {
-            return a / 2 + b;
-        }
-        else
-        {
-            return a / 2 + b / 2;
-        }
-	}
-
-	//Parts of impl borrowed from HackySTL
-	constexpr float sqrt(const float& value)
-	{
-		auto mid_val = static_cast<float>(1.0);
-
-        if (value <= static_cast<float>(-0.0))
-        {
-            return 0.0f; //std::numeric_limits<float>::quiet_NaN();
-        }
-    	for (size_t count = 0; count < 10; ++count)
-    	{
-        	auto euler = value / mid_val;
-        	mid_val = midpoint(mid_val, euler);
+		if constexpr(USE_MATRIX_ANGLE_EULER)
+		{
+			matrix = glm::rotate(matrix, angles.x, { 1, 0, 0 }); //rot x
+			matrix = glm::rotate(matrix, angles.y, { 0, 1, 0 }); //rot y
+			matrix = glm::rotate(matrix, angles.z, { 0, 0, 1 }); //rot z
+		}
+		else
+		{
+			matrix = glm::eulerAngleXYZ(angles.x, angles.y, angles.z);
 		}
 
-		return mid_val;
+		return vec3(matrix * dir);
 	}
 
-	constexpr float inversesqrt(const float& value)
-	{
+	vec3 eulerAnglesToAxisAngleRot(const vec3 eulerAngle, float& angle)
+	{	//Currently UNTESTED
+		constexpr vec3 dir(0.0f, 0.0f, 1.0f); //unit vector pointing forward (z+)
 
-		return 1.0f / sqrt(value);
-	}
+		const vec3 angles = glm::radians(eulerAngle);
+		const vec3 rotDirection = fromEulerDegreesToDirection(eulerAngle);
 
-	constexpr float dot(vec3 vec1, vec3 vec2)
-	{
-		vec3 temp = vec1 * vec2;
+		const vec3 normalAxis = glm::cross(dir, rotDirection);
+		angle = glm::acos(dot(angles, rotDirection)); //gets the cos of the angle between norm and result, gets arccos
 
-		return temp.x + temp.y + temp.z;
-	}
-
-	constexpr vec3 normalize(vec3 vec)
-	{
-		return vec * inversesqrt(dot(vec, vec));
-	}
-
-	vec3 fromEulerDegreesToDirection(const vec3 rotEuler)
-	{
-		mat4 matrix = mat4(1.0f);
-
-		matrix = glm::rotate(matrix, glm::radians(rotEuler.x), { 1, 0, 0 });
-		matrix = glm::rotate(matrix, glm::radians(rotEuler.y), { 0, 1, 0 });
-		matrix = glm::rotate(matrix, glm::radians(rotEuler.z), { 0, 0, 1 });
-
-		const vec4 dir = matrix * vec4(0.0f, 0.0f, 1.0f, 0.0f);
-
-		return vec3(dir);
+		return normalAxis;
 	}
 
 	std::optional<float> intersectplane(Ray ray, vec3 planenormal, vec3 planecenter)
