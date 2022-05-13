@@ -4,11 +4,11 @@
 
 #include "../Renderers/Renderer.h"
 
-class Menustate final : public Basestate
+class ExampleScene final : public Basestate
 {
 public:
-    Menustate(Application& app);
-    ~Menustate() override;
+    ExampleScene(Application& app);
+    ~ExampleScene() override;
 
 	//void createObject(bs::Transform& t, const std::string& name);
 	//void removeObject(const std::string& name);

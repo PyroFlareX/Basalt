@@ -1,11 +1,15 @@
 #include "Menustate.h"
 
+#include "ExampleScene.h"
+
 Menustate::Menustate(Application& app) : Basestate(app)
 {
 	m_camtransform.pos = {0.0f, 0.0f, 0.0f};
 	m_camtransform.rot = {0.0f, 0.0f, 0.0f};
 	m_camtransform.scale = {0.0f, 0.0f, 0.0f};
 	m_camtransform.origin = {0.0f, 0.0f, 0.0f};
+
+	menuIndex = 1;
 }
 
 Menustate::~Menustate()
@@ -22,17 +26,18 @@ void Menustate::input(float dt)
 
 void Menustate::update(float dt)
 {
-	static uint8_t menuIndex = 1;
 	constexpr auto windowflag = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar;
 
 	const auto& io = ImGui::GetIO();
-	ImGui::SetNextWindowSize({io.DisplaySize.x / 8, io.DisplaySize.y / 16});
+	ImGui::SetNextWindowSize({io.DisplaySize.x / 8.0f, io.DisplaySize.y / 16.0f});
 
 	if(ImGui::Begin("Main Menu", nullptr, windowflag))
 	{
 		if(ImGui::Button("Start", ImGui::GetContentRegionAvail()))
 		{
-			// app.pushState(std::make_unique</*New State*/>(app));
+			app.pushState(std::make_unique<ExampleScene>(app));
+			std::cout << "Pushed New State!\n";
+			this->setInactive();
 		}
 	}
 

@@ -4,6 +4,8 @@
 #include <string>
 #include <set>
 
+// #include <openvr.h>
+
 namespace bs
 {
 	Device::Device() : destroyed(false), m_resourceCleanupQueue({})
